@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.learning_app.user.chathamkulam">
+
+    <!--Internet permissions-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!--Sms permissions -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!--Storage permissions-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <!--Waiting permissions-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
+
+    <!--Clear Cache file-->
+    <uses-permission android:name="android.permission.CLEAR_APP_CACHE"/>
+
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_home_app"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:configChanges="keyboardHidden|orientation|screenSize">
+
+        <activity android:name="com.learning_app.user.chathamkulam.Registration.SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <activity android:name="com.learning_app.user.chathamkulam.Registration.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+
+       <activity
+            android:name="com.learning_app.user.chathamkulam.Fragments.Drawer"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="Store"
+           android:configChanges="keyboardHidden|orientation|screenSize"/>
+
+        <activity android:name="com.learning_app.user.chathamkulam.Registration.Registration"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name="com.learning_app.user.chathamkulam.Registration.OtpConformation"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name="com.learning_app.user.chathamkulam.Registration.AlreadyRegistered"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name="com.learning_app.user.chathamkulam.Viewer.NSPDFViewer"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name="com.learning_app.user.chathamkulam.PaymentGateway.PaymentGateWay"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+
+        <activity android:name=".Viewer.NormalVideoView"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name=".Viewer.QBPDFViewer"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name=".Fragments.ModuleList"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+
+        <receiver android:name="swarajsaaj.smscodereader.receivers.OtpReader"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="com.learning_app.user.chathamkulam.AlarmReceiver"/>
+
+        <activity android:name=".StoreFilterRecycler"/>
+
+    </application>
+
+</manifest>

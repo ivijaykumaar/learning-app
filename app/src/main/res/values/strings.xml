@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Chathamkulam</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="info_title"> Congratulations!! </string>
+    <string name="info_message" >Thanks for Choosing Chathamkulam learning app.
+        We are all welcome to our organization.Your session will be expired on --- </string>
+
+
+    <string name="expired_title"> Session Expired!! </string>
+    <string name="expired_message" >Dear,
+        Students Your session has been expired please repurchase this,
+        Click "yes" to Repurchase OR Click "No" Continue the old process!
+    </string>
+
+    <string name="first_screen">MAKE LEARNING SIMPLE</string>
+    <string name="second_screen">ANY TIME ANY WHERE!</string>
+
+    <string name="jsonObject">[
+{\"subject_name\":\"Aptitude\", \"amount\":\"0\", \"price_type\":\"Free\", \"free_validity\":\"90\", \"paid_validity\":\"\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/sub_1_0_1.jpg\"},
+{\"subject_name\":\"Analytical Reasoning\", \"amount\":\"0\", \"price_type\":\"Free\", \"free_validity\":\"90\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/sub_1_0_1.jpg\"},
+{\"subject_name\":\"Language Comprehension\", \"amount\":\"0\", \"price_type\":\"Free\", \"free_validity\":\"90\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/sub_1_0_1.jpg\"} ,
+{\"subject_name\":\"Accounting for Managers\", \"amount\":\"0\", \"price_type\":\"Free\", \"free_validity\":\"90\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/sub_2_1_1.jpg\"},
+{\"subject_name\":\"Business Communication\", \"amount\":\"0\", \"price_type\":\"Free\", \"free_validity\":\"90\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/sub_2_1_1.jpg\"},
+{\"subject_name\":\"Business Law\", \"amount\":\"0\", \"price_type\":\"Free\", \"free_validity\":\"90\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/sub_2_1_1.jpg\"},
+{\"subject_name\":\"Subject one details\", \"amount\":\"100\", \"price_type\":\"Paid\", \"free_validity\":\"100\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/default_book_image.png\"} ,
+{\"subject_name\":\"Computer\", \"amount\":\"100\", \"price_type\":\"Paid\", \"free_validity\":\"100\", \"paid_validity\":\"365\", \"file\":\"http:\\/\\/chathamkulam.org\\/backend\\/upload\\/images\\/default_book_image.png\"}
+] </string>
+
+</resources>

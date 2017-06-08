@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_dashboard"
+            android:title="Dashboard"
+            android:icon="@drawable/ic_dashboard" />
+
+        <item
+            android:id="@+id/nav_store"
+            android:title="Store"
+            android:icon="@drawable/ic_store" />
+        <item
+            android:id="@+id/nav_library"
+            android:title="My Library"
+            android:icon="@drawable/ic_libaray" />
+        <item
+            android:id="@+id/nav_dictionary"
+            android:title="Dictionary"
+            android:icon="@drawable/ic_dictionary"/>
+        <item
+            android:id="@+id/nav_calc"
+            android:title="Calculator"
+            android:icon="@drawable/ic_calculator"/>
+        <item
+            android:title="News"
+            android:icon="@drawable/ic_news"/>
+        <item
+            android:title="Feedback"
+           android:icon="@drawable/ic_feedback"/>
+        <item
+            android:id="@+id/nav_money"
+            android:title="Earn Money"
+            android:icon="@drawable/ic_money"/>
+
+        <item
+            android:id="@+id/nav_contact"
+            android:title="Contact"
+            android:icon="@drawable/ic_contact"/>
+
+        <item
+            android:title="Logout"
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"/>
+    </group>
+
+
+</menu>

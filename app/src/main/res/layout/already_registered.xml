@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView android:id="@+id/bg_video_already_reg"
+        android:layout_width="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_height="fill_parent">
+    </VideoView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Verify Your phone Number"
+        android:textColor="#FFFFFF"
+        android:padding="15dp"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/already_ccp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:textSize="16sp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittxt"/>
+
+        <EditText
+            android:id="@+id/NumberEdt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            android:padding="8dp"
+            android:layout_marginLeft="5dp"
+            android:inputType="phone"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/rounded_edittxt"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/proceed_Btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proceed"
+            android:padding="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:background="@drawable/rounded_edittxt"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="24dp"
+            android:textStyle="bold|italic"
+            android:textSize="18sp"
+            android:drawableRight="@drawable/ic_forward"/>
+
+
+    </RelativeLayout>
+
+    </LinearLayout>
+</RelativeLayout>

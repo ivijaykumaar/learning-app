@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <VideoView android:id="@+id/bg_video_otp_conform"
+        android:layout_width="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_height="fill_parent">
+    </VideoView>
+
+    <LinearLayout
+        android:id="@+id/verify_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:padding="15dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Verify"
+            android:textColor="#FFFFFF"
+            android:layout_marginRight="10dp"
+            android:textStyle="bold|italic" />
+
+        <TextView
+            android:id="@+id/verifyNumberEdt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Number"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold|italic"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        tools:ignore="UselessParent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <LinearLayout
+            android:id="@+id/anotherVerify_lay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Waiting to automatically detect an SMS sent to"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold|italic"/>
+
+            <TextView
+                android:id="@+id/currentNumberEdt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Number"
+                android:gravity="center"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold|italic"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" After complete this process your otp will be resend "
+            android:padding="15dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold|italic"/>
+
+        <TextView
+            android:id="@+id/text_Timmer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Timer"
+            android:padding="15dp"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold|italic"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter Your Otp"
+            android:padding="15dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold|italic"/>
+
+        <EditText
+            android:id="@+id/otp_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint=" --- --- "
+            android:padding="15dp"
+            android:textColor="#FFFFFF"
+            android:inputType="number"/>
+
+        <Button
+            android:id="@+id/Btn_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:padding="15dp"
+            android:background="@drawable/rounded_edittxt"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textStyle="bold|italic"
+            android:textSize="18sp"/>
+
+        <Button
+            android:id="@+id/resendOtp_BTn"
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Resend Otp"
+            android:padding="15dp"
+            android:background="@drawable/rounded_edittxt"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textStyle="bold|italic"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+</RelativeLayout>
