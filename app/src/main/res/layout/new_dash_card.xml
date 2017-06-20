@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_width="140dp"
-    android:layout_height="200dp">
+    android:layout_width="160dp"
+    android:layout_height="250dp">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
@@ -24,7 +24,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="162dp"
+                android:layout_height="180dp"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -51,23 +51,24 @@
 
                         <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:gravity="center">
 
                             <ImageView
-                                android:id="@+id/imePdf"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/ic_pdff"
+                                android:id="@+id/iocNotes"
+                                android:layout_width="38dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_pdfff"
                                 android:contentDescription=""
                                 tools:ignore="ContentDescription"
                                 android:layout_alignParentTop="true"
                                 android:layout_centerHorizontal="true" />
 
                             <ImageView
-                                android:id="@+id/imeVideo"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/ic_video"
+                                android:id="@+id/iocVideo"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:src="@drawable/ic_videoo"
                                 tools:ignore="ContentDescription"
                                 android:layout_marginLeft="5dp"
                                 android:layout_alignParentTop="true"
@@ -75,10 +76,10 @@
                                 android:layout_alignParentStart="true" />
 
                             <ImageView
-                                android:id="@+id/imeQB"
-                                android:layout_width="25dp"
-                                android:layout_height="25dp"
-                                android:src="@drawable/ic_quess"
+                                android:id="@+id/iocQB"
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:src="@drawable/ic_quesss"
                                 tools:ignore="ContentDescription"
                                 android:layout_marginRight="5dp"
                                 android:layout_marginEnd="5dp"
@@ -91,54 +92,55 @@
 
                         <RelativeLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:gravity="center">
 
 
                             <TextView
+                                android:id="@+id/txtNotes"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Notes"
-                                android:textSize="8dp"
+                                android:textSize="9dp"
                                 android:textColor="#000"
                                 android:layout_alignParentTop="true"
-                                android:layout_centerHorizontal="true"
-                                android:textStyle="bold|italic"/>
+                                android:layout_centerHorizontal="true"/>
 
                             <TextView
+                                android:id="@+id/txtVideo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Live class"
-                                android:textSize="8dp"
+                                android:textSize="9dp"
                                 android:textColor="#000"
                                 android:layout_marginLeft="3dp"
-                                android:textStyle="bold|italic"
                                 android:layout_alignParentTop="true"
                                 android:layout_alignParentLeft="true"
                                 android:layout_alignParentStart="true" />
 
                             <TextView
+                                android:id="@+id/txtVideoDuration"
+                                android:layout_below="@+id/txtVideo"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="(3.30 hrs)"
+                                android:layout_marginLeft="3dp"
+                                android:textSize="8dp"
+                                android:textColor="#000"/>
+
+                            <TextView
+                                android:id="@+id/txtQbank"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Q/A Bank"
-                                android:textSize="8dp"
+                                android:textSize="9dp"
                                 android:textColor="#000"
                                 android:layout_marginRight="3dp"
-                                android:textStyle="bold|italic"
                                 android:layout_alignParentTop="true"
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentEnd="true" />
 
                         </RelativeLayout>
-
-                        <TextView
-                            android:id="@+id/txtVideoDuration"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="(3.30 hrs)"
-                            android:layout_marginLeft="3dp"
-                            android:textSize="6.5dp"
-                            android:textColor="#000"/>
-
 
                         <View
                             android:layout_width="match_parent"
@@ -154,7 +156,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text=" 1024mb"
-                                android:textStyle="bold"
                                 android:textColor="#000"
                                 android:textSize="6dp"
                                 android:layout_marginRight="5dp"
@@ -169,19 +170,18 @@
                                 android:layout_marginLeft="5dp"
                                 android:textSize="6dp"
                                 android:textColor="#000"
-                                android:textStyle="bold"
                                 android:layout_centerVertical="true"
                                 android:layout_alignParentLeft="true"
                                 android:layout_alignParentStart="true" />
 
                             <ProgressBar
-                                android:id="@+id/barDownloading"
-                                style="?android:attr/progressBarStyleHorizontal"
-                                android:layout_width="50dp"
-                                android:layout_height="10dp"
-                                android:visibility="visible"
-                                android:layout_alignParentTop="true"
-                                android:layout_marginLeft="45dp" />
+                                android:layout_width="60dp"
+                                android:layout_height="3.5dp"
+                                android:layout_marginTop="2.5dp"
+                                android:layout_marginLeft="52dp"
+                                tools:visibility="visible"
+                                style="@android:style/Widget.ProgressBar.Horizontal"
+                                tools:ignore="UnknownId" />
 
                         </RelativeLayout>
 
@@ -193,21 +193,6 @@
 
                     </LinearLayout>
 
-                    <CheckBox
-                        android:id="@+id/checkSubjects"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="#FFFFFF"
-                        android:text="Select"
-                        android:textSize="8dp"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginLeft="-13dp"
-                        android:scaleX="0.60"
-                        android:scaleY="0.60"/>
-
                 </RelativeLayout>
 
             </FrameLayout>
@@ -215,47 +200,34 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FFFFFF">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp">
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"
+                android:padding="5dp">
 
                     <TextView
                         android:id="@+id/txtDuration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="90 Days Trial period"
-                        android:textStyle="bold|italic"
+                        android:text="90 days trial period"
                         android:textColor="#000"
-                        android:textSize="6.5dp"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true" />
+                        android:textSize="12dp"
+                        />
 
                     <TextView
                         android:id="@+id/txtPrice"
-                        android:textStyle="bold|italic"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Rs.100 for 500 Days"
-                        android:textSize="6.5dp"
-                        android:textColor="#000"
-                        android:layout_alignParentRight="true"/>
-
-                </RelativeLayout>
+                        android:text="Rs.100 for 500 days"
+                        android:textSize="11dp"/>
 
                 <TextView
                     android:id="@+id/txtValid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Valid till : 23/12/2017"
-                    android:textColor="#000"
-                    android:textSize="6dp"
-                    android:gravity="center" />
-
+                    android:textSize="10dp"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center"/>
 
             </LinearLayout>
 

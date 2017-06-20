@@ -1,10 +1,14 @@
 package com.learning_app.user.chathamkulam.Registration;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -58,12 +62,23 @@ public class OtpConformation extends AppCompatActivity implements OTPListener {
     public static String CurrentEmail;
     public static String CurrentMobNo;
 
+    private static final int READ_PHONE_STATE = 1;
+    private static String[] PERMISSIONS_READ_PHONE_STATE = {
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.READ_SMS,
+            Manifest.permission.RECEIVE_SMS
+    };
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.otp_conformation);
         OtpReader.bind(this,"DM-MKMIND");
+
+        verifyPermissions(this);
 
         requestQueue = Volley.newRequestQueue(this);
         timerText = (TextView)findViewById(R.id.text_Timmer);
@@ -270,6 +285,20 @@ public class OtpConformation extends AppCompatActivity implements OTPListener {
             timerText.setText(String.format("%02d", minutes)
                     + ":" + String.format("%02d", seconds));
 
+        }
+    }
+
+    private static void verifyPermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_PHONE_STATE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_READ_PHONE_STATE,
+                    READ_PHONE_STATE
+            );
         }
     }
 }

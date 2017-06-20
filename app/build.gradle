@@ -7,8 +7,8 @@ android {
         applicationId "com.learning_app.user.chathamkulam"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 4
-        versionName "4.0"
+        versionCode 7
+        versionName "4.1.0002"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -50,7 +50,7 @@ dependencies {
     //    Third Party Library
     compile 'com.mcxiaoke.volley:library-aar:1.0.0'
     compile 'com.hbb20:ccp:1.7.2'
-    compile 'com.github.barteksc:android-pdf-viewer:2.4.0'
+    compile 'com.github.barteksc:android-pdf-viewer:2.6.1'
     compile 'de.hdodenhof:circleimageview:1.2.1'
     compile 'swarajsaaj:otpreader:1.1'
     compile 'com.rom4ek:arcnavigationview:1.0.3'
@@ -67,4 +67,5 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.7.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.7.3'
 
+    compile 'com.wang.avi:library:2.1.3'
 }

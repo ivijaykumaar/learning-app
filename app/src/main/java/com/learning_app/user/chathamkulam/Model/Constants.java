@@ -28,6 +28,9 @@ public class Constants {
     //   Url of Store to get data
     public static final String STORE_DATA = "http://chathamkulam.org/backend/appStore/subjectDetails.php";
 
+//    Url Test
+    public static final String TEST_URL = "http://chathamkulam.org/backend/appStore/test1.php";
+
     //    Get Downloading details
     public static final String GET_URLS = "http://chathamkulam.org/backend/appStore/download.php";
 

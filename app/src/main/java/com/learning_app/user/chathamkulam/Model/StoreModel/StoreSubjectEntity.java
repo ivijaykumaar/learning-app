@@ -1,10 +1,15 @@
 package com.learning_app.user.chathamkulam.Model.StoreModel;
 
+import android.widget.ProgressBar;
+
 /**
  * Created by Naren on 29-05-2017.
  */
 public class StoreSubjectEntity {
-    private String subject_name, amount, price_type, free_validity, paid_validity, file,id,sub_no;
+    private String subject_name, amount, price_type, free_validity, paid_validity,
+            file,id,sub_no,paid_validity_date,free_validity_date,size,qa_count,file_count,video_count;
+
+    private ProgressBar progressBar;
 
     public StoreSubjectEntity(){}
 
@@ -70,5 +75,61 @@ public class StoreSubjectEntity {
 
     public void setSub_no(String sub_no) {
         this.sub_no = sub_no;
+    }
+
+    public String getPaid_validity_date() {
+        return paid_validity_date;
+    }
+
+    public void setPaid_validity_date(String paid_validity_date) {
+        this.paid_validity_date = paid_validity_date;
+    }
+
+    public String getFree_validity_date() {
+        return free_validity_date;
+    }
+
+    public void setFree_validity_date(String free_validity_date) {
+        this.free_validity_date = free_validity_date;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getQa_count() {
+        return qa_count;
+    }
+
+    public void setQa_count(String qa_count) {
+        this.qa_count = qa_count;
+    }
+
+    public String getFile_count() {
+        return file_count;
+    }
+
+    public void setFile_count(String file_count) {
+        this.file_count = file_count;
+    }
+
+    public String getVideo_count() {
+        return video_count;
+    }
+
+    public void setVideo_count(String video_count) {
+        this.video_count = video_count;
+    }
+
+    public ProgressBar getProgressBar() {
+        return progressBar;
+    }
+
+    public void setProgressBar(ProgressBar progressBar) {
+        this.progressBar = progressBar;
     }
 }

@@ -74,7 +74,7 @@
                     android:id="@+id/editText_PhoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Phone Number"
+                    android:hint="Mobile Number"
                     android:padding="8dp"
                     android:layout_marginLeft="5dp"
                     android:inputType="phone"
@@ -148,7 +148,7 @@
                     android:id="@+id/Btn_submit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Register"
+                    android:text="  Register"
                     android:layout_marginTop="10dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:background="@drawable/rounded_edittxt"
@@ -156,7 +156,6 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
                     android:drawableRight="@drawable/ic_forward"
-                    android:textStyle="bold|italic"
                     android:textSize="18sp"/>
 
 

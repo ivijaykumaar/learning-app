@@ -5,11 +5,37 @@
     android:layout_height="match_parent"
     android:background="#9DC4DA">
 
-    <ListView
-        android:id="@+id/moduleList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#9DC4DA">
 
-    </ListView>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/txtRibbon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="3dp"
+                android:text="Online page you will loss the data!!"
+                android:textStyle="bold|italic"
+                android:gravity="center"
+                android:background="#000"
+                android:textColor="@color/colorAccent"
+                />
+
+
+            <ListView
+                android:id="@+id/moduleList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#9DC4DA">
+
+            </ListView>
+        </LinearLayout>
+
+    </FrameLayout>
 </LinearLayout>

@@ -63,7 +63,13 @@ public class StoreMainListAdapter extends BaseAdapter {
         mViewHolder.txtCountry.setText(storeEntityObjects.getCountry());
         mViewHolder.txtUniversity.setText(storeEntityObjects.getUniversity());
         mViewHolder.txtCourse.setText(storeEntityObjects.getCourse());
-        mViewHolder.txtSemester.setText("Semester  "+storeEntityObjects.getSem_no());
+
+        if (storeEntityObjects.getSem_no().equals("0")){
+            mViewHolder.txtSemester.setText("Semester  N/A");
+        } else {
+
+            mViewHolder.txtSemester.setText("Semester  "+storeEntityObjects.getSem_no());
+        }
 
 //        Finally initializing our adapter
         REStoreList = new ArrayList<>();

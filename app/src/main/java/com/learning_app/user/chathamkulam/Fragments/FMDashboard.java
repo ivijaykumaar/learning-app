@@ -39,6 +39,8 @@ public class FMDashboard extends Fragment {
     ArrayList<DashEntityObjects> mainList;
     JSONArray mainArray;
 
+    String freeValidity;
+    String subject;
     View view;
 
     public FMDashboard() {
@@ -57,6 +59,32 @@ public class FMDashboard extends Fragment {
 
         final MyAsyncTask myAsyncTask = new MyAsyncTask(mainArray,mainList,getActivity());
         myAsyncTask.execute();
+
+//        StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getActivity());
+//        Cursor cursor = storeEntireDetails.groupMainDetails();
+//
+//        if (cursor.getCount() != 0){
+//
+//            if (cursor.moveToFirst()){
+//
+//                do {
+//
+//                    Log.d("#country",cursor.getString(1)+"  ");
+//                    Log.d("#university", cursor.getString(2)+"  ");
+//                    Log.d("#course", cursor.getString(3)+"  ");
+//                    Log.d("#sem", cursor.getString(4)+"  ");
+//                    Log.d("#subject", cursor.getString(5)+"  ");
+//                    subject = cursor.getString(5);
+//                    Log.d("#sub_no", cursor.getString(6)+"  ");
+//                    Log.d("#subject_id", cursor.getString(7)+"  ");
+//                    Log.d("#free_validity", cursor.getString(8)+"  ");
+//                    freeValidity = cursor.getString(8);
+//                    Log.d("#paid_validity", cursor.getString(9)+"  ");
+//                    Log.d("#duration", cursor.getString(10)+"  ");
+//
+//                }while (cursor.moveToNext());
+//            }
+//        }
 
         return view;
     }
@@ -79,7 +107,7 @@ public class FMDashboard extends Fragment {
         super.onPrepareOptionsMenu(menu);
 
         menu.findItem(R.id.menu_share).setVisible(true);
-        menu.findItem(R.id.action_search).setVisible(false);
+        menu.findItem(R.id.action_search).setVisible(true);
 
     }
 
@@ -150,6 +178,12 @@ public class FMDashboard extends Fragment {
                                         subJsonObject.put("subject_name",cursor.getString(5));
                                         subJsonObject.put("subject_id",cursor.getString(6));
                                         subJsonObject.put("subject_no",cursor.getString(7));
+                                        subJsonObject.put("free_validity",cursor.getString(8));
+                                        subJsonObject.put("paid_validity",cursor.getString(9));
+                                        subJsonObject.put("duration",cursor.getString(10));
+                                        subJsonObject.put("video_count",cursor.getString(11));
+                                        subJsonObject.put("notes_count",cursor.getString(12));
+                                        subJsonObject.put("qbank_count",cursor.getString(13));
 
 //                                    Add SubObject To SubArray
                                         subArray.put(subJsonObject);
@@ -213,8 +247,15 @@ public class FMDashboard extends Fragment {
                         dashSubjectEntity.setSubject_name(entityObject.getSubject_details().get(i).getSubject_name());
                         dashSubjectEntity.setSubject_id(entityObject.getSubject_details().get(i).getSubject_id());
                         dashSubjectEntity.setSubject_no(entityObject.getSubject_details().get(i).getSubject_no());
+                        dashSubjectEntity.setFree_validity(entityObject.getSubject_details().get(i).getFree_validity());
+                        dashSubjectEntity.setPaid_validity(entityObject.getSubject_details().get(i).getPaid_validity());
+                        dashSubjectEntity.setDuration(entityObject.getSubject_details().get(i).getDuration());
+                        dashSubjectEntity.setVideo_count(entityObject.getSubject_details().get(i).getVideo_count());
+                        dashSubjectEntity.setNotes_count(entityObject.getSubject_details().get(i).getNotes_count());
+                        dashSubjectEntity.setQbank_count(entityObject.getSubject_details().get(i).getQbank_count());
 
                         Log.d("subjectName: ", entityObject.getSubject_details().get(i).getSubject_name());
+                        Log.d("Duration: ", entityObject.getSubject_details().get(i).getDuration());
                         subList.add(dashSubjectEntity);
                     }
 

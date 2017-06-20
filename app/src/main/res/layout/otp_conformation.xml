@@ -26,17 +26,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Verify"
+            android:textSize="15dp"
             android:textColor="#FFFFFF"
-            android:layout_marginRight="10dp"
-            android:textStyle="bold|italic" />
+            android:layout_marginRight="10dp" />
 
         <TextView
             android:id="@+id/verifyNumberEdt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Number"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold|italic"/>
+            android:text="Mobile Number"
+            android:textSize="15dp"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 
@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:text="Waiting to automatically detect an SMS sent to"
                 android:textColor="#FFFFFF"
-                android:textStyle="bold|italic"/>
+                android:textSize="15dp"/>
 
             <TextView
                 android:id="@+id/currentNumberEdt"
@@ -71,7 +71,7 @@
                 android:text="Number"
                 android:gravity="center"
                 android:textColor="#FFFFFF"
-                android:textStyle="bold|italic"/>
+                android:textSize="15dp" />
 
         </LinearLayout>
 
@@ -81,7 +81,7 @@
             android:text=" After complete this process your otp will be resend "
             android:padding="15dp"
             android:textColor="#FFFFFF"
-            android:textStyle="bold|italic"/>
+            android:textSize="15dp"/>
 
         <TextView
             android:id="@+id/text_Timmer"
@@ -89,9 +89,8 @@
             android:layout_height="wrap_content"
             android:text="Timer"
             android:padding="15dp"
-            android:textSize="20sp"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold|italic"/>
+            android:textSize="25sp"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -99,7 +98,7 @@
             android:text="Enter Your Otp"
             android:padding="15dp"
             android:textColor="#FFFFFF"
-            android:textStyle="bold|italic"/>
+            android:textSize="15dp"/>
 
         <EditText
             android:id="@+id/otp_edit"
@@ -118,7 +117,6 @@
             android:padding="15dp"
             android:background="@drawable/rounded_edittxt"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textStyle="bold|italic"
             android:textSize="18sp"/>
 
         <Button
@@ -131,7 +129,6 @@
             android:background="@drawable/rounded_edittxt"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textStyle="bold|italic"
             android:textSize="18sp"/>
 
     </LinearLayout>

@@ -1,25 +1,30 @@
 package com.learning_app.user.chathamkulam.Adapters;
 
-import android.app.AlertDialog;
+import android.Manifest;
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,11 +36,12 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.learning_app.user.chathamkulam.Fragments.Drawer;
+import com.learning_app.user.chathamkulam.FileCrypto;
 import com.learning_app.user.chathamkulam.Model.AsyncUrl;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreEntityObjects;
-import com.learning_app.user.chathamkulam.PaymentGateway.PaymentGateWay;
+import com.learning_app.user.chathamkulam.ProgressBarTask;
 import com.learning_app.user.chathamkulam.R;
+import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 
@@ -47,9 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.learning_app.user.chathamkulam.AlarmReceiver.deleteRecursive;
 import static com.learning_app.user.chathamkulam.Model.Constants.DOWNLOAD_URL;
-import static com.learning_app.user.chathamkulam.Model.Constants.GET_URLS;
 import static com.learning_app.user.chathamkulam.Model.Constants.PHONENUMBER;
 import static com.learning_app.user.chathamkulam.Model.Constants.SUBSCRIPTION;
 import static com.learning_app.user.chathamkulam.Registration.Registration.deleteCache;
@@ -58,12 +62,11 @@ import static com.learning_app.user.chathamkulam.Registration.Registration.delet
  * Created by User on 5/14/2017.
  */
 
+@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyViewHolder> {
 
     private Context mContext;
     private List<StoreEntityObjects> myList;
-
-    private List<StoreEntityObjects> storeFilterList;
 
     //   Download AsyncUrl variables
     private JSONArray UrlResult = null;
@@ -74,9 +77,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
     private ArrayList<String> name_arrayList;
     private ProgressDialog progressDialog;
 
-    //    File variables
-    private File rootPath;
-
     //    To store Sqlite Database
     private String country;
     private String university;
@@ -85,6 +85,12 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
     private String subject;
     private String subjectId;
     private String subjectNumber;
+    private String freeValidity;
+    private String paidValidity;
+    private String duration;
+    private String videoCount;
+    private String notesCount;
+    private String qbankCount;
     private int defaultImage;
 
     //    Subscription variables
@@ -94,24 +100,41 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
     private int dlcount;
 
+    public int dl_progress;
+
+    private boolean click = true;
+    private CheckingCards checkingCards;
+
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET
+    };
+
+
+    ArrayList<ArrayList<String>> checkDataListObject = new ArrayList<ArrayList<String>>();
+    ArrayList<String> treeCheckList;
+
+    public StoreCardAdapter(Context mContext) {
+        this.mContext = mContext;
+    }
+
     public StoreCardAdapter(Context mContext, List<StoreEntityObjects> entityObjectsList) {
 
 //        Getting all store data
         this.mContext = mContext;
-        this.storeFilterList = entityObjectsList;
         this.myList = entityObjectsList;
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView txtDuration,txtPrice;
+    public static class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView txtDuration,txtPrice,txtVideoDuration,txtNotes,txtQbank,txtVideo;
+        ImageView IocVideo,IocNotes,IocQbank;
         NetworkImageView imageLoader;
-        LinearLayout linearMainLayout,layoutBtn;
+        LinearLayout linearMainLayout;
+        ProgressBar storeBarDownloading;
 
-        Button viewBtn,buyBtn,trialBtn;
-
-        CheckBox checkSubject;
-
-        boolean click = true;
+        CheckBox checkBoxSubject;
 
         MyViewHolder(final View view) {
             super(view);
@@ -119,32 +142,48 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             txtDuration = (TextView) view.findViewById(R.id.txtDuration);
             txtPrice = (TextView)view.findViewById(R.id.txtPrice);
             linearMainLayout = (LinearLayout)view.findViewById(R.id.storeMainLayout);
-            layoutBtn = (LinearLayout)view.findViewById(R.id.layoutBtn);
             imageLoader = (NetworkImageView)view.findViewById(R.id.imageLoader);
-            viewBtn = (Button)view.findViewById(R.id.viewBtn);
-            buyBtn = (Button)view.findViewById(R.id.buyBtn);
-            trialBtn = (Button)view.findViewById(R.id.trailBtn);
-            checkSubject = (CheckBox)view.findViewById(R.id.checkSubjects);
+            txtVideoDuration = (TextView)view.findViewById(R.id.txtVideoDuration);
+            IocVideo = (ImageView)view.findViewById(R.id.iocVideo);
+            IocNotes = (ImageView)view.findViewById(R.id.iocNotes);
+            IocQbank = (ImageView)view.findViewById(R.id.iocQB);
+            txtNotes = (TextView)view.findViewById(R.id.txtNotes);
+            txtQbank = (TextView)view.findViewById(R.id.txtQbank);
+            txtVideo = (TextView)view.findViewById(R.id.txtVideo);
 
-            layoutBtn.setVisibility(View.GONE);
+            storeBarDownloading = (ProgressBar)view.findViewById(R.id.storeBarDownloading);
+
+//            storeBarDownloading.setProgress(50);
+
+//            if (dl_progress != 0){
+//                storeBarDownloading.setProgress(dl_progress);
+//
+//            }else {
+//                storeBarDownloading.setVisibility(View.GONE);
+//                Log.d("Progress bar", String.valueOf(dl_progress));
+//            }
+
+            checkBoxSubject = (CheckBox)view.findViewById(R.id.checkSubjects);
+            checkBoxSubject.setChecked(false);
 
             view.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
+                @Override
+                public void onClick(View view) {
 
-                    if (click){
-
-                        linearMainLayout.setVisibility(View.GONE);
-                        layoutBtn.setVisibility(View.VISIBLE);
-                        click = false;
-                    } else {
-
-                        linearMainLayout.setVisibility(View.VISIBLE);
-                        layoutBtn.setVisibility(View.GONE);
-                        click = true;
-
-                    }
+                    checkBoxSubject.setChecked(true);
                 }
             });
+
+//            IocVideo.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//
+//                    ProgressBarTask task = new ProgressBarTask();
+//                    task.setProgressBar(storeBarDownloading);
+//                    task.execute();
+//
+//                }
+//            });
         }
     }
 
@@ -172,8 +211,133 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
         subject = storeEntityObjects.getSubject_details().get(position).getSubject_name();
 
         holder.imageLoader.setImageUrl(storeEntityObjects.getSubject_details().get(position).getFile(), imageLoader);
+        String videoSize = storeEntityObjects.getSubject_details().get(position).getSize();
 
-        holder.trialBtn.setOnClickListener(new View.OnClickListener() {
+        String[] sizes = videoSize.split(":");
+        String hours = sizes[0];
+        String minute = sizes[1];
+        String seconds = sizes[2];
+
+        if (hours.equals("00")){
+            if (!minute.equals("00")){
+                holder.txtVideoDuration.setText("("+minute+":"+seconds+" Mins"+")");
+            }else{
+                holder.txtVideoDuration.setText("("+minute+":"+seconds+" Secs"+")");
+            }
+        }else{
+            holder.txtVideoDuration.setText("("+videoSize+" Hrs"+")");
+        }
+
+        String video = storeEntityObjects.getSubject_details().get(position).getVideo_count();
+        if (video.equals("0")){
+            holder.IocVideo.setVisibility(View.GONE);
+            holder.txtVideo.setVisibility(View.GONE);
+        }
+
+        final String notes = storeEntityObjects.getSubject_details().get(position).getFile_count();
+        if (notes.equals("0")){
+            holder.IocNotes.setVisibility(View.GONE);
+            holder.txtNotes.setVisibility(View.GONE);
+        }
+
+        String qBank = storeEntityObjects.getSubject_details().get(position).getQa_count();
+        if (qBank.equals("0")){
+            holder.IocQbank.setVisibility(View.GONE);
+            holder.txtQbank.setVisibility(View.GONE);
+        }
+
+        RegisterMember registerMember = RegisterMember.getInstance(mContext);;
+        final Cursor cursorResult = registerMember.getDetails();
+
+        checkingCards = new CheckingCards(mContext);
+//        holder.linearMainLayout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(final View view) {
+//
+//                if (click){
+//
+//                    holder.checkBoxSubject.setChecked(true);
+//
+//                    subject = storeEntityObjects.getSubject_details().get(position).getSubject_name();
+//                    subjectId = storeEntityObjects.getSubject_details().get(position).getId();
+//                    subjectNumber = storeEntityObjects.getSubject_details().get(position).getSub_no();
+//                    semester = storeEntityObjects.getSem_no();
+//                    duration = storeEntityObjects.getSubject_details().get(position).getSize();
+//                    videoCount = storeEntityObjects.getSubject_details().get(position).getVideo_count();
+//                    notesCount = storeEntityObjects.getSubject_details().get(position).getFile_count();
+//                    qbankCount = storeEntityObjects.getSubject_details().get(position).getQa_count();
+//
+//                    if (holder.checkBoxSubject.isChecked()){
+//
+//                        boolean IsEntry = checkingCards.addCheckData(String.valueOf(position),country,university,course,
+//                                semester,subject,subjectId,subjectNumber,duration,videoCount,notesCount,qbankCount);
+//                        if (IsEntry) {
+//
+//                            Log.d("Check subject","Successfully Added");
+//                        } else {
+//                            Log.d("Check subject","Added failed");
+//
+//                        }
+//
+//                        Log.d("databaseValue",position+semester+subject+subjectId+subjectNumber+"  "+duration);
+//
+//                        Cursor cursor = checkingCards.getCheckData();
+//
+//                        while (cursor.moveToNext()) {
+//
+//                            String position = cursor.getString(1);
+//                            String semester = cursor.getString(5);
+//                            String subject = cursor.getString(6);
+//                            String subjectId = cursor.getString(7);
+//                            String subjectNumber = cursor.getString(8);
+//                            String duration = cursor.getString(9);
+//                            String videoCount = cursor.getString(10);
+//                            String notesCount = cursor.getString(11);
+//                            String qbankCount = cursor.getString(12);
+//
+//                            Log.d("check data",position+semester+subject+subjectId+subjectNumber+duration
+//                                    +"  "+videoCount+notesCount+qbankCount);
+//                        }
+//                    }
+//
+//                    click = false;
+//
+//                } else {
+//
+//                    holder.checkBoxSubject.setChecked(false);
+//
+//                    checkingCards.removeUnCheckData(subject);
+//
+//                    Cursor cursor = checkingCards.getCheckData();
+//
+//                    if (cursor.getCount() != 0){
+//
+//                        while (cursor.moveToNext()) {
+//
+//                            String position = cursor.getString(1);
+//                            String semester = cursor.getString(5);
+//                            String subject = cursor.getString(6);
+//                            String subjectId = cursor.getString(7);
+//                            String subjectNumber = cursor.getString(8);
+//                            String duration = cursor.getString(9);
+//                            String videoCount = cursor.getString(10);
+//                            String notesCount = cursor.getString(11);
+//                            String qbankCount = cursor.getString(12);
+//
+//                            Log.d("final data",position+semester+subject+subjectId+subjectNumber+duration+videoCount+notesCount+qbankCount);
+//                        }
+//
+//                    } else {
+//                        Log.d("Cursor result", String.valueOf(cursor.getCount()));
+//                    }
+//
+//                    click = true;
+//                }
+//            }
+//        });
+
+        checkingCards = new CheckingCards(mContext);
+        holder.checkBoxSubject.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -181,88 +345,72 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                 subjectId = storeEntityObjects.getSubject_details().get(position).getId();
                 subjectNumber = storeEntityObjects.getSubject_details().get(position).getSub_no();
                 semester = storeEntityObjects.getSem_no();
+                freeValidity = storeEntityObjects.getSubject_details().get(position).getFree_validity_date();
+                paidValidity = storeEntityObjects.getSubject_details().get(position).getPaid_validity_date();
+                duration = storeEntityObjects.getSubject_details().get(position).getSize();
+                videoCount = storeEntityObjects.getSubject_details().get(position).getVideo_count();
+                notesCount = storeEntityObjects.getSubject_details().get(position).getFile_count();
+                qbankCount = storeEntityObjects.getSubject_details().get(position).getQa_count();
 
-//                put values for download
-                HashMap<String,String> params = new HashMap<String, String>();
-                params.put("sem_no",semester);
-                params.put("id",subjectId);
-                params.put("sub_no",subjectNumber);
-                params.put("type","url");
+                if (holder.checkBoxSubject.isChecked()){
 
-                Log.v("Subject Values",subject+subjectId+subjectNumber+semester);
-                Log.v("Hash Values",params.toString());
-                url_arrayList = new ArrayList<String>();
-                name_arrayList = new ArrayList<String>();
+                    boolean IsEntry = checkingCards.addCheckData(String.valueOf(position),country,university,course,
+                            semester,subject,subjectId,subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
+                    if (IsEntry) {
 
-                AsyncUrl asyncUrl = new AsyncUrl(mContext,params,UrlResult,URL_JSON_ARRAY,
-                        current_url,current_name,url_arrayList,name_arrayList,progressDialog);
-                asyncUrl.execute(GET_URLS);
-
-                progressDialog = ProgressDialog.show(mContext, "Please wait...", "While checking......", true);
-                progressDialog.show();
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-
-                        if (progressDialog.isShowing())
-                            progressDialog.dismiss();
-
-                        Log.v("Check UrlArraylist", String.valueOf(AsyncUrl.url_arrayList.size()));
-                        Log.v("Check NameArraylist", String.valueOf(AsyncUrl.name_arrayList.size()));
-
-                        String DNAME = "Chathamkulam"+"/"+subject;
-                        final File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
-
-                        if (!rootPath.exists()){
-
-                            DownloadFile();
-
-                        } else {
-
-                            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                            builder.setTitle("This file already downloaded!!!");
-                            builder.setMessage("If you want overwrite this file?")
-                                    .setCancelable(false)
-                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-
-                                            deleteRecursive(rootPath);
-
-                                            DownloadFile();
-
-                                        }
-                                    })
-                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int id) {
-                                            dialog.cancel();
-                                        }
-                                    });
-                            AlertDialog alert = builder.create();
-                            alert.show();
-                        }
+                        Log.d("Check subject","Successfully Added");
+                    } else {
+                        Log.d("Check subject","Added failed");
 
                     }
-                }, 10000);
 
-            }
-        });
+                    Log.d("databaseValue",position+semester+subject+subjectId+subjectNumber+"  "+duration);
 
-        holder.buyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                    Cursor cursor = checkingCards.getCheckData();
 
-                mContext.startActivity(new Intent(mContext, PaymentGateWay.class));
-                Toast.makeText(mContext," Please buy our subjects !! ",Toast.LENGTH_SHORT).show();
-            }
-        });
+                    while (cursor.moveToNext()) {
 
-        holder.viewBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                        String position = cursor.getString(1);
+                        String semester = cursor.getString(5);
+                        String subject = cursor.getString(6);
+                        String subjectId = cursor.getString(7);
+                        String subjectNumber = cursor.getString(8);
+                        String duration = cursor.getString(9);
+                        String videoCount = cursor.getString(10);
+                        String notesCount = cursor.getString(11);
+                        String qbankCount = cursor.getString(12);
 
-                Toast.makeText(mContext," Online View!! ",Toast.LENGTH_SHORT).show();
+                        Log.d("check data",position+semester+subject+subjectId+subjectNumber+duration
+                                +"  "+videoCount+notesCount+qbankCount);
+                    }
+
+                } else {
+
+                    checkingCards.removeUnCheckData(subject);
+
+                    Cursor cursor = checkingCards.getCheckData();
+
+                    if (cursor.getCount() != 0){
+
+                        while (cursor.moveToNext()) {
+
+                            String position = cursor.getString(1);
+                            String semester = cursor.getString(5);
+                            String subject = cursor.getString(6);
+                            String subjectId = cursor.getString(7);
+                            String subjectNumber = cursor.getString(8);
+                            String duration = cursor.getString(9);
+                            String videoCount = cursor.getString(10);
+                            String notesCount = cursor.getString(11);
+                            String qbankCount = cursor.getString(12);
+
+                            Log.d("final data",position+semester+subject+subjectId+subjectNumber+duration+videoCount+notesCount+qbankCount);
+                        }
+
+                    } else {
+                        Log.d("Cursor result", String.valueOf(cursor.getCount()));
+                    }
+                }
             }
         });
     }
@@ -272,8 +420,18 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
         return myList.size();
     }
 
+    public void DownloadFile(final Activity activity, final String country, final String university, final String course,
+                             final String semester, final String subject, final String subjectId,
+                             final String subjectNumber, final String free_validity, final String paid_validity, final String duration, final String videoCount,
+                             final String notesCount, final String qbankCount){
 
-    public void DownloadFile(){
+//        Check Android Versions
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion >= 23) {
+
+//             Do something for 23 and above versions
+            verifyStoragePermissions(activity);
+        }
 
         for (int i = 0; i < AsyncUrl.url_arrayList.size(); i++) {
 
@@ -289,6 +447,16 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                 String ModuleName = separated[1];
                 String TopicName = separated[2];
 
+                String[] sepTopic = TopicName.split("-");
+                String finalTopicName = sepTopic[0];
+                String finalTopicLength = sepTopic[1];
+
+                String[] sepLength = finalTopicLength.split(":");
+                String hours = sepLength[0];
+                String minutes = sepLength[1];
+                String seconds = sepLength[2];
+
+
                 String DNAME = "Chathamkulam"+"/"+subject+"/"+ModuleName;
                 File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
                 if(!rootPath.exists()) {
@@ -299,11 +467,11 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                     Log.v("Cannot use storage","Cannot use storage");
                 }
 
-                final File myFinalDir = new File(rootPath,TopicName);
+                final File myFinalDir = new File(rootPath,hours+minutes+seconds+"-"+finalTopicName);
 
                 try {
 
-                    DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+                    final DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
                     Uri uri = Uri.parse(file_Url);
                     Uri destination = Uri.fromFile(myFinalDir);
 
@@ -314,26 +482,87 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                     request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     final Long downloadId = downloadManager.enqueue(request);
 
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            boolean downloading = true;
+
+                            while(downloading){
+
+                                DownloadManager.Query q = new DownloadManager.Query();
+                                q.setFilterById(downloadId);
+
+                                Cursor cursor = downloadManager.query(q);
+                                cursor.moveToFirst();
+
+                                int bytes_downloaded = cursor.getInt(cursor
+                                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+
+                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                                        == DownloadManager.STATUS_SUCCESSFUL) {
+                                    downloading = false;
+                                }
+
+                                int status =cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+
+                                if (status==DownloadManager.STATUS_SUCCESSFUL) {
+                                    Log.d("Download status","done");
+
+                                    AsyncTask.execute(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            //TODO your background code
+
+                                            try {
+                                                FileCrypto.encrypt(myFinalDir, myFinalDir);
+                                                Log.d("fileCrypto","Encrypted");
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                                Log.d("fileCrypto Exception",e.getMessage());
+                                            }
+
+                                        }
+                                    });
+
+                                    break;
+                                }
+
+                                if (status==DownloadManager.STATUS_FAILED) {
+                                    Log.d("Download status","failed");
+                                    break;
+                                }
+
+                                dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
+                                ProgressBarTask task = new ProgressBarTask(mContext);
+                                task.setProgress(dl_progress);
+
+                                cursor.close();
+                            }
+                        }
+                    }).start();
+
                     IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 
                     final int finalI = i;
                     BroadcastReceiver receiver = new BroadcastReceiver() {
                         public void onReceive(Context ctxt, Intent intent) {
-
-//                            try {
-//                                FileCrypto.encrypt(myFinalDir, myFinalDir);
-//                                Log.d("fileCrypto","Encrypted");
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                                Log.d("fileCrypto Exception",e.getMessage());
-//                            }
-
                             dlcount++;
 
                             if(dlcount == AsyncUrl.url_arrayList.size()) {
 
 //                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
-                                AddDetailsToSqlLite(mContext);
+                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
+                                boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
+                                        subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
+                                if (IsEntry) {
+                                    Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
+
+                                } else {
+                                    Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
+                                }
+                                Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
                                 subscription(mContext);
 //                                AskQuestion(mContext);
 
@@ -352,7 +581,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             if (!fileType.equals("mp4")) {
 
                 String DNAME = "Chathamkulam"+"/"+subject;
-                rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
+                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
                 if(!rootPath.exists()) {
                     rootPath.mkdirs();
                 }
@@ -363,7 +592,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                 final File myFinalDir = new File(rootPath,file_Name);
 
                 try {
-                    DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+                    final DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
                     Uri uri = Uri.parse(file_Url);
                     Uri destination = Uri.fromFile(myFinalDir);
 
@@ -373,29 +602,91 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                     request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     final Long downloadId = downloadManager.enqueue(request);
 
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            boolean downloading = true;
+
+                            while(downloading){
+
+                                DownloadManager.Query q = new DownloadManager.Query();
+                                q.setFilterById(downloadId);
+
+                                Cursor cursor = downloadManager.query(q);
+                                cursor.moveToFirst();
+
+                                int bytes_downloaded = cursor.getInt(cursor
+                                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+
+                                int status =cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+
+                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+                                        == DownloadManager.STATUS_SUCCESSFUL) {
+                                    downloading = false;
+                                }
+
+                                if (status==DownloadManager.STATUS_SUCCESSFUL) {
+                                    Log.d("Download status","done");
+
+                                    if (!fileType.equals("jpg")){
+
+                                        AsyncTask.execute(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                //TODO your background code
+
+                                                try {
+                                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
+                                                    Log.d("fileCrypto","Encrypted");
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                    Log.d("fileCrypto Exception",e.getMessage());
+                                                }
+
+                                            }
+                                        });
+                                    }
+                                    break;
+                                }
+                                if (status==DownloadManager.STATUS_FAILED) {
+                                    Log.d("Download status","failed");
+                                    break;
+                                }
+
+                                dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
+                                ProgressBarTask task = new ProgressBarTask(mContext);
+                                task.setProgress(dl_progress);
+
+                                cursor.close();
+                            }
+                        }
+                    }).start();
+
+
                     IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 
                     final int finalI1 = i;
                     BroadcastReceiver receiver =new BroadcastReceiver() {
                         public void onReceive(Context ctxt, Intent intent) {
 
-//                            if (!fileType.equals("jpg")){
-//                                try {
-//                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
-//                                    Log.d("fileCrypto","Encrypted");
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                    Log.d("fileCrypto Exception",e.getMessage());
-//                                }
-//                            }
+                            Log.v("Download Others","Download Complete");
 
                             dlcount++;
                             if(dlcount == AsyncUrl.url_arrayList.size()) {
 
 //                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
+                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
+                                boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
+                                        subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
+                                if (IsEntry) {
+                                    Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
 
-
-                                AddDetailsToSqlLite(mContext);
+                                } else {
+                                    Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
+                                }
+                                Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
                                 subscription(mContext);
 //                                AskQuestion(mContext);
 
@@ -410,19 +701,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                 Log.d("File path", myFinalDir.toString());
             }
         }
-    }
-
-    public void AddDetailsToSqlLite(Context context){
-
-        StoreEntireDetails storeEntireDetails = new StoreEntireDetails(context);
-        boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,subjectNumber);
-        if (IsEntry) {
-            Toast.makeText(context, "Successfully Added", Toast.LENGTH_LONG).show();
-
-        } else {
-            Toast.makeText(context, "Added failed", Toast.LENGTH_LONG).show();
-        }
-        Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber);
     }
 
     public static void subscription(final Context myContext){
@@ -444,7 +722,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             @Override
             public void onErrorResponse(VolleyError error) {
 
-                Log.v("Volley Error",error.getMessage());
+                Log.v("Volley Error",error.getMessage()+" ");
                 loading.dismiss();
 
             }
@@ -477,37 +755,17 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
         requestQueue.add(stringRequest);
     }
 
-    private void AskQuestion(final Context context) {
+    private static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-
-        RegisterMember registerMember = RegisterMember.getInstance(context);;
-        Cursor cursorResult = registerMember.getDetails();
-
-        while (cursorResult.moveToNext()) {
-            String userName = cursorResult.getString(0);
-
-            alertDialog.setTitle("Hi  "+userName);
-            alertDialog.setMessage("Do you want to Continue Downloading process ?");
-            alertDialog.setIcon(R.drawable.ic_question);
-            alertDialog.setPositiveButton("YES",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            dialog.cancel();
-
-                        }
-                    });
-
-            alertDialog.setNegativeButton("NO",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            Intent intent = new Intent(context, Drawer.class);
-                            context.startActivity(intent);
-                        }
-                    });
-            alertDialog.show();
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
         }
     }
 }

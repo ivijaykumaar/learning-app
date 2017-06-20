@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -36,7 +35,6 @@ import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 import com.rom4ek.arcnavigationview.ArcNavigationView;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -274,35 +272,6 @@ public class Drawer extends AppCompatActivity
 
                 break;
 
-            case R.id.nav_contact:
-
-                fragment = new FmContacts();
-
-                break;
-
-            case R.id.nav_logout:
-
-                logoutPermission();
-
-                break;
-
-            case R.id.nav_money:
-
-                String FilePath = "Chathamkulam"+"/"+"high.mp4";
-                final File encryptedFile = new File(Environment.getExternalStorageDirectory().toString(), FilePath);
-
-//                try {
-//                    FileCrypto.encrypt(encryptedFile, encryptedFile);
-//                    FileCrypto.decrypt(encryptedFile, encryptedFile);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-
-                break;
-
-            case R.id.nav_library:
-
-                break;
         }
 
         if (fragment !=null){

@@ -1,5 +1,6 @@
 package com.learning_app.user.chathamkulam;
 
+import android.annotation.SuppressLint;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,29 +10,27 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Created by User on 5/18/2017.
+ * Created by User on 6/13/2017.
  */
 
 public class FileCrypto {
 
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
-
-    //    private static final String ALGORITHM = "Blowfish";
-//    private static String keyString = "DesireSecretKey";
     private static String keyString = "ASDFGHJKLASDFGHJ";
-
 
     public static void encrypt(File inputFile, File outputFile)
             throws Exception {
         doCrypto(Cipher.ENCRYPT_MODE, inputFile, outputFile);
         System.out.println("File encrypted successfully!");
+        System.out.println(inputFile);
     }
 
     public static void decrypt(File inputFile, File outputFile)
             throws Exception {
         doCrypto(Cipher.DECRYPT_MODE, inputFile, outputFile);
         System.out.println("File decrypted successfully!");
+        System.out.println(outputFile);
     }
 
 
@@ -39,7 +38,7 @@ public class FileCrypto {
                                  File outputFile) throws Exception {
 
         Key secretKey = new SecretKeySpec(keyString.getBytes(), ALGORITHM);
-        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        @SuppressLint("GetInstance") Cipher cipher = Cipher.getInstance(TRANSFORMATION);
         cipher.init(cipherMode, secretKey);
 
         FileInputStream inputStream = new FileInputStream(inputFile);

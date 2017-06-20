@@ -26,6 +26,12 @@ public class StoreEntireDetails extends SQLiteOpenHelper {
     public static final String Col_Amount = "AMOUNT";
     public static final String Col_Image = "IMAGE";
     public static final String Col_Validity = "VALIDITY";
+    public static final String Col_Free_Validity = "FREE_VALIDITY";
+    public static final String Col_Paid_Validity = "PAID_VALIDITY";
+    public static final String Col_Duration = "DURATION";
+    public static final String Col_VideoCount = "VIDEOCOUNT";
+    public static final String Col_NotesCount = "NOTESCOUNT";
+    public static final String Col_QbankCount = "QBANKCOUNT";
 
     public StoreEntireDetails(Context context) {
         super(context, DATABASE_NAME,null,1);
@@ -35,7 +41,8 @@ public class StoreEntireDetails extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         String createTable = "CREATE TABLE " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " COUNTRY TEXT, UNIVERSITY TEXT, COURSE TEXT, SEMESTER TEXT, SUBJECT TEXT, SUBJECT_ID TEXT, SUBJECT_NO TEXT)";
+                " COUNTRY TEXT, UNIVERSITY TEXT, COURSE TEXT, SEMESTER TEXT, SUBJECT TEXT, SUBJECT_ID TEXT, SUBJECT_NO TEXT," +
+                " FREE_VALIDITY TEXT,PAID_VALIDITY TEXT,DURATION TEXT,VIDEOCOUNT TEXT,NOTESCOUNT TEXT,QBANKCOUNT TEXT)";
         db.execSQL(createTable);
 
     }
@@ -48,7 +55,8 @@ public class StoreEntireDetails extends SQLiteOpenHelper {
     }
 
     public boolean addData(String country,String university,String course, String semester,
-                           String subject,String subject_id,String subject_no){
+                           String subject,String subject_id,String subject_no,String free_validity,String paid_validity,String duration,
+                           String videoCount,String notesCount,String qbankCount){
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -59,6 +67,12 @@ public class StoreEntireDetails extends SQLiteOpenHelper {
         contentValues.put(Col_Subject,subject);
         contentValues.put(Col_Subject_Id,subject_id);
         contentValues.put(Col_Subject_No,subject_no);
+        contentValues.put(Col_Free_Validity,free_validity);
+        contentValues.put(Col_Paid_Validity,paid_validity);
+        contentValues.put(Col_Duration,duration);
+        contentValues.put(Col_VideoCount,videoCount);
+        contentValues.put(Col_NotesCount,notesCount);
+        contentValues.put(Col_QbankCount,qbankCount);
 
         long result = db.insert(TABLE_NAME,null,contentValues);
 

@@ -1,21 +1,16 @@
 package com.learning_app.user.chathamkulam.Registration;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.learning_app.user.chathamkulam.AlarmReceiver;
 import com.learning_app.user.chathamkulam.Fragments.Drawer;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 
 import java.io.File;
-import java.util.Calendar;
 
 import static com.learning_app.user.chathamkulam.Sqlite.RegisterMember.DATABASE_NAME;
 
@@ -179,34 +174,4 @@ public class SplashScreen extends Activity {
 //        requestQueue.add(stringRequest);
 //    }
 
-    public void deleteRecord(Context myContext){
-
-        String check = stringDay+stringMonth+stringYear+stringSubject;
-
-        if (!check.equals("nullnullnullnull")){
-
-            Intent intent = new Intent(myContext,AlarmReceiver.class);
-            intent.putExtra("Key_currentSub",stringSubject);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(myContext,1,intent,0);
-
-            Calendar calendar = Calendar.getInstance();
-
-            int year = Integer.parseInt(stringYear);
-            int month = Integer.parseInt(stringMonth);
-            int day = Integer.parseInt(stringDay);
-
-            calendar.set(year,month,day);
-
-            AlarmManager alarmManager = (AlarmManager)myContext.getSystemService(ALARM_SERVICE);
-            alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
-
-            Log.v("Alarm Result","Alarm set with" +day+month+year );
-
-        } else {
-
-            Log.v("Alarm Result",check);
-
-        }
-
-    }
 }

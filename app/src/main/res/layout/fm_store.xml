@@ -16,27 +16,26 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <Button
-            android:id="@+id/btnOnline"
-            android:layout_width="100dp"
-            android:layout_height="20dp"
-            android:text="Online View"
-            tools:ignore="ButtonStyle"
-            android:textSize="10dp"
-            android:textStyle="bold"
-            style="@style/Widget.AppCompat.Button.Small"
-            android:background="@drawable/rounded_edittxt"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        <!--<Button-->
+            <!--android:id="@+id/btnOnline"-->
+            <!--android:layout_width="100dp"-->
+            <!--android:layout_height="20dp"-->
+            <!--android:text="Online View"-->
+            <!--tools:ignore="ButtonStyle"-->
+            <!--android:textSize="10dp"-->
+            <!--android:textStyle="bold"-->
+            <!--style="@style/Widget.AppCompat.Button.Small"-->
+            <!--android:background="@drawable/rounded_edittxt"-->
+            <!--android:textAppearance="@style/TextAppearance.AppCompat.Body1" />-->
 
         <Button
             android:id="@+id/btnTrial"
             android:layout_width="100dp"
-            android:layout_height="20dp"
+            android:layout_height="25dp"
             android:text="Trial"
-            android:textStyle="bold"
             android:background="@drawable/rounded_edittxt"
             tools:ignore="ButtonStyle"
-            android:textSize="10dp"
+            android:textSize="15dp"
             style="@style/Widget.AppCompat.Button.Small"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:layout_marginRight="5dp"
@@ -45,10 +44,9 @@
         <Button
             android:id="@+id/btnBuy"
             android:layout_width="100dp"
-            android:layout_height="20dp"
+            android:layout_height="25dp"
             android:text="Buy"
-            android:textSize="10dp"
-            android:textStyle="bold"
+            android:textSize="15dp"
             android:background="@drawable/rounded_edittxt"
             tools:ignore="ButtonStyle"
             style="@style/Widget.AppCompat.Button.Small"
@@ -57,7 +55,6 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/first_view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="10dp"
@@ -73,5 +70,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </ListView>
+
+    <ProgressBar
+        android:id="@+id/checkingBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="50dp"
+        android:layout_height="10dp"
+        android:visibility="visible"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="45dp" />
 
 </RelativeLayout>

@@ -19,8 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:text="Country"
-            android:textSize="8dp"
-            android:textStyle="bold|italic"
+            android:textSize="12dp"
             android:textColor="#000"
             tools:ignore="RtlHardcoded" />
 
@@ -45,8 +44,7 @@
                 android:layout_height="wrap_content"
                 android:text="University"
                 android:layout_marginLeft="2dp"
-                android:textSize="8dp"
-                android:textStyle="bold|italic"
+                android:textSize="12dp"
                 tools:ignore="RtlHardcoded"
                 android:textColor="#000"/>
 
@@ -71,8 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="2dp"
                 android:text="Course"
-                android:textSize="8dp"
-                android:textStyle="bold|italic"
+                android:textSize="12dp"
                 tools:ignore="RtlHardcoded"
                 android:textColor="#000"/>
         </LinearLayout>
@@ -89,8 +86,7 @@
                 android:layout_marginLeft="50dp"
                 android:tint="#FFFFFF"
                 android:src="@drawable/ic_down_arrow"
-                tools:ignore="ContentDescription"
-                android:id="@+id/imageView" />
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/txtSemester"
@@ -98,15 +94,13 @@
                 android:layout_height="wrap_content"
                 android:text="Semester"
                 android:layout_marginLeft="2dp"
-                android:textSize="8dp"
-                android:textStyle="bold|italic"
+                android:textSize="12dp"
                 tools:ignore="RtlHardcoded"
                 android:textColor="#000"/>
         </LinearLayout>
 
 
         <LinearLayout
-            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

@@ -1,18 +1,21 @@
 package com.learning_app.user.chathamkulam.Model.StoreModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
 /**
  * Created by Naren on 29-05-2017.
  */
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StoreEntityObjects {
 
+    private String country, university, course, sem_no, id;
+    private List<StoreSubjectEntity> subject_details;
 
-    private String  country, university, course, sem_no, id,count;
-    private  List<StoreSubjectEntity> subject_details;
-
-    public StoreEntityObjects(){}
+    public StoreEntityObjects() {
+    }
 
     public List<StoreSubjectEntity> getSubject_details() {
         return subject_details;
@@ -62,11 +65,4 @@ public class StoreEntityObjects {
         this.id = id;
     }
 
-    public String getCount() {
-        return count;
-    }
-
-    public void setCount(String count) {
-        this.count = count;
-    }
 }

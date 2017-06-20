@@ -61,7 +61,13 @@ public class DashMainListAdapter extends BaseAdapter {
         mViewHolder.txtCountry.setText(dashEntityObjects.getCountry());
         mViewHolder.txtUniversity.setText(dashEntityObjects.getUniversity());
         mViewHolder.txtCourse.setText(dashEntityObjects.getCourse());
-        mViewHolder.txtSemester.setText("Semester  "+dashEntityObjects.getSemester());
+
+        if (dashEntityObjects.getSemester().equals("0")){
+            mViewHolder.txtSemester.setText("Semester  N/A");
+        } else {
+
+            mViewHolder.txtSemester.setText("Semester  "+dashEntityObjects.getSemester());
+        }
 
 //        Finally initializing our adapter
         ArrayList<DashEntityObjects> REDashList = new ArrayList<>();

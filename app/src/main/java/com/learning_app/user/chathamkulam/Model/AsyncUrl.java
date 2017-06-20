@@ -38,8 +38,9 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
     private String Current_JsonArray;
     private String file_url;
     private String file_name;
-    public static ArrayList url_arrayList;
-    public static ArrayList name_arrayList;
+    public static ArrayList  url_arrayList = new ArrayList<String>();
+    public static ArrayList  name_arrayList = new ArrayList<String>();
+
     private ProgressDialog loading;
 
 
@@ -93,11 +94,9 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
                     JSONObject j = null;
 
                     try {
-                        j = new JSONObject(response.toString());
+                        j = new JSONObject(response);
+//                        String result = getJSONUrl(url);
                         jsonArray = j.getJSONArray(Current_JsonArray);
-
-                        url_arrayList = new ArrayList<String>();
-                        name_arrayList = new ArrayList<String>();
 
                         if (jsonArray != null){
 

@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/menu_buy"
-        android:title="Buy" />
+    <!--<item-->
+        <!--android:title="Online view"-->
+        <!--android:id="@+id/cardOnlineView"-->
+        <!--android:showAsAction="ifRoom|withText"-->
+        <!--android:visible="true"/>-->
 
     <item
-        android:title="Trial"
-        android:id="@+id/menu_trail" />
+        android:id="@+id/cardTrial"
+        android:showAsAction="ifRoom|withText"
+        android:visible="true"
+        android:title="Trial" />
+
+    <item
+        android:title="Buy"
+        android:showAsAction="ifRoom|withText"
+        android:visible="true"
+        android:id="@+id/cardBuy" />
+
 </menu>

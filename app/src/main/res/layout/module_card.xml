@@ -4,50 +4,65 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
-    
-    <RelativeLayout
-        android:id="@+id/TopicLay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:ignore="UselessParent">
+    android:padding="5dp">
 
-        <!--<TextView-->
-            <!--android:id="@+id/txtTopicDuration"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Duration"-->
-            <!--android:padding="5dp"-->
-            <!--android:textColor="#ED85A3"-->
-            <!--android:textStyle="bold|italic"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--android:layout_alignParentEnd="true" />-->
+    <RelativeLayout
+        android:id="@+id/topicList"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iocVideo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_videoo"
+            android:contentDescription=""
+            tools:ignore="ContentDescription,UnknownId"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp" />
 
         <TextView
             android:id="@+id/txtTopic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Topic"
-            android:textColor="#ED85A3"
-            android:padding="5dp"
-            android:textStyle="bold"
-            android:layout_marginLeft="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/topicImage"
-            android:layout_toEndOf="@+id/topicImage" />
+            android:textColor="#000"
+            android:textSize="14dp"
+            tools:ignore="ObsoleteLayoutParam"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/iocVideo"
+            android:layout_toEndOf="@+id/iocVideo" />
 
-        <ImageView
-            android:id="@+id/topicImage"
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:src="@drawable/ic_video"
-            android:contentDescription=""
-            tools:ignore="ContentDescription"
-            android:layout_alignBottom="@+id/txtTopic"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignBaseline="@+id/iocVideo"
+            android:layout_alignParentEnd="true">
+
+            <TextView
+                android:id="@+id/txtTopicDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00.00.00"
+                android:textSize="10dp"
+                android:textColor="#000"
+                android:padding="5dp" />
+
+            <ProgressBar
+                android:id="@+id/videoProgress"
+                android:layout_width="40dp"
+                android:layout_height="3dp"
+                android:layout_marginLeft="5dp"
+                style="@android:style/Widget.ProgressBar.Horizontal" />
+
+        </LinearLayout>
+
     </RelativeLayout>
-    
+
 </LinearLayout>
