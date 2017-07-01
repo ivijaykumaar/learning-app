@@ -20,8 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="3dp"
-                android:text="Online page you will loss the data!!"
-                android:textStyle="bold|italic"
+                android:text="Online page Data charges may apply!!"
                 android:gravity="center"
                 android:background="#000"
                 android:textColor="@color/colorAccent"
@@ -35,6 +34,13 @@
                 android:background="#9DC4DA">
 
             </ListView>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/moduleFilterView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp" />
+
         </LinearLayout>
 
     </FrameLayout>

@@ -7,9 +7,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -17,6 +22,7 @@ import android.widget.ListView;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning_app.user.chathamkulam.Adapters.DashMainListAdapter;
+import com.learning_app.user.chathamkulam.SearchFilters.DashCardFilterAdapter;
 import com.learning_app.user.chathamkulam.Model.DashboardModel.DashEntityObjects;
 import com.learning_app.user.chathamkulam.Model.DashboardModel.DashSubjectEntity;
 import com.learning_app.user.chathamkulam.R;
@@ -39,9 +45,10 @@ public class FMDashboard extends Fragment {
     ArrayList<DashEntityObjects> mainList;
     JSONArray mainArray;
 
-    String freeValidity;
-    String subject;
     View view;
+
+    RecyclerView dashFilterView;
+    DashCardFilterAdapter filterAdapter;
 
     public FMDashboard() {
 
@@ -53,16 +60,21 @@ public class FMDashboard extends Fragment {
 
         view = inflater.inflate(R.layout.fm_dash, container, false);
 
+        dashListView = (ListView) view.findViewById(R.id.dashMainListView);
+        dashFilterView = (RecyclerView)view.findViewById(R.id.dashFilterView);
+        dashFilterView.setVisibility(View.GONE);
+
         mainList = new ArrayList<DashEntityObjects>();
         mainArray = new JSONArray();
-
 
         final MyAsyncTask myAsyncTask = new MyAsyncTask(mainArray,mainList,getActivity());
         myAsyncTask.execute();
 
-//        StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getActivity());
-//        Cursor cursor = storeEntireDetails.groupMainDetails();
-//
+        StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getActivity());
+        Cursor cursor = storeEntireDetails.getAllDetails();
+        Log.d("dashCursorCount", String.valueOf(cursor.getCount()));
+        cursor.close();
+
 //        if (cursor.getCount() != 0){
 //
 //            if (cursor.moveToFirst()){
@@ -112,6 +124,44 @@ public class FMDashboard extends Fragment {
     }
 
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search : {
+
+                SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+                dashListView.setVisibility(View.GONE);
+                dashFilterView.setVisibility(View.VISIBLE);
+
+                MyAsyncTaskFilter myAsyncTaskFilter = new MyAsyncTaskFilter(mainArray,mainList,getActivity());
+                myAsyncTaskFilter.execute();
+                item.expandActionView();
+
+                MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+
+//                        Toast.makeText(getActivity(),"clicked",Toast.LENGTH_LONG).show();
+//                        Write your code here
+                        dashFilterView.setVisibility(View.GONE);
+                        dashListView.setVisibility(View.VISIBLE);
+
+                        return true;
+                    }
+                });
+
+                search(searchView);
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public class MyAsyncTask extends AsyncTask<Void, Void, Void> {
 
         JSONArray mainArray;
@@ -119,7 +169,7 @@ public class FMDashboard extends Fragment {
         ProgressDialog progressDialog;
         Context context;
 
-        public MyAsyncTask(JSONArray mainArray, ArrayList<DashEntityObjects> mainList, Context context) {
+        MyAsyncTask(JSONArray mainArray, ArrayList<DashEntityObjects> mainList, Context context) {
             this.mainArray = mainArray;
             this.mainList = mainList;
             this.progressDialog = new ProgressDialog(context);
@@ -165,7 +215,7 @@ public class FMDashboard extends Fragment {
                             mainJsonObject.put("course",mainCursor.getString(3));
                             mainJsonObject.put("semester",mainCursor.getString(4));
 
-                            Cursor cursor = storeEntireDetails.groupSubDetails(mainCursor.getString(6));
+                            Cursor cursor = storeEntireDetails.groupSubDetails(mainCursor.getString(6),mainCursor.getString(4));
 
                             if (cursor.getCount() != 0){
 
@@ -268,7 +318,6 @@ public class FMDashboard extends Fragment {
 
                 if (getActivity()!=null){
 
-                    dashListView = (ListView) view.findViewById(R.id.dashMainListView);
                     dashMainListAdapter = new DashMainListAdapter(getActivity(),mainList);
                     dashListView.setAdapter(dashMainListAdapter);
                     dashMainListAdapter.notifyDataSetChanged();
@@ -276,5 +325,162 @@ public class FMDashboard extends Fragment {
 
             }
         }
+    }
+
+
+    public class MyAsyncTaskFilter extends AsyncTask<Void, Void, Void> {
+
+        JSONArray mainArray;
+        ArrayList<DashEntityObjects> mainList;
+        ProgressDialog progressDialog;
+        Context context;
+
+        public MyAsyncTaskFilter(JSONArray mainArray, ArrayList<DashEntityObjects> mainList,Context context) {
+            this.mainArray = mainArray;
+            this.mainList = mainList;
+            this.progressDialog = new ProgressDialog(context);
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            //this method will be running on UI thread.
+            this.progressDialog = new ProgressDialog(context);
+            this.progressDialog.setTitle("Fetching Data");
+            this.progressDialog.setMessage("Please give a movement while we process your data...");
+            this.progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+//            this method will be running on background thread so don't update UI frome here
+
+//            Get Values From DataBase
+            StoreEntireDetails storeEntireDetails = new StoreEntireDetails(context);
+            Cursor mainCursor = storeEntireDetails.getAllDetails();
+
+            try {
+
+//        Create Main Array
+                mainArray = new JSONArray();
+                if (mainCursor.getCount() != 0){
+
+                    if (mainCursor.moveToFirst()){
+
+                        do {
+//                        Create Main Object
+                            JSONObject mainJsonObject = new JSONObject();
+
+                            mainJsonObject.put("country",mainCursor.getString(1));
+                            mainJsonObject.put("university", mainCursor.getString(2));
+                            mainJsonObject.put("course",mainCursor.getString(3));
+                            mainJsonObject.put("semester",mainCursor.getString(4));
+                            mainJsonObject.put("subject_name",mainCursor.getString(5));
+                            mainJsonObject.put("subject_id",mainCursor.getString(6));
+                            mainJsonObject.put("subject_no",mainCursor.getString(7));
+                            mainJsonObject.put("free_validity",mainCursor.getString(8));
+                            mainJsonObject.put("paid_validity",mainCursor.getString(9));
+                            mainJsonObject.put("duration",mainCursor.getString(10));
+                            mainJsonObject.put("video_count",mainCursor.getString(11));
+                            mainJsonObject.put("notes_count",mainCursor.getString(12));
+                            mainJsonObject.put("qbank_count",mainCursor.getString(13));
+
+                            mainArray.put(mainJsonObject);
+
+                        }while (mainCursor.moveToNext());
+
+                    }
+
+                    Log.d("jsonValue", String.valueOf(mainArray));
+                }
+            }catch (JSONException e){
+
+                Log.d("JSONException", String.valueOf(e));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+//            this method will be running on UI thread
+            if (progressDialog.isShowing()){
+                this.progressDialog.dismiss();
+
+//                ListOut the DataBase Values
+                ObjectMapper mapper = new ObjectMapper();
+                List<DashEntityObjects> dashEntityObjects = new ArrayList<>();
+
+                ArrayList<DashEntityObjects> mainList = new ArrayList<DashEntityObjects>();
+
+                try {
+                    dashEntityObjects =  mapper.readValue(String.valueOf(mainArray), new TypeReference<List<DashEntityObjects>>(){});
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                for (DashEntityObjects entityObject : dashEntityObjects){
+
+                    entityObject.setCountry(entityObject.getCountry());
+                    entityObject.setUniversity(entityObject.getUniversity());
+                    entityObject.setCourse(entityObject.getCourse());
+                    entityObject.setSemester(entityObject.getSemester());
+                    entityObject.setSubject_name(entityObject.getSubject_name());
+                    entityObject.setSubject_id(entityObject.getSubject_id());
+                    entityObject.setSubject_no(entityObject.getSubject_no());
+                    entityObject.setFree_validity(entityObject.getFree_validity());
+                    entityObject.setPaid_validity(entityObject.getPaid_validity());
+                    entityObject.setDuration(entityObject.getDuration());
+                    entityObject.setVideo_count(entityObject.getVideo_count());
+                    entityObject.setNotes_count(entityObject.getNotes_count());
+                    entityObject.setQbank_count(entityObject.getQbank_count());
+
+                    Log.d("CountryName: ", entityObject.getCountry());
+                    Log.d("University: ", entityObject.getUniversity());
+                    Log.d("Course: ", entityObject.getCourse());
+                    Log.d("Semester: ",entityObject.getSemester());
+                    Log.d("subjectName: ", entityObject.getSubject_name());
+                    Log.d("Duration: ", entityObject.getDuration());
+
+                    mainList.add(entityObject);
+                }
+
+//                Initialize views
+
+                if (getActivity()!= null){
+
+                    filterAdapter = new DashCardFilterAdapter(getActivity(),mainList);
+                    RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
+                    dashFilterView = (RecyclerView)view.findViewById(R.id.dashFilterView);
+                    dashFilterView.setLayoutManager(mLayoutManager);
+                    dashFilterView.setHasFixedSize(true);
+                    dashFilterView.setAdapter(filterAdapter);
+                    filterAdapter.notifyDataSetChanged();
+
+                }
+            }
+        }
+    }
+
+    private void search(SearchView searchView) {
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                filterAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
     }
 }

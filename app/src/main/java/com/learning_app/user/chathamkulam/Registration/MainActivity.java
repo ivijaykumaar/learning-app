@@ -12,7 +12,7 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.learning_app.user.chathamkulam.InternetDetector;
+import com.learning_app.user.chathamkulam.Model.InternetDetector;
 import com.learning_app.user.chathamkulam.R;
 
 public class MainActivity extends AppCompatActivity {

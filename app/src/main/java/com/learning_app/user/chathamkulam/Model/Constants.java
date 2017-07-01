@@ -27,11 +27,12 @@ public class Constants {
 
     //   Url of Store to get data
     public static final String STORE_DATA = "http://chathamkulam.org/backend/appStore/subjectDetails.php";
-
-//    Url Test
-    public static final String TEST_URL = "http://chathamkulam.org/backend/appStore/test1.php";
+    public static final String STORE_DATA_FILTER = "http://chathamkulam.org/backend/appStore/all_search.php";
 
     //    Get Downloading details
     public static final String GET_URLS = "http://chathamkulam.org/backend/appStore/download.php";
+
+    public static final String ONLINE_MODULE_DATA = "http://chathamkulam.org/backend/appStore/video_view.php";
+    public static final String ONLINE_VIEW = "http://chathamkulam.org/backend/appStore/online_view.php";
 
 }

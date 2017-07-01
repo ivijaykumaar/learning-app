@@ -1,5 +1,6 @@
 package com.learning_app.user.chathamkulam.Viewer;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
@@ -15,14 +16,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.learning_app.user.chathamkulam.FileCrypto;
+import com.learning_app.user.chathamkulam.Model.FileCrypto;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Sqlite.VideoHandler;
 import com.wang.avi.AVLoadingIndicatorView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +38,7 @@ import java.util.ArrayList;
 
 public class NormalVideoView extends AppCompatActivity {
 
+    TextView txtRibbon;
     VideoView  video_player_view;
     AVLoadingIndicatorView loadingIndicatorView;
     DisplayMetrics dm;
@@ -48,6 +54,10 @@ public class NormalVideoView extends AppCompatActivity {
     File outputFile;
     String currentFile;
 
+    String onlineSubject;
+    String onlineUrl;
+    ProgressDialog loading;
+
     String topicName;
 
     VideoHandler videoHandler;
@@ -61,6 +71,7 @@ public class NormalVideoView extends AppCompatActivity {
         video_player_view = (VideoView)findViewById(R.id.video_player_view);
         loadingIndicatorView = (AVLoadingIndicatorView)findViewById(R.id.aviLoading);
         video_viewer_lay = (RelativeLayout) findViewById(R.id.video_viewer_lay);
+        txtRibbon = (TextView)findViewById(R.id.txtRibbon);
 
         videoHandler = VideoHandler.getInstance(getApplicationContext());
 //        videoHandler.DeleteAll();
@@ -86,133 +97,196 @@ public class NormalVideoView extends AppCompatActivity {
 
         video_player_view.setMediaController(media_Controller);
 
+        onlineSubject = getIntent().getStringExtra("Key_subjectName");
+        onlineUrl = getIntent().getStringExtra("Key_OnlineJsonVideo");
+
         currentSubject = getIntent().getStringExtra("Key_subName");
         currentModule = getIntent().getStringExtra("Key_moduleName");
         currentFile = getIntent().getStringExtra("Key_fileName");
 
         Log.d("@@values ",currentSubject+"  "+currentModule+"  "+currentFile);
 
-        getSupportActionBar().setTitle(currentSubject);
+        if (onlineSubject == null){
 
-        String video = "Chathamkulam" + "/" + currentSubject + "/" + currentModule;
-        File list = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), video);
+            txtRibbon.setVisibility(View.GONE);
+            getSupportActionBar().setTitle(currentSubject);
 
-        videoList = new ArrayList<>();
-        File listFile[] = list.listFiles();
+            String video = "Chathamkulam" + "/" + currentSubject + "/" + currentModule;
+            File list = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), video);
 
-        if (listFile != null && listFile.length > 0) {
+            videoList = new ArrayList<>();
+            File listFile[] = list.listFiles();
 
-            for (File aListFile : listFile) {
-                if (aListFile.isFile()) {
-                    if (aListFile.getName().endsWith(".mp4")){
-                        String fileName = aListFile.getName();
-                        videoList.add(fileName);
-                    }else {
-                        Log.v("File Exception","There is no video file");
+            if (listFile != null && listFile.length > 0) {
+
+                for (File aListFile : listFile) {
+                    if (aListFile.isFile()) {
+                        if (aListFile.getName().endsWith(".mp4")){
+                            String fileName = aListFile.getName();
+                            videoList.add(fileName);
+                        }else {
+                            Log.v("File Exception","There is no video file");
+                        }
                     }
                 }
+            } else {
+
+                Toast.makeText(this,"There is no video file", Toast.LENGTH_SHORT).show();
             }
-        } else {
 
-            Toast.makeText(this,"There is no video file", Toast.LENGTH_SHORT).show();
-        }
+            String videoPath = "Chathamkulam" + "/" + currentSubject + "/" + currentModule + "/" + currentFile+".mp4";
+            final File videoFile = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), videoPath);
 
-        String videoPath = "Chathamkulam" + "/" + currentSubject + "/" + currentModule + "/" + currentFile+".mp4";
-        final File videoFile = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), videoPath);
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
 
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
+                    try {
 
-                try {
+                        outputDir = getApplicationContext().getCacheDir();
+                        outputFile = File.createTempFile("Temp",".mp4", outputDir);
+                        Log.v("Temp Created", videoFile.getName()+"   "+String.valueOf(outputFile));
 
-                    outputDir = getApplicationContext().getCacheDir();
-                    outputFile = File.createTempFile("Temp",".mp4", outputDir);
-                    Log.v("Temp Created", videoFile.getName()+"   "+String.valueOf(outputFile));
+                        FileCrypto.decrypt(videoFile,outputFile);
 
-                    FileCrypto.decrypt(videoFile,outputFile);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                                loadingIndicatorView.smoothToHide();
+                                Log.v("Temp view", String.valueOf(outputFile));
+                                video_player_view.setVideoURI(Uri.fromFile(outputFile));
+                                video_player_view.start();
 
-                            loadingIndicatorView.smoothToHide();
-                            Log.v("Temp view", String.valueOf(outputFile));
-                            video_player_view.setVideoURI(Uri.fromFile(outputFile));
-                            video_player_view.start();
+                                Log.v("File","Decrypted Success");
+                            }
+                        });
 
-                            Log.v("File","Decrypted Success");
-                        }
-                    });
-
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d("Decryption Error",e.toString());
-                            loadingIndicatorView.smoothToHide();
-                            Toast.makeText(getApplicationContext(), "Oops An Error Occur While Playing Video...!!!!", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
-        });
-
-        video_player_view.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-
-                loadingIndicatorView.smoothToHide();
-                int totalDuration = video_player_view.getDuration();
-                topicName = videoFile.toString();
-
-                Cursor mainCursor = videoHandler.getAllData();
-                if (mainCursor.getCount() != 0){
-
-                    while (mainCursor.moveToNext()) {
-
-                        String crTopicName = mainCursor.getString(1);
-                        String crTotalTime = mainCursor.getString(2);
-                        String crPauseTime = mainCursor.getString(3);
-
-                        if (videoHandler.ifExists(topicName)){
-                            video_player_view.seekTo(Integer.parseInt(crPauseTime));
-                        }
-
-                        if (!videoHandler.ifExists(topicName)){
-                            video_player_view.seekTo(0);
-                        }
-
-                        Log.d("Updated data",crTopicName+"  "+crTotalTime+"   "+crPauseTime);
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.d("Decryption Error",e.toString());
+                                loadingIndicatorView.smoothToHide();
+                                Toast.makeText(getApplicationContext(), "Oops An Error Occur While Playing Video...!!!!", Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
-                    mainCursor.close();
                 }
+            });
 
-                Log.d("OnPrepared 1",topicName +"  "+ String.valueOf(totalDuration));
-            }
-        });
+            video_player_view.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
 
-        video_player_view.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
+                    loadingIndicatorView.smoothToHide();
+                    int totalDuration = video_player_view.getDuration();
+                    topicName = videoFile.toString();
+
+                    Cursor mainCursor = videoHandler.getAllData();
+                    if (mainCursor.getCount() != 0){
+
+                        while (mainCursor.moveToNext()) {
+
+                            String crTopicName = mainCursor.getString(1);
+                            String crTotalTime = mainCursor.getString(2);
+                            String crPauseTime = mainCursor.getString(3);
+
+                            if (videoHandler.ifExists(topicName)){
+                                video_player_view.seekTo(Integer.parseInt(crPauseTime));
+                            }
+
+                            if (!videoHandler.ifExists(topicName)){
+                                video_player_view.seekTo(0);
+                            }
+
+                            Log.d("Updated data",crTopicName+"  "+crTotalTime+"   "+crPauseTime);
+                        }
+                        mainCursor.close();
+                    }
+
+                    Log.d("OnPrepared 1",topicName +"  "+ String.valueOf(totalDuration));
+                }
+            });
+
+            video_player_view.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
 
 
-                video_player_view.stopPlayback();
-                startVideo();
+                    video_player_view.stopPlayback();
+                    startVideo();
 //                loadingIndicatorView.smoothToHide();
 //                startActivity(new Intent(getApplicationContext(),ModuleList.class));
 
-            }
-        });
-        video_player_view.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mp, int what, int extra) {
-                Toast.makeText(getApplicationContext(),"Oops An Error Occur While Playing Video...!!!", Toast.LENGTH_LONG).show();
+                }
+            });
+            video_player_view.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    Toast.makeText(getApplicationContext(),"Oops An Error Occur While Playing Video...!!!", Toast.LENGTH_LONG).show();
 
-                return false;
+                    return false;
+                }
+            });
+
+        } else {
+
+            txtRibbon.setVisibility(View.VISIBLE);
+            getSupportActionBar().hide();
+            getSupportActionBar().setTitle(onlineSubject);
+
+            loading = ProgressDialog
+                    .show(this,"Buffering.....","Please wait preparing your video!!", false, false);
+
+            try{
+
+                JSONArray jArray = null;
+                jArray = new JSONArray(onlineUrl);
+
+                String url = "";
+                for(int i=0;i<jArray.length();i++){
+                    JSONObject json_obj = jArray.getJSONObject(i);
+                    url = json_obj.getString("url");
+                }
+
+                Uri video = Uri.parse(url);
+                Log.v("OnlineUrl", onlineUrl+"   "+ url);
+
+                video_player_view.setVideoURI(video);
+
+            } catch (Exception e) {
+
+                Toast.makeText(getApplicationContext(),"Oops An Error Occur While Playing Video Online...!!!", Toast.LENGTH_LONG).show();
+                loading.dismiss();
+                loadingIndicatorView.smoothToHide();
+                Log.v("Exception video player", String.valueOf(e));
             }
-        });
+
+            video_player_view.requestFocus();
+            video_player_view.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                // Close the progress bar and play the video
+                public void onPrepared(MediaPlayer mp) {
+
+                    loading.dismiss();
+                    loadingIndicatorView.smoothToHide();
+                    video_player_view.start();
+                }
+            });
+
+            video_player_view.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+
+                    Toast.makeText(getApplicationContext(),"Oops An Error Occur While Playing Video Online...!!!", Toast.LENGTH_LONG).show();
+                    loadingIndicatorView.smoothToHide();
+                    loading.dismiss();
+
+                    return true;
+                }
+            });
+        }
     }
 
     public void startVideo(){
@@ -290,7 +364,6 @@ public class NormalVideoView extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
         Registration.deleteCache(getApplicationContext());
     }
 
@@ -321,7 +394,7 @@ public class NormalVideoView extends AppCompatActivity {
         menu.findItem(R.id.menu_share).setVisible(true);
         menu.findItem(R.id.action_search).setVisible(false);
 
-        return false;
+        return true;
     }
 
     @Override
@@ -350,60 +423,63 @@ public class NormalVideoView extends AppCompatActivity {
         super.onPause();
         //stopPosition is an int
 
-        video_player_view.pause();
-        int totalDuration = video_player_view.getDuration();
-        int pauseDuration = video_player_view.getCurrentPosition();
-        Log.d("OnPause Result", totalDuration+"  "+pauseDuration+"   "+topicName);
+        if (onlineSubject == null) {
 
-        if (totalDuration != 0 && pauseDuration != 0 && !topicName.equals(null)){
+            video_player_view.pause();
+            int totalDuration = video_player_view.getDuration();
+            int pauseDuration = video_player_view.getCurrentPosition();
+            Log.d("OnPause Result", totalDuration + "  " + pauseDuration + "   " + topicName);
 
-            Cursor mainCursor = videoHandler.getAllData();
-            if (mainCursor.getCount() == 0){
+            if (totalDuration != 0 && pauseDuration != 0 && !topicName.equals(null)) {
 
-                boolean IsEntry = videoHandler.AddTopicDetails(topicName,totalDuration,pauseDuration);
-                if (IsEntry){
-                    Log.d("Entry status", "Successfully Added");
+                Cursor mainCursor = videoHandler.getAllData();
+                if (mainCursor.getCount() == 0) {
 
-                } else {
-                    Log.d("Entry Result",  "Added failed");
-                }
-
-            } else {
-
-                if (videoHandler.ifExists(topicName)){
-
-                    boolean IsEntry = videoHandler.UpdateData(topicName,totalDuration,pauseDuration);
-                    if (IsEntry){
-                        Log.d("Update status", "Successfully Updated");
+                    boolean IsEntry = videoHandler.AddTopicDetails(topicName, totalDuration, pauseDuration);
+                    if (IsEntry) {
+                        Log.d("Entry status", "Successfully Added");
 
                     } else {
-                        Log.d("Update status",  "Added Updated");
+                        Log.d("Entry Result", "Added failed");
                     }
 
                 } else {
 
-                    boolean IsEntry = videoHandler.AddTopicDetails(topicName,totalDuration,pauseDuration);
-                    if (IsEntry){
-                        Log.d("Update status", "Successfully Added");
+                    if (videoHandler.ifExists(topicName)) {
+
+                        boolean IsEntry = videoHandler.UpdateData(topicName, totalDuration, pauseDuration);
+                        if (IsEntry) {
+                            Log.d("Update status", "Successfully Updated");
+
+                        } else {
+                            Log.d("Update status", "Added Updated");
+                        }
 
                     } else {
-                        Log.d("Update status",  "Added failed");
+
+                        boolean IsEntry = videoHandler.AddTopicDetails(topicName, totalDuration, pauseDuration);
+                        if (IsEntry) {
+                            Log.d("Update status", "Successfully Added");
+
+                        } else {
+                            Log.d("Update status", "Added failed");
+                        }
                     }
                 }
             }
+
+            Cursor cursor1 = videoHandler.getAllData();
+            while (cursor1.moveToNext()) {
+
+                String topicName = cursor1.getString(1);
+                String totalTime = cursor1.getString(2);
+                String pauseTime = cursor1.getString(3);
+
+                Log.d("Final data", topicName + "  " + totalTime + "   " + pauseTime);
+            }
+            cursor1.close();
+
+            Log.d("Cursor count", String.valueOf(cursor1.getCount()));
         }
-
-        Cursor cursor1 = videoHandler.getAllData();
-        while (cursor1.moveToNext()) {
-
-            String topicName = cursor1.getString(1);
-            String totalTime = cursor1.getString(2);
-            String pauseTime = cursor1.getString(3);
-
-            Log.d("Final data",topicName+"  "+totalTime+"   "+pauseTime);
-        }
-        cursor1.close();
-
-        Log.d("Cursor count", String.valueOf(cursor1.getCount()));
     }
 }

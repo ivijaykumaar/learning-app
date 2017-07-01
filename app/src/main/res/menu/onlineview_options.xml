@@ -2,16 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/menuVideos"
+        android:icon="@drawable/ic_video"
+        android:title="Video" />
 
     <item
         android:id="@+id/menuNotes"
         android:icon="@drawable/ic_pdff"
         android:title="Notes" />
-
-
-    <item android:id="@+id/menuVideos"
-        android:icon="@drawable/ic_video"
-        android:title="Video" />
 
     <item
         android:id="@+id/menuQb"

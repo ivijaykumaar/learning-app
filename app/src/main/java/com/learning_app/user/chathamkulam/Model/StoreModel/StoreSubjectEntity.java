@@ -1,15 +1,11 @@
 package com.learning_app.user.chathamkulam.Model.StoreModel;
 
-import android.widget.ProgressBar;
-
 /**
  * Created by Naren on 29-05-2017.
  */
 public class StoreSubjectEntity {
     private String subject_name, amount, price_type, free_validity, paid_validity,
             file,id,sub_no,paid_validity_date,free_validity_date,size,qa_count,file_count,video_count;
-
-    private ProgressBar progressBar;
 
     public StoreSubjectEntity(){}
 
@@ -123,13 +119,5 @@ public class StoreSubjectEntity {
 
     public void setVideo_count(String video_count) {
         this.video_count = video_count;
-    }
-
-    public ProgressBar getProgressBar() {
-        return progressBar;
-    }
-
-    public void setProgressBar(ProgressBar progressBar) {
-        this.progressBar = progressBar;
     }
 }

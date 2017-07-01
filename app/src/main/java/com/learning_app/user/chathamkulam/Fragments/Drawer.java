@@ -28,8 +28,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.learning_app.user.chathamkulam.DbBitmapUtility;
-import com.learning_app.user.chathamkulam.InternetDetector;
+import com.learning_app.user.chathamkulam.Model.DbBitmapUtility;
+import com.learning_app.user.chathamkulam.Model.InternetDetector;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;

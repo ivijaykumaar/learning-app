@@ -1,6 +1,7 @@
 package com.learning_app.user.chathamkulam.Adapters;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
@@ -11,7 +12,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.RequiresApi;
@@ -21,6 +21,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,14 +38,19 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.learning_app.user.chathamkulam.FileCrypto;
+import com.learning_app.user.chathamkulam.EncryptService;
+import com.learning_app.user.chathamkulam.Fragments.ModuleList;
 import com.learning_app.user.chathamkulam.Model.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
+import com.learning_app.user.chathamkulam.Model.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreEntityObjects;
-import com.learning_app.user.chathamkulam.ProgressBarTask;
 import com.learning_app.user.chathamkulam.R;
+import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
+import com.learning_app.user.chathamkulam.Viewer.NSPDFViewer;
+import com.learning_app.user.chathamkulam.Viewer.QBPDFViewer;
 
 import org.json.JSONArray;
 
@@ -54,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.learning_app.user.chathamkulam.Model.Constants.DOWNLOAD_URL;
+import static com.learning_app.user.chathamkulam.Model.Constants.ONLINE_MODULE_DATA;
+import static com.learning_app.user.chathamkulam.Model.Constants.ONLINE_VIEW;
 import static com.learning_app.user.chathamkulam.Model.Constants.PHONENUMBER;
 import static com.learning_app.user.chathamkulam.Model.Constants.SUBSCRIPTION;
 import static com.learning_app.user.chathamkulam.Registration.Registration.deleteCache;
@@ -65,7 +74,7 @@ import static com.learning_app.user.chathamkulam.Registration.Registration.delet
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
 public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyViewHolder> {
 
-    private Context mContext;
+    private Activity mContext;
     private List<StoreEntityObjects> myList;
 
     //   Download AsyncUrl variables
@@ -102,7 +111,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
     public int dl_progress;
 
-    private boolean click = true;
     private CheckingCards checkingCards;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -112,22 +120,19 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             Manifest.permission.INTERNET
     };
 
-
-    ArrayList<ArrayList<String>> checkDataListObject = new ArrayList<ArrayList<String>>();
-    ArrayList<String> treeCheckList;
-
-    public StoreCardAdapter(Context mContext) {
+    public StoreCardAdapter(Activity mContext) {
         this.mContext = mContext;
     }
 
-    public StoreCardAdapter(Context mContext, List<StoreEntityObjects> entityObjectsList) {
+    public StoreCardAdapter(Activity mContext, List<StoreEntityObjects> entityObjectsList) {
 
 //        Getting all store data
         this.mContext = mContext;
         this.myList = entityObjectsList;
     }
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+   class MyViewHolder extends RecyclerView.ViewHolder {
+
         TextView txtDuration,txtPrice,txtVideoDuration,txtNotes,txtQbank,txtVideo;
         ImageView IocVideo,IocNotes,IocQbank;
         NetworkImageView imageLoader;
@@ -152,38 +157,8 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             txtVideo = (TextView)view.findViewById(R.id.txtVideo);
 
             storeBarDownloading = (ProgressBar)view.findViewById(R.id.storeBarDownloading);
-
-//            storeBarDownloading.setProgress(50);
-
-//            if (dl_progress != 0){
-//                storeBarDownloading.setProgress(dl_progress);
-//
-//            }else {
-//                storeBarDownloading.setVisibility(View.GONE);
-//                Log.d("Progress bar", String.valueOf(dl_progress));
-//            }
-
             checkBoxSubject = (CheckBox)view.findViewById(R.id.checkSubjects);
-            checkBoxSubject.setChecked(false);
 
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    checkBoxSubject.setChecked(true);
-                }
-            });
-
-//            IocVideo.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//
-//                    ProgressBarTask task = new ProgressBarTask();
-//                    task.setProgressBar(storeBarDownloading);
-//                    task.execute();
-//
-//                }
-//            });
         }
     }
 
@@ -196,7 +171,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final MyViewHolder holder, @SuppressLint("RecyclerView") final int position) {
 
         storeEntityObjects = myList.get(position);
         ImageLoader imageLoader = CustomVolleyImageLoader.getInstance(mContext).getImageLoader();
@@ -216,7 +191,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
         String[] sizes = videoSize.split(":");
         String hours = sizes[0];
         String minute = sizes[1];
-        String seconds = sizes[2];
+        final String seconds = sizes[2];
 
         if (hours.equals("00")){
             if (!minute.equals("00")){
@@ -234,7 +209,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             holder.txtVideo.setVisibility(View.GONE);
         }
 
-        final String notes = storeEntityObjects.getSubject_details().get(position).getFile_count();
+        String notes = storeEntityObjects.getSubject_details().get(position).getFile_count();
         if (notes.equals("0")){
             holder.IocNotes.setVisibility(View.GONE);
             holder.txtNotes.setVisibility(View.GONE);
@@ -250,91 +225,91 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
         final Cursor cursorResult = registerMember.getDetails();
 
         checkingCards = new CheckingCards(mContext);
-//        holder.linearMainLayout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(final View view) {
-//
-//                if (click){
-//
-//                    holder.checkBoxSubject.setChecked(true);
-//
-//                    subject = storeEntityObjects.getSubject_details().get(position).getSubject_name();
-//                    subjectId = storeEntityObjects.getSubject_details().get(position).getId();
-//                    subjectNumber = storeEntityObjects.getSubject_details().get(position).getSub_no();
-//                    semester = storeEntityObjects.getSem_no();
-//                    duration = storeEntityObjects.getSubject_details().get(position).getSize();
-//                    videoCount = storeEntityObjects.getSubject_details().get(position).getVideo_count();
-//                    notesCount = storeEntityObjects.getSubject_details().get(position).getFile_count();
-//                    qbankCount = storeEntityObjects.getSubject_details().get(position).getQa_count();
-//
-//                    if (holder.checkBoxSubject.isChecked()){
-//
-//                        boolean IsEntry = checkingCards.addCheckData(String.valueOf(position),country,university,course,
-//                                semester,subject,subjectId,subjectNumber,duration,videoCount,notesCount,qbankCount);
-//                        if (IsEntry) {
-//
-//                            Log.d("Check subject","Successfully Added");
-//                        } else {
-//                            Log.d("Check subject","Added failed");
-//
-//                        }
-//
-//                        Log.d("databaseValue",position+semester+subject+subjectId+subjectNumber+"  "+duration);
-//
-//                        Cursor cursor = checkingCards.getCheckData();
-//
-//                        while (cursor.moveToNext()) {
-//
-//                            String position = cursor.getString(1);
-//                            String semester = cursor.getString(5);
-//                            String subject = cursor.getString(6);
-//                            String subjectId = cursor.getString(7);
-//                            String subjectNumber = cursor.getString(8);
-//                            String duration = cursor.getString(9);
-//                            String videoCount = cursor.getString(10);
-//                            String notesCount = cursor.getString(11);
-//                            String qbankCount = cursor.getString(12);
-//
-//                            Log.d("check data",position+semester+subject+subjectId+subjectNumber+duration
-//                                    +"  "+videoCount+notesCount+qbankCount);
-//                        }
-//                    }
-//
-//                    click = false;
-//
-//                } else {
-//
-//                    holder.checkBoxSubject.setChecked(false);
-//
-//                    checkingCards.removeUnCheckData(subject);
-//
-//                    Cursor cursor = checkingCards.getCheckData();
-//
-//                    if (cursor.getCount() != 0){
-//
-//                        while (cursor.moveToNext()) {
-//
-//                            String position = cursor.getString(1);
-//                            String semester = cursor.getString(5);
-//                            String subject = cursor.getString(6);
-//                            String subjectId = cursor.getString(7);
-//                            String subjectNumber = cursor.getString(8);
-//                            String duration = cursor.getString(9);
-//                            String videoCount = cursor.getString(10);
-//                            String notesCount = cursor.getString(11);
-//                            String qbankCount = cursor.getString(12);
-//
-//                            Log.d("final data",position+semester+subject+subjectId+subjectNumber+duration+videoCount+notesCount+qbankCount);
-//                        }
-//
-//                    } else {
-//                        Log.d("Cursor result", String.valueOf(cursor.getCount()));
-//                    }
-//
-//                    click = true;
-//                }
-//            }
-//        });
+
+        holder.IocVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                Use bounce interpolator with amplitude 0.2 and frequency 20
+                Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+                myAnim.setInterpolator(interpolator);
+                holder.IocVideo.startAnimation(myAnim);
+
+                Registration.deleteCache(mContext);
+                subject = storeEntityObjects.getSubject_details().get(position).getSubject_name();
+                subjectId = storeEntityObjects.getSubject_details().get(position).getId();
+                subjectNumber = storeEntityObjects.getSubject_details().get(position).getSub_no();
+                semester = storeEntityObjects.getSem_no();
+
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("subject_id",subjectId);
+                params.put("sem_no",semester);
+                params.put("sub_no",subjectNumber);
+
+                OnlineModuleView async = new OnlineModuleView(ONLINE_MODULE_DATA,params,mContext,ModuleList.class,subject);
+                async.execute();
+
+            }
+        });
+
+        holder.IocNotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                Use bounce interpolator with amplitude 0.2 and frequency 20
+                Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+                myAnim.setInterpolator(interpolator);
+                holder.IocNotes.startAnimation(myAnim);
+
+                Registration.deleteCache(mContext);
+                subject = storeEntityObjects.getSubject_details().get(position).getSubject_name();
+                subjectId = storeEntityObjects.getSubject_details().get(position).getId();
+                subjectNumber = storeEntityObjects.getSubject_details().get(position).getSub_no();
+                semester = storeEntityObjects.getSem_no();
+
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("subject_id",subjectId);
+                params.put("sem_no",semester);
+                params.put("sub_no",subjectNumber);
+                params.put("type","notes");
+
+                OnlineModuleView async = new OnlineModuleView(ONLINE_VIEW,params,mContext,NSPDFViewer.class,subject);
+                async.execute();
+
+
+            }
+        });
+
+        holder.IocQbank.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                Use bounce interpolator with amplitude 0.2 and frequency 20
+                Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+                myAnim.setInterpolator(interpolator);
+                holder.IocQbank.startAnimation(myAnim);
+
+                Registration.deleteCache(mContext);
+                subject = storeEntityObjects.getSubject_details().get(position).getSubject_name();
+                subjectId = storeEntityObjects.getSubject_details().get(position).getId();
+                subjectNumber = storeEntityObjects.getSubject_details().get(position).getSub_no();
+                semester = storeEntityObjects.getSem_no();
+
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put("subject_id",subjectId);
+                params.put("sem_no",semester);
+                params.put("sub_no",subjectNumber);
+                params.put("type","qa");
+
+                OnlineModuleView async = new OnlineModuleView(ONLINE_VIEW,params,mContext,QBPDFViewer.class,subject);
+                async.execute();
+
+
+            }
+        });
 
         checkingCards = new CheckingCards(mContext);
         holder.checkBoxSubject.setOnClickListener(new View.OnClickListener() {
@@ -443,22 +418,21 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             if (fileType.equals("mp4")) {
 
                 String[] separated = file_Name.split("_");
-                String fileName = separated[0];
-                String ModuleName = separated[1];
-                String TopicName = separated[2];
+                String fileName = separated[0].trim();
+                String ModuleName = separated[1].trim();
+                String TopicName = separated[2].trim();
 
                 String[] sepTopic = TopicName.split("-");
-                String finalTopicName = sepTopic[0];
-                String finalTopicLength = sepTopic[1];
+                String finalTopicName = sepTopic[0].trim();
+                String finalTopicLength = sepTopic[1].trim();
 
                 String[] sepLength = finalTopicLength.split(":");
-                String hours = sepLength[0];
-                String minutes = sepLength[1];
-                String seconds = sepLength[2];
-
+                String hours = sepLength[0].trim();
+                String minutes = sepLength[1].trim();
+                String seconds = sepLength[2].trim();
 
                 String DNAME = "Chathamkulam"+"/"+subject+"/"+ModuleName;
-                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
+                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME.trim());
                 if(!rootPath.exists()) {
                     rootPath.mkdirs();
                 }
@@ -510,33 +484,40 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                 if (status==DownloadManager.STATUS_SUCCESSFUL) {
                                     Log.d("Download status","done");
 
-                                    AsyncTask.execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            //TODO your background code
+                                    Intent intent = new Intent(mContext, EncryptService.class);
+                                    intent.putExtra("Key_fileName",myFinalDir);
+                                    mContext.startService(intent);
 
-                                            try {
-                                                FileCrypto.encrypt(myFinalDir, myFinalDir);
-                                                Log.d("fileCrypto","Encrypted");
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                                Log.d("fileCrypto Exception",e.getMessage());
-                                            }
-
-                                        }
-                                    });
+//                                    AsyncTask.execute(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            //TODO your background code
+//
+//                                            try {
+//                                                FileCrypto.encrypt(myFinalDir, myFinalDir);
+//                                                Log.d("fileCrypto","Encrypted");
+//                                            } catch (Exception e) {
+//                                                e.printStackTrace();
+//                                                Log.d("fileCrypto Exception",e.getMessage());
+//                                            }
+//
+//                                        }
+//
+//                                    });
 
                                     break;
                                 }
 
-                                if (status==DownloadManager.STATUS_FAILED) {
+                                if (status == DownloadManager.STATUS_FAILED || status == DownloadManager.ERROR_UNKNOWN ) {
                                     Log.d("Download status","failed");
+
+                                    downloadManager.remove(downloadId);
                                     break;
                                 }
 
                                 dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
-                                ProgressBarTask task = new ProgressBarTask(mContext);
-                                task.setProgress(dl_progress);
+//                                ProgressBarTask task = new ProgressBarTask(mContext);
+//                                task.setProgress(dl_progress);
 
                                 cursor.close();
                             }
@@ -554,18 +535,21 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
 //                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
                                 StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
-                                boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
-                                        subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
-                                if (IsEntry) {
-                                    Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
 
-                                } else {
-                                    Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
-                                }
-                                Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
-                                subscription(mContext);
+                                if (!storeEntireDetails.ifExists(subject)){
+
+                                    boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
+                                            subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
+                                    if (IsEntry) {
+                                        Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
+
+                                    } else {
+                                        Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
+                                    }
+                                    Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
+                                    subscription(mContext);
 //                                AskQuestion(mContext);
-
+                                }
                             }
                         }
                     };
@@ -581,7 +565,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             if (!fileType.equals("mp4")) {
 
                 String DNAME = "Chathamkulam"+"/"+subject;
-                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
+                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME.trim());
                 if(!rootPath.exists()) {
                     rootPath.mkdirs();
                 }
@@ -632,32 +616,36 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
                                     if (!fileType.equals("jpg")){
 
-                                        AsyncTask.execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                //TODO your background code
+                                        Intent intent = new Intent(mContext, EncryptService.class);
+                                        intent.putExtra("Key_fileName",myFinalDir);
+                                        mContext.startService(intent);
 
-                                                try {
-                                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
-                                                    Log.d("fileCrypto","Encrypted");
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                    Log.d("fileCrypto Exception",e.getMessage());
-                                                }
-
-                                            }
-                                        });
+//                                        AsyncTask.execute(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                //TODO your background code
+//
+//                                                try {
+//                                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
+//                                                    Log.d("fileCrypto","Encrypted");
+//                                                } catch (Exception e) {
+//                                                    e.printStackTrace();
+//                                                    Log.d("fileCrypto Exception",e.getMessage());
+//                                                }
+//                                            }
+//                                        });
                                     }
                                     break;
                                 }
-                                if (status==DownloadManager.STATUS_FAILED) {
+                                if ( status == DownloadManager.STATUS_FAILED || status == DownloadManager.ERROR_UNKNOWN) {
                                     Log.d("Download status","failed");
+                                    downloadManager.remove(downloadId);
                                     break;
                                 }
 
                                 dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
-                                ProgressBarTask task = new ProgressBarTask(mContext);
-                                task.setProgress(dl_progress);
+//                                ProgressBarTask task = new ProgressBarTask(mContext);
+//                                task.setProgress(dl_progress);
 
                                 cursor.close();
                             }
@@ -678,18 +666,21 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
 //                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
                                 StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
-                                boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
-                                        subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
-                                if (IsEntry) {
-                                    Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
 
-                                } else {
-                                    Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
-                                }
-                                Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
-                                subscription(mContext);
+                                if (!storeEntireDetails.ifExists(subject)){
+
+                                    boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
+                                            subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
+                                    if (IsEntry) {
+                                        Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
+
+                                    } else {
+                                        Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
+                                    }
+                                    Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
+                                    subscription(mContext);
 //                                AskQuestion(mContext);
-
+                                }
                             }
                         }
                     };

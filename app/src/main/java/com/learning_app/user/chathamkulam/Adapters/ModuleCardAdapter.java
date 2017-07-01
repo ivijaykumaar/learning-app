@@ -1,7 +1,9 @@
 package com.learning_app.user.chathamkulam.Adapters;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,13 +17,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.learning_app.user.chathamkulam.Model.ModuleModel.ModuleItems;
-import com.learning_app.user.chathamkulam.MyBounceInterpolator;
+import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
+import com.learning_app.user.chathamkulam.Model.OnlineModuleView;
 import com.learning_app.user.chathamkulam.R;
+import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Viewer.NormalVideoView;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static com.learning_app.user.chathamkulam.Fragments.ModuleList.currentSubjectName;
+import static com.learning_app.user.chathamkulam.Model.Constants.ONLINE_VIEW;
 
 /**
  * Created by User on 5/14/2017.
@@ -29,10 +35,10 @@ import static com.learning_app.user.chathamkulam.Fragments.ModuleList.currentSub
 
 public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.MyViewHolder> {
 
-    private Context mContext;
+    private Activity mContext;
     private List<ModuleItems> myList;
 
-    public ModuleCardAdapter(Context mContext, List<ModuleItems> myList) {
+    public ModuleCardAdapter(Activity mContext, List<ModuleItems> myList) {
         super();
         this.mContext = mContext;
         this.myList = myList;
@@ -69,51 +75,117 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
 
         final ModuleItems moduleItems = myList.get(position);
 
-        holder.txtTopic.setText(moduleItems.getTopicItems().get(position).getTopicName());
-        holder.txtTopicDuration.setText(moduleItems.getTopicItems().get(position).getTopicDuration());
+        if (moduleItems.getTopic_details().get(position).getTotalDuration() != null){
 
-        int totalDuration = Integer.parseInt(moduleItems.getTopicItems().get(position).getTotalDuration());
-        int pauseDuration = Integer.parseInt(moduleItems.getTopicItems().get(position).getPauseDuration());
+            holder.txtTopic.setText(moduleItems.getTopic_details().get(position).getTopic_name());
+            holder.txtTopicDuration.setText(moduleItems.getTopic_details().get(position).getTopic_duration());
 
-        if (totalDuration != 0 && pauseDuration != 0){
+            int totalDuration = Integer.parseInt(moduleItems.getTopic_details().get(position).getTotalDuration());
+            int pauseDuration = Integer.parseInt(moduleItems.getTopic_details().get(position).getPauseDuration());
 
-            holder.videoProgress.setProgress(((int) pauseDuration * 100) / totalDuration );
-        } else {
+            if (totalDuration != 0 && pauseDuration != 0){
+                int percent = ((int) pauseDuration * 100) / totalDuration;
 
-            holder.videoProgress.setProgress(0);
-        }
+                holder.videoProgress.setProgress(percent);
 
-        holder.topicLay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                if (percent >= 70){
+
+                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY);
+
+                }
+
+                if (percent <= 30){
+
+                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
+
+                }
+
+            } else {
+
+                holder.videoProgress.setProgress(0);
+            }
+
+            holder.topicLay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
 
 //                Use bounce interpolator with amplitude 0.2 and frequency 20
-                Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
-                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
-                myAnim.setInterpolator(interpolator);
+                    Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+                    MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+                    myAnim.setInterpolator(interpolator);
 
-                holder.iocVideo.startAnimation(myAnim);
+                    holder.iocVideo.startAnimation(myAnim);
 
-                String moduleName = moduleItems.getModuleName();
-                String topicName = moduleItems.getTopicItems().get(position).getTopicName();
-                String topicDuration = moduleItems.getTopicItems().get(position).getTopicDuration();
-                String currentTopicName = topicDuration.replaceAll(":","")+"-"+topicName;
+                    String moduleName = moduleItems.getModule_name();
+                    String topicName = moduleItems.getTopic_details().get(position).getTopic_name();
+                    String topicDuration = moduleItems.getTopic_details().get(position).getTopic_duration();
+                    String currentTopicName = topicDuration.replaceAll(":","")+"-"+topicName;
 
-                Intent sendValue = new Intent(mContext,NormalVideoView.class);
-                sendValue.putExtra("Key_position",position);
-                sendValue.putExtra("Key_subName",currentSubjectName);
-                sendValue.putExtra("Key_moduleName",moduleName);
-                sendValue.putExtra("Key_fileName",currentTopicName);
-                sendValue.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(sendValue);
+                    Intent sendValue = new Intent(mContext,NormalVideoView.class);
+                    sendValue.putExtra("Key_position",position);
+                    sendValue.putExtra("Key_subName",currentSubjectName);
+                    sendValue.putExtra("Key_moduleName",moduleName);
+                    sendValue.putExtra("Key_fileName",currentTopicName);
+                    sendValue.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(sendValue);
 
 //                VideoHandler videoHandler = VideoHandler.getInstance(mContext);
 //                videoHandler.DeleteAll();
 
-                Log.v("sendValue",position +"   "+moduleName+"  "+currentTopicName);
+                    Log.v("sendValue",position +"   "+moduleName+"  "+currentTopicName);
 
-            }
-        });
+                }
+            });
+
+        } else {
+
+            holder.txtTopic.setText(moduleItems.getTopic_details().get(position).getTopic_name());
+            holder.txtTopicDuration.setText(moduleItems.getTopic_details().get(position).getTopic_duration());
+            holder.videoProgress.setVisibility(View.GONE);
+
+            holder.topicLay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+//                Use bounce interpolator with amplitude 0.2 and frequency 20
+                    Animation myAnim = AnimationUtils.loadAnimation(mContext, R.anim.bounce);
+                    MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
+                    myAnim.setInterpolator(interpolator);
+
+                    holder.iocVideo.startAnimation(myAnim);
+
+                    Registration.deleteCache(mContext);
+
+                    String subjectId = moduleItems.getTopic_details().get(position).getSubject_id();
+                    String semester = moduleItems.getTopic_details().get(position).getSem_no();
+                    String subjectNumber = moduleItems.getTopic_details().get(position).getSub_no();
+                    String module_no = moduleItems.getTopic_details().get(position).getModule_no();
+                    String topic_no = moduleItems.getTopic_details().get(position).getTopic_no();
+
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("subject_id",subjectId);
+                    params.put("sem_no",semester);
+                    params.put("sub_no",subjectNumber);
+                    params.put("module_no",module_no);
+                    params.put("topic_no",topic_no);
+                    params.put("type","video");
+
+                    OnlineModuleView async = new OnlineModuleView
+                            (ONLINE_VIEW,params,mContext,NormalVideoView.class,currentSubjectName);
+                    async.execute();
+
+
+//                    Intent sendValue = new Intent(mContext,NormalVideoView.class);
+//                    sendValue.putExtra("Key_onlineSubName",currentSubjectName);
+//                    sendValue.putExtra("Key_url","url");
+//                    sendValue.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    mContext.startActivity(sendValue);
+
+                    Log.v("sendValue",position +"   "+currentSubjectName);
+
+                }
+            });
+        }
     }
 
     @Override

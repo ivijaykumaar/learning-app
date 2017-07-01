@@ -1,6 +1,6 @@
 package com.learning_app.user.chathamkulam.Adapters;
 
-import android.content.Context;
+import android.app.Activity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,11 +20,11 @@ import java.util.ArrayList;
 
 public class ModuleAdapter extends BaseAdapter {
 
-    private Context context;
+    private Activity context;
     private LayoutInflater inflater;
     private ArrayList<ModuleItems> mainArrayList = new ArrayList();
 
-    public ModuleAdapter(Context context, ArrayList<ModuleItems> mainArrayList) {
+    public ModuleAdapter(Activity context, ArrayList<ModuleItems> mainArrayList) {
         this.context = context;
         this.mainArrayList = mainArrayList;
         inflater = LayoutInflater.from(this.context);
@@ -59,11 +59,11 @@ public class ModuleAdapter extends BaseAdapter {
 
         ModuleItems moduleItems = getItem(position);
 
-        mViewHolder.txtModuleName.setText(moduleItems.getModuleName());
+        mViewHolder.txtModuleName.setText(moduleItems.getModule_name());
 
 //        Finally initializing our adapter
         ArrayList<ModuleItems> topicSubList = new ArrayList<>();
-        for(int i = 0; i< moduleItems.getTopicItems().size(); i++){
+        for(int i = 0; i< moduleItems.getTopic_details().size(); i++){
             topicSubList.add(moduleItems);
         }
 

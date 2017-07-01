@@ -75,13 +75,17 @@
         <activity android:name=".Fragments.ModuleList"
             android:configChanges="keyboardHidden|orientation|screenSize"/>
 
+        <activity android:name=".Fragments.DashFilterRecycler"/>
+
         <receiver android:name="swarajsaaj.smscodereader.receivers.OtpReader"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
             </intent-filter>
         </receiver>
-        <receiver android:name="com.learning_app.user.chathamkulam.AlarmReceiver"/>
+        <receiver android:name="com.learning_app.user.chathamkulam.Model.AlarmReceiver"/>
+
+        <service android:name=".EncryptService"/>
 
     </application>
 

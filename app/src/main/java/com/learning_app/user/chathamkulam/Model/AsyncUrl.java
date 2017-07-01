@@ -42,8 +42,6 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
     public static ArrayList  name_arrayList = new ArrayList<String>();
 
     private ProgressDialog loading;
-
-
     private PowerManager.WakeLock mWakeLock;
 
     public AsyncUrl(Context context, HashMap<String, String> params, JSONArray jsonArray,
@@ -64,7 +62,7 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... strings) {
 
-        String response = "";
+        StringBuilder result = null;
         URL url;
         try {
             url = new URL(strings[0]);
@@ -83,63 +81,63 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
             writer.flush();
             writer.close();
             os.close();
+
             int responseCode = conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                result = new StringBuilder();
                 while ((line = br.readLine()) != null) {
-                    response += line;
-                    Log.v("Start",response);
-                    JSONObject j = null;
-
-                    try {
-                        j = new JSONObject(response);
-//                        String result = getJSONUrl(url);
-                        jsonArray = j.getJSONArray(Current_JsonArray);
-
-                        if (jsonArray != null){
-
-                            for (int i = 0; i < jsonArray.length(); i++) {
-
-                                try {
-                                    JSONObject json = jsonArray.getJSONObject(i);
-
-                                    url_arrayList.add(json.getString(file_url));
-                                    name_arrayList.add(json.getString(file_name));
-
-                                    Log.v("FileUrl Result",url_arrayList.toString());
-                                    Log.v("FileName Result",name_arrayList.toString());
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-
-                                    Log.v("AsyncUrl Error",e.getMessage());
-                                }
-                            }
-                            Log.v("FileUrl Size", String.valueOf(url_arrayList.size()));
-                            Log.v("FileName Size", String.valueOf(name_arrayList.size()));
-
-                        }else {
-                            Toast.makeText(context,"Bad internet connection",Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.v("JSONException", e.toString());
-                    }
-                    Log.v("Response",response);
+                    result.append(line);
+                    Log.v("Start", String.valueOf(result));
                 }
+                JSONObject j = null;
+                try {
+                    j = new JSONObject(String.valueOf(result));
+                    jsonArray = j.getJSONArray(Current_JsonArray);
+
+                    if (jsonArray != null){
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+
+                            try {
+                                JSONObject json = jsonArray.getJSONObject(i);
+
+                                url_arrayList.add(json.getString(file_url));
+                                name_arrayList.add(json.getString(file_name));
+
+                                Log.v("FileUrl Result",url_arrayList.toString());
+                                Log.v("FileName Result",name_arrayList.toString());
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+
+                                Log.v("AsyncUrl Error",e.getMessage());
+                            }
+                        }
+                        Log.v("FileUrl Size", String.valueOf(url_arrayList.size()));
+                        Log.v("FileName Size", String.valueOf(name_arrayList.size()));
+
+                    } else {
+                        Toast.makeText(context,"Bad internet connection",Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.v("JSONException", e.toString());
+                }
+                Log.v("Response", String.valueOf(result));
+
             } else {
 
                 loading.dismiss();
-                response = "Network Error";
-                Log.v("Error Response", response);
+                Log.v("Error Response", String.valueOf(result));
 
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return String.valueOf(result);
     }
 
     @Override

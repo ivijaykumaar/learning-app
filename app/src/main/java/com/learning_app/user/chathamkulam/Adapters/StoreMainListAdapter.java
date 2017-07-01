@@ -1,6 +1,8 @@
 package com.learning_app.user.chathamkulam.Adapters;
 
-import android.content.Context;
+import android.app.Activity;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,13 +21,13 @@ import java.util.ArrayList;
 
 public class StoreMainListAdapter extends BaseAdapter {
 
-    private Context context;
+    private Activity context;
     private LayoutInflater inflater;
     private ArrayList<StoreEntityObjects> mainArrayList = new ArrayList();
 
     public static ArrayList<StoreEntityObjects> REStoreList;
 
-    public StoreMainListAdapter(Context context, ArrayList<StoreEntityObjects> mainArrayList) {
+    public StoreMainListAdapter(Activity context, ArrayList<StoreEntityObjects> mainArrayList) {
         this.context = context;
         this.mainArrayList = mainArrayList;
         inflater = LayoutInflater.from(context);
@@ -46,6 +48,7 @@ public class StoreMainListAdapter extends BaseAdapter {
         return position;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         MyViewHolder mViewHolder;

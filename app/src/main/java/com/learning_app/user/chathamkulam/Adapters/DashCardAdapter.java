@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,10 +19,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.learning_app.user.chathamkulam.AlarmReceiver;
+import com.learning_app.user.chathamkulam.Model.AlarmReceiver;
 import com.learning_app.user.chathamkulam.Fragments.ModuleList;
 import com.learning_app.user.chathamkulam.Model.DashboardModel.DashEntityObjects;
-import com.learning_app.user.chathamkulam.MyBounceInterpolator;
+import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Viewer.NSPDFViewer;
 import com.learning_app.user.chathamkulam.Viewer.QBPDFViewer;
@@ -51,7 +53,7 @@ public class DashCardAdapter extends RecyclerView.Adapter<DashCardAdapter.MyView
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView txtDuration,txtPrice,txtValid,txtVideoDuration,txtVideo,txtNotes,txtQbank;
+        TextView txtDuration,txtPrice,txtValid,txtVideoDuration,txtVideo,txtNotes,txtQbank,txtSubjectName;
         ImageView subject_image, iocVideo,iocNotes,iocQuestionBank;
 
         MyViewHolder(View view) {
@@ -63,6 +65,8 @@ public class DashCardAdapter extends RecyclerView.Adapter<DashCardAdapter.MyView
             txtVideo = (TextView)view.findViewById(R.id.txtVideo);
             txtNotes = (TextView)view.findViewById(R.id.txtNotes);
             txtQbank = (TextView)view.findViewById(R.id.txtQbank);
+            txtSubjectName = (TextView)view.findViewById(R.id.txtSubjectName);
+            txtSubjectName.setVisibility(View.GONE);
 
             subject_image = (ImageView)view.findViewById(R.id.ime_description);
             iocVideo = (ImageView)view.findViewById(R.id.iocVideo);
@@ -80,6 +84,7 @@ public class DashCardAdapter extends RecyclerView.Adapter<DashCardAdapter.MyView
         return new MyViewHolder(itemView);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
 
@@ -97,14 +102,23 @@ public class DashCardAdapter extends RecyclerView.Adapter<DashCardAdapter.MyView
             String folderName = dashEntityObjects.getSubject_details().get(position).getSubject_name();
             String fileName = dashEntityObjects.getSubject_details().get(position).getSubject_name()+".jpg";
             String DNAME = "Chathamkulam"+"/"+folderName+"/"+fileName;
-
             File rootPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), DNAME);
 
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 8;
+            if (!rootPath.exists()){
 
-            Bitmap mBitmap = BitmapFactory.decodeFile(rootPath.getAbsolutePath(),options);
-            holder.subject_image.setImageBitmap(mBitmap);
+                holder.subject_image.setBackgroundResource(android.R.drawable.ic_dialog_alert);
+                holder.txtSubjectName.setVisibility(View.VISIBLE);
+                holder.txtSubjectName.setText(subject);
+
+            } else {
+
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 8;
+
+                Bitmap mBitmap = BitmapFactory.decodeFile(rootPath.getAbsolutePath(),options);
+                holder.subject_image.setImageBitmap(mBitmap);
+
+            }
 
         }catch (Exception e){
             e.printStackTrace();

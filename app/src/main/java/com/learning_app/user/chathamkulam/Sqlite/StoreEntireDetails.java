@@ -90,12 +90,12 @@ public class StoreEntireDetails extends SQLiteOpenHelper {
 
     public Cursor groupMainDetails(){
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " GROUP BY COUNTRY,COURSE,SEMESTER" ,null);
+        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " GROUP BY COUNTRY,SUBJECT_ID,SEMESTER" ,null);
     }
 
-    public Cursor groupSubDetails(String subject_id){
+    public Cursor groupSubDetails(String subject_id,String sem_no){
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE SUBJECT_ID = ? " + " GROUP BY SUBJECT_NO" ,new String[]{subject_id});
+        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE SUBJECT_ID = ? AND SEMESTER = ?" + " GROUP BY SUBJECT_NO" ,new String[]{subject_id,sem_no});
     }
 
     public Cursor getSubjectFromTable(){
@@ -103,15 +103,39 @@ public class StoreEntireDetails extends SQLiteOpenHelper {
         return db.rawQuery("SELECT SUBJECT FROM " + TABLE_NAME,null);
     }
 
+    public void removeExpireSubject(String subject) {
+        //Open the database
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        //Execute sql query to remove from database
+        //NOTE: When removing by String in SQL, value must be enclosed with ''
+        database.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + Col_Subject + "= '" + subject + "'");
+
+        //Close the database
+        database.close();
+    }
+
+    public Cursor getSubjectRow(String subject) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.rawQuery("SELECT * FROM "+ TABLE_NAME +" WHERE SUBJECT = ?", new String[]{subject});
+
+    }
+
+    public boolean ifExists(String member) {
+
+        Cursor cursor = null;
+        SQLiteDatabase db = this.getWritableDatabase();
+        String checkQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + Col_Subject + "= '"+ member + "'";
+        cursor= db.rawQuery(checkQuery,null);
+        boolean exists = (cursor.getCount() > 0);
+        cursor.close();
+        return exists;
+    }
+
+
     public Cursor getVideoPathFromTable() {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.rawQuery("SELECT VIDEO FROM " + TABLE_NAME, null);
-    }
-
-    public Cursor getRow(String id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery("SELECT * FROM "+ TABLE_NAME +" WHERE ID = ?", new String[]{id});
-
     }
 
     public void DeleteAll(){
