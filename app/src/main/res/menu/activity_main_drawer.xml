@@ -15,15 +15,12 @@
             android:icon="@drawable/ic_store" />
 
         <item
-            android:id="@+id/nav_dictionary"
-            android:title="Dictionary"
-            android:icon="@drawable/ic_dictionary"/>
-        <item
             android:id="@+id/nav_calc"
             android:title="Calculator"
             android:icon="@drawable/ic_calculator"/>
 
         <item
+            android:id="@+id/nav_feedback"
             android:title="Feedback"
            android:icon="@drawable/ic_feedback"/>
 

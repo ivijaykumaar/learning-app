@@ -45,12 +45,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning_app.user.chathamkulam.Adapters.StoreCardAdapter;
 import com.learning_app.user.chathamkulam.Adapters.StoreMainListAdapter;
-import com.learning_app.user.chathamkulam.Model.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
-import com.learning_app.user.chathamkulam.Model.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreEntityObjects;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreSubjectEntity;
-import com.learning_app.user.chathamkulam.PaymentGateway.PaymentGateWay;
+import com.learning_app.user.chathamkulam.PaymentGateway.PaymentGateActivity;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.SearchFilters.StoreCardFilterAdapter;
@@ -69,7 +69,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.learning_app.user.chathamkulam.Model.AlarmReceiver.deleteRecursive;
+import static com.learning_app.user.chathamkulam.Model.BackgroundWork.AlarmReceiver.deleteRecursive;
 import static com.learning_app.user.chathamkulam.Model.Constants.GET_URLS;
 import static com.learning_app.user.chathamkulam.Model.Constants.ONLINE_MODULE_DATA;
 import static com.learning_app.user.chathamkulam.Model.Constants.STORE_DATA;
@@ -105,7 +105,6 @@ public class FMStore extends Fragment {
 
     String viewResponse;
     String searchResponse;
-
 
     public FMStore() {
 
@@ -183,7 +182,7 @@ public class FMStore extends Fragment {
                                             AlertDialog.Builder alertNotes = new AlertDialog.Builder(getActivity());
 
                                             while (cursorResult.moveToNext()) {
-                                                String userName = cursorResult.getString(0);
+                                                String userName = cursorResult.getString(1);
 
                                                 alertNotes.setTitle("Dear  " + userName);
                                                 alertNotes.setMessage(R.string.viewMessage);
@@ -215,7 +214,7 @@ public class FMStore extends Fragment {
                                             AlertDialog.Builder alertVideo = new AlertDialog.Builder(getActivity());
 
                                             while (cursorResult.moveToNext()) {
-                                                String userName = cursorResult.getString(0);
+                                                String userName = cursorResult.getString(1);
 
                                                 alertVideo.setTitle("Dear  " + userName);
                                                 alertVideo.setMessage(R.string.viewMessage);
@@ -255,7 +254,7 @@ public class FMStore extends Fragment {
                                             AlertDialog.Builder alertQb = new AlertDialog.Builder(getActivity());
 
                                             while (cursorResult.moveToNext()) {
-                                                String userName = cursorResult.getString(0);
+                                                String userName = cursorResult.getString(1);
 
                                                 alertQb.setTitle("Dear  " + userName);
                                                 alertQb.setMessage(R.string.viewMessage);
@@ -318,7 +317,6 @@ public class FMStore extends Fragment {
                 myAnim.setInterpolator(interpolator);
                 btnTrial.startAnimation(myAnim);
 
-
                 btnTrial.setEnabled(false);
 
                 Cursor cursor = checkingCards.getCheckData();
@@ -335,14 +333,16 @@ public class FMStore extends Fragment {
                         final String subject = cursor.getString(6);
                         final String subjectId = cursor.getString(7);
                         final String subjectNumber = cursor.getString(8);
-                        final String freeValidity = cursor.getString(9);
-                        final String paidValidity = cursor.getString(10);
-                        final String duration = cursor.getString(11);
-                        final String videoCount = cursor.getString(12);
-                        final String notesCount = cursor.getString(13);
-                        final String qbankCount = cursor.getString(14);
+                        final String amount = cursor.getString(9);
+                        final String freeValidity = cursor.getString(10);
+                        final String paidValidity = cursor.getString(11);
+                        final String duration = cursor.getString(12);
+                        final String videoCount = cursor.getString(13);
+                        final String notesCount = cursor.getString(14);
+                        final String qbankCount = cursor.getString(15);
 
-                        Log.d("Check data",position+semester+subject+subjectId+subjectNumber+"  "+freeValidity+"  "+paidValidity+"  "+duration);
+                        Log.d("Check data",position+semester+subject+subjectId+subjectNumber+"   "+amount+
+                                "  "+freeValidity+"  "+paidValidity+"  "+duration);
 
 //                            put values for download
                         HashMap<String,String> params = new HashMap<String, String>();
@@ -441,26 +441,72 @@ public class FMStore extends Fragment {
                 btnBuy.setEnabled(false);
 
                 Cursor cursor = checkingCards.getCheckData();
-                if (cursor != null) {
+                if (cursor.getCount() != 0){
 
-                    startActivity(new Intent(getActivity(), PaymentGateWay.class));
-                    Toast.makeText(getActivity()," Please buy our subjects !! ",Toast.LENGTH_SHORT).show();
+                    StringBuilder stringSubject = new StringBuilder();
+                    ArrayList<String> amountList = new ArrayList<String>();
 
-                }else{
+                    while (cursor.moveToNext()) {
+
+                        String position = cursor.getString(1);
+                        String country = cursor.getString(2);
+                        String university = cursor.getString(3);
+                        String course = cursor.getString(4);
+                        String semester = cursor.getString(5);
+                        String subject = cursor.getString(6);
+                        String subjectId = cursor.getString(7);
+                        String subjectNumber = cursor.getString(8);
+                        String amount = cursor.getString(9);
+                        String freeValidity = cursor.getString(10);
+                        String paidValidity = cursor.getString(11);
+                        String duration = cursor.getString(12);
+                        String videoCount = cursor.getString(13);
+                        String notesCount = cursor.getString(14);
+                        String qbankCount = cursor.getString(15);
+
+                        Log.d("checkData",position+semester+subject+subjectId+subjectNumber+"   "+amount+
+                                "  "+freeValidity+"  "+paidValidity+"  "+duration);
+
+                        stringSubject.append(subject).append(", ");
+                        amountList.add(amount);
+                    }
+
+                    int totalAmount = 0;
+                    for (int i = 0; i < amountList.size(); i++) {
+                        totalAmount += Integer.parseInt(amountList.get(i));
+                    }
+
+                    String subjectName = stringSubject.substring(0, stringSubject.length() - 2);
+                    Log.d("concatValue",subjectName+"   "+totalAmount);
+
+                    if (!subjectName.equals(null)){
+
+                        Intent intent = new Intent(getActivity(), PaymentGateActivity.class);
+                        intent.putExtra("key_subjectName",subjectName);
+                        intent.putExtra("key_amount",totalAmount);
+                        startActivity(intent);
+
+                    }
+
+                    cursor.close();
+                    checkingCards.close();
+
+                } else {
 
                     Toast.makeText(getActivity()," Please select subjects below!! ",Toast.LENGTH_SHORT).show();
+                    btnBuy.setEnabled(true);
                 }
             }
         });
 
 
-        boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-        if (!hasPermission) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_WRITE_STORAGE);
-        }
+            boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+            if (!hasPermission) {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_WRITE_STORAGE);
+            }
 
         return view;
     }
@@ -500,11 +546,22 @@ public class FMStore extends Fragment {
 
         menu.findItem(R.id.menu_share).setVisible(true);
         menu.findItem(R.id.action_search).setVisible(true);
+        menu.findItem(R.id.menu_submit).setVisible(false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        btnTrial.setEnabled(true);
+        btnBuy.setEnabled(true);
+        btnOnlineView.setEnabled(true);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
 
         btnTrial.setEnabled(true);
         btnBuy.setEnabled(true);

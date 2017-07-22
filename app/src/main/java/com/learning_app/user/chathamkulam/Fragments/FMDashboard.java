@@ -75,6 +75,8 @@ public class FMDashboard extends Fragment {
         Log.d("dashCursorCount", String.valueOf(cursor.getCount()));
         cursor.close();
 
+        Log.d("packageName",getActivity().getPackageName());
+
 //        if (cursor.getCount() != 0){
 //
 //            if (cursor.moveToFirst()){
@@ -120,6 +122,7 @@ public class FMDashboard extends Fragment {
 
         menu.findItem(R.id.menu_share).setVisible(true);
         menu.findItem(R.id.action_search).setVisible(true);
+        menu.findItem(R.id.menu_submit).setVisible(false);
 
     }
 
@@ -396,6 +399,7 @@ public class FMDashboard extends Fragment {
 
                     Log.d("jsonValue", String.valueOf(mainArray));
                 }
+                mainCursor.close();
             }catch (JSONException e){
 
                 Log.d("JSONException", String.valueOf(e));

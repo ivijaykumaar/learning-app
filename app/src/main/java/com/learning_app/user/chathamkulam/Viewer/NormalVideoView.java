@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.learning_app.user.chathamkulam.Model.FileCrypto;
+import com.learning_app.user.chathamkulam.Model.EncryptDecrypt.FileCrypto;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Sqlite.VideoHandler;
@@ -181,32 +181,7 @@ public class NormalVideoView extends AppCompatActivity {
                 public void onPrepared(MediaPlayer mp) {
 
                     loadingIndicatorView.smoothToHide();
-                    int totalDuration = video_player_view.getDuration();
                     topicName = videoFile.toString();
-
-                    Cursor mainCursor = videoHandler.getAllData();
-                    if (mainCursor.getCount() != 0){
-
-                        while (mainCursor.moveToNext()) {
-
-                            String crTopicName = mainCursor.getString(1);
-                            String crTotalTime = mainCursor.getString(2);
-                            String crPauseTime = mainCursor.getString(3);
-
-                            if (videoHandler.ifExists(topicName)){
-                                video_player_view.seekTo(Integer.parseInt(crPauseTime));
-                            }
-
-                            if (!videoHandler.ifExists(topicName)){
-                                video_player_view.seekTo(0);
-                            }
-
-                            Log.d("Updated data",crTopicName+"  "+crTotalTime+"   "+crPauseTime);
-                        }
-                        mainCursor.close();
-                    }
-
-                    Log.d("OnPrepared 1",topicName +"  "+ String.valueOf(totalDuration));
                 }
             });
 
@@ -214,6 +189,72 @@ public class NormalVideoView extends AppCompatActivity {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
 
+                    if (onlineSubject == null) {
+
+                        int totalDuration = video_player_view.getDuration();
+                        Log.d("onResult", totalDuration +"   " + topicName);
+
+                        if (totalDuration != 0 && !topicName.equals(null)) {
+
+                            Cursor mainCursor = videoHandler.getAllData();
+                            if (mainCursor.getCount() == 0) {
+
+                                boolean IsEntry = videoHandler.AddTopicDetails(topicName, totalDuration, 1);
+                                if (IsEntry) {
+                                    Log.d("entryStatus", "Successfully Added");
+
+                                } else {
+                                    Log.d("entryStatus", "Added failed");
+                                }
+
+                            } else {
+
+                                if (videoHandler.ifExists(topicName)) {
+
+                                    Cursor cursor = videoHandler.getRow(topicName);
+                                    while (cursor.moveToNext()) {
+
+                                        String topicName = cursor.getString(1);
+                                        String totalTime = cursor.getString(2);
+                                        int count = cursor.getInt(3);
+
+                                        boolean IsEntry = videoHandler.UpdateData(topicName, totalDuration,count+1);
+                                        if (IsEntry) {
+                                            Log.d("updateStatus", "Successfully Updated");
+
+                                        } else {
+                                            Log.d("updateStatus", "Added Updated");
+                                        }
+                                    }
+                                    cursor.close();
+
+                                } else {
+
+                                    boolean IsEntry = videoHandler.AddTopicDetails(topicName, totalDuration, 1);
+                                    if (IsEntry) {
+                                        Log.d("updateStatus", "Successfully Added");
+
+                                    } else {
+                                        Log.d("updateStatus", "Added failed");
+                                    }
+                                }
+                            }
+                            mainCursor.close();
+                        }
+
+                        Cursor cursor1 = videoHandler.getAllData();
+                        while (cursor1.moveToNext()) {
+
+                            String topicName = cursor1.getString(1);
+                            String totalTime = cursor1.getString(2);
+                            String count = cursor1.getString(3);
+
+                            Log.d("finalData", topicName + "  " + totalTime + "   " + count);
+                        }
+                        cursor1.close();
+
+                        Log.d("cursorCount", String.valueOf(cursor1.getCount()));
+                    }
 
                     video_player_view.stopPlayback();
                     startVideo();
@@ -222,6 +263,7 @@ public class NormalVideoView extends AppCompatActivity {
 
                 }
             });
+
             video_player_view.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -367,18 +409,6 @@ public class NormalVideoView extends AppCompatActivity {
         Registration.deleteCache(getApplicationContext());
     }
 
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if ((keyCode == KeyEvent.KEYCODE_HOME)) {
-////            Toast.makeText(this, "You pressed the home button!", Toast.LENGTH_LONG).show();
-//
-//            Registration.deleteCache(getApplicationContext());
-//
-//            return true;
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -393,6 +423,7 @@ public class NormalVideoView extends AppCompatActivity {
 
         menu.findItem(R.id.menu_share).setVisible(true);
         menu.findItem(R.id.action_search).setVisible(false);
+        menu.findItem(R.id.menu_submit).setVisible(false);
 
         return true;
     }
@@ -422,64 +453,5 @@ public class NormalVideoView extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         //stopPosition is an int
-
-        if (onlineSubject == null) {
-
-            video_player_view.pause();
-            int totalDuration = video_player_view.getDuration();
-            int pauseDuration = video_player_view.getCurrentPosition();
-            Log.d("OnPause Result", totalDuration + "  " + pauseDuration + "   " + topicName);
-
-            if (totalDuration != 0 && pauseDuration != 0 && !topicName.equals(null)) {
-
-                Cursor mainCursor = videoHandler.getAllData();
-                if (mainCursor.getCount() == 0) {
-
-                    boolean IsEntry = videoHandler.AddTopicDetails(topicName, totalDuration, pauseDuration);
-                    if (IsEntry) {
-                        Log.d("Entry status", "Successfully Added");
-
-                    } else {
-                        Log.d("Entry Result", "Added failed");
-                    }
-
-                } else {
-
-                    if (videoHandler.ifExists(topicName)) {
-
-                        boolean IsEntry = videoHandler.UpdateData(topicName, totalDuration, pauseDuration);
-                        if (IsEntry) {
-                            Log.d("Update status", "Successfully Updated");
-
-                        } else {
-                            Log.d("Update status", "Added Updated");
-                        }
-
-                    } else {
-
-                        boolean IsEntry = videoHandler.AddTopicDetails(topicName, totalDuration, pauseDuration);
-                        if (IsEntry) {
-                            Log.d("Update status", "Successfully Added");
-
-                        } else {
-                            Log.d("Update status", "Added failed");
-                        }
-                    }
-                }
-            }
-
-            Cursor cursor1 = videoHandler.getAllData();
-            while (cursor1.moveToNext()) {
-
-                String topicName = cursor1.getString(1);
-                String totalTime = cursor1.getString(2);
-                String pauseTime = cursor1.getString(3);
-
-                Log.d("Final data", topicName + "  " + totalTime + "   " + pauseTime);
-            }
-            cursor1.close();
-
-            Log.d("Cursor count", String.valueOf(cursor1.getCount()));
-        }
     }
 }

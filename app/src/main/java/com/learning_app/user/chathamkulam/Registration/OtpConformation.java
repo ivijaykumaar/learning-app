@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
@@ -25,6 +27,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.learning_app.user.chathamkulam.Fragments.Drawer;
+import com.learning_app.user.chathamkulam.Model.DbBitmapUtility;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 
@@ -71,6 +74,7 @@ public class OtpConformation extends AppCompatActivity implements OTPListener {
             Manifest.permission.RECEIVE_SMS
     };
 
+    DbBitmapUtility dbBitmapUtility;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -164,7 +168,10 @@ public class OtpConformation extends AppCompatActivity implements OTPListener {
 
                     if (!registerMember.ifExists(CurrentEmail)){
 
-                        boolean IsEntry = registerMember.addMember(CurrentName,CurrentEmail,CurrentMobNo);
+                        dbBitmapUtility = new DbBitmapUtility();
+                        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_profile);
+
+                        boolean IsEntry = registerMember.addMember(CurrentName,CurrentEmail,CurrentMobNo,dbBitmapUtility.getBytes(bm));
                         if (IsEntry) {
                             Toast.makeText(getApplicationContext(), "Now you Are a Member our Organization", Toast.LENGTH_LONG).show();
                         } else {

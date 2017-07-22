@@ -31,4 +31,5 @@ public class TestUrls {
     public static final String TEST_ONLINE_MODULE_DATA = "http://chathamkulam.org/backend_demo/backend/appStore/video_view.php";
     public static final String TEST_ONLINE_VIEW = "http://chathamkulam.org/backend_demo/backend/appStore/online_view.php";
 
+    public static final String TEST_PAYMENT = "";
 }

@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <VideoView android:id="@+id/bg_video_already_reg"
+    <VideoView
+        android:id="@+id/bg_video_already_reg"
         android:layout_width="fill_parent"
         android:layout_alignParentRight="true"
         android:layout_alignParentLeft="true"
@@ -21,71 +22,97 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="15dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        tools:ignore="ObsoleteLayoutParam">
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Verify Your Mobile Number"
-        android:textColor="#FFFFFF"
-        android:padding="15dp"
-        android:textSize="18sp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <com.hbb20.CountryCodePicker
-            android:id="@+id/already_ccp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:textSize="16sp"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/rounded_edittxt"/>
-
-        <EditText
-            android:id="@+id/NumberEdt"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Mobile Number"
-            android:padding="8dp"
-            android:layout_marginLeft="5dp"
-            android:inputType="phone"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/rounded_edittxt"/>
+            android:orientation="vertical"
+            android:padding="15dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            tools:ignore="ObsoleteLayoutParam">
+            <TextView
+                android:id="@+id/txtNotify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Verify your mobile number"
+                android:textColor="#FFFFFF"
+                android:padding="15dp"
+                android:textSize="18sp"/>
 
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/numberLay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+                <com.hbb20.CountryCodePicker
+                    android:id="@+id/already_ccp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:textSize="16sp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/rounded_edittxt"/>
 
-        <Button
-            android:id="@+id/proceed_Btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Proceed"
-            android:padding="10dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:background="@drawable/rounded_edittxt"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="24dp"
-            android:textSize="18sp"
-            android:drawableRight="@drawable/ic_forward"/>
+                <EditText
+                    android:id="@+id/NumberEdt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mobile Number"
+                    android:padding="8dp"
+                    android:layout_marginLeft="5dp"
+                    android:inputType="phone"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/rounded_edittxt"/>
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/edtEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter your email"
+                android:padding="5dp"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/rounded_edittxt"
+                android:inputType="textEmailAddress"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/proceed_Btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:text="Proceed"
+                    android:padding="10dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:background="@drawable/rounded_edittxt"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="24dp"
+                    android:textSize="18sp"
+                    android:drawableRight="@drawable/ic_forward"/>
+
+                <Button
+                    android:id="@+id/btnMoreOptions"
+                    android:text="More Options"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFF"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:layout_alignBaseline="@+id/proceed_Btn"
+                    android:layout_alignBottom="@+id/proceed_Btn"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
 
 
-    </RelativeLayout>
+            </RelativeLayout>
 
-    </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 </RelativeLayout>

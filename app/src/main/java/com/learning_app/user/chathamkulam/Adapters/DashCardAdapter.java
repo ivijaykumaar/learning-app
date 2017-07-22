@@ -19,8 +19,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.learning_app.user.chathamkulam.Model.AlarmReceiver;
 import com.learning_app.user.chathamkulam.Fragments.ModuleList;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.AlarmReceiver;
 import com.learning_app.user.chathamkulam.Model.DashboardModel.DashEntityObjects;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
 import com.learning_app.user.chathamkulam.R;
@@ -72,6 +72,10 @@ public class DashCardAdapter extends RecyclerView.Adapter<DashCardAdapter.MyView
             iocVideo = (ImageView)view.findViewById(R.id.iocVideo);
             iocNotes = (ImageView)view.findViewById(R.id.iocNotes);
             iocQuestionBank = (ImageView)view.findViewById(R.id.iocQB);
+
+//            BadgeView badge = new BadgeView(mContext,subject_image);
+//            badge.setText("1");
+//            badge.show();
 
         }
     }

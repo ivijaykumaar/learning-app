@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+	android:padding="10dp">
+
+	<LinearLayout
+		android:id="@+id/layoutRequired"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+    <LinearLayout
+		android:id="@+id/layoutMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left"
+        android:orientation="vertical" >
+        
+        <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/access_code"
+			tools:ignore="RtlSymmetry" />
+	
+	    <EditText
+	        android:id="@+id/accessCode"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:text="4YRUXLSRO20O8NIH"
+			tools:ignore="TextFields">
+	        <requestFocus />
+	    </EditText>
+        
+        <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/merchant_id"
+			tools:ignore="RtlSymmetry" />
+	
+	    <EditText
+	        android:id="@+id/merchantId"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:text="2"
+			tools:ignore="TextFields" />
+
+	    <TextView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="Order Id"
+			tools:ignore="RtlSymmetry" />
+
+        <EditText
+	        android:id="@+id/orderId"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+			tools:ignore="TextFields" />
+	    
+	    <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/currency"
+			tools:ignore="RtlSymmetry" />
+	
+	    <EditText
+	        android:id="@+id/currency"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10" 
+	        android:text="INR"
+			tools:ignore="TextFields" />
+	    
+	    <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/amount"
+			tools:ignore="RtlSymmetry" />
+	
+	    <EditText
+	        android:id="@+id/amount"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:text="1.00"
+			tools:ignore="TextFields" />
+	    
+	    <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/redirect_url"
+			tools:ignore="RtlSymmetry" />
+
+	    <EditText
+	        android:id="@+id/redirectUrl"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="textUri" 
+	        android:text="http://122.182.6.216/merchant/ccavResponseHandler.jsp"  
+	    />
+	    
+	    <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/cancel_url"
+			tools:ignore="RtlSymmetry" />
+
+	    <EditText
+	        android:id="@+id/cancelUrl"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="textUri"
+	        android:text="http://122.182.6.216/merchant/ccavResponseHandler.jsp" />
+	    
+	    <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="10dp"
+	        android:paddingLeft="10dp"
+	        android:text="@string/rsa_url"
+			tools:ignore="RtlSymmetry" />
+
+	    <EditText
+	        android:id="@+id/rsaUrl"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="textUri"
+	        android:text="http://122.182.6.216/merchant/GetRSA.jsp" />
+	    
+	    <Button
+			android:layout_gravity="center"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="48dp"
+	        android:text="@string/pay_button" />
+    </LinearLayout>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:padding="10dp"
+			android:background="@drawable/boreded_edittxt">
+
+			<TextView
+				android:textColor="#000"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:padding="5dp"
+				android:text="Order Id"
+				tools:ignore="RtlSymmetry" />
+
+			<TextView
+				android:id="@+id/txtOrderId"
+				android:text="123456"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				tools:ignore="TextFields"
+				android:padding="5dp"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="#0080FF"/>
+
+			<TextView
+				android:textColor="#000"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Subject Name"
+				tools:ignore="RtlSymmetry"
+				android:padding="5dp"/>
+
+			<TextView
+				android:id="@+id/txtSubjectName"
+				android:padding="5dp"
+				android:text="Maths"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="#0080FF"/>
+
+			<TextView
+				android:textColor="#000"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5dp"
+				android:text="@string/amount"
+				tools:ignore="RtlSymmetry" />
+
+			<TextView
+				android:id="@+id/txtAmount"
+				android:padding="5dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="1.00"/>
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="#0080FF"/>
+
+			<TextView
+				android:textColor="#000"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5dp"
+				android:text="@string/currency"
+				tools:ignore="RtlSymmetry" />
+
+			<TextView
+				android:id="@+id/txtCurrency"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="5dp"
+				android:text="INR"
+				tools:ignore="TextFields" />
+
+		</LinearLayout>
+
+		<Button
+			android:layout_gravity="end"
+			android:layout_width="70dp"
+			android:layout_height="40dp"
+			android:onClick="onClick"
+			android:text="@string/pay_button"
+			android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+			style="@style/Widget.AppCompat.Button" />
+
+	</LinearLayout>
+
+</ScrollView>

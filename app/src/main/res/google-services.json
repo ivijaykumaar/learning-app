@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "380247188983",
+    "project_id": "chathamkulam-12297"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380247188983:android:256975a7c3b61f58",
+        "android_client_info": {
+          "package_name": "com.learning_app.user.chathamkulam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "380247188983-mjojjlackhnb544er7ou4b8sq8ve4hr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7v6E48K9i0qVLJIhsXEHiHS287YXx8RE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

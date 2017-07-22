@@ -21,7 +21,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.learning_app.user.chathamkulam.Model.AlarmReceiver;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.AlarmReceiver;
 import com.learning_app.user.chathamkulam.Fragments.ModuleList;
 import com.learning_app.user.chathamkulam.Model.DashboardModel.DashEntityObjects;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;

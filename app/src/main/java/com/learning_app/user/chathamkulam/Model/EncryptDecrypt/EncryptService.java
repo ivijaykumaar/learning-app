@@ -1,4 +1,4 @@
-package com.learning_app.user.chathamkulam;
+package com.learning_app.user.chathamkulam.Model.EncryptDecrypt;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,8 +6,6 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.learning_app.user.chathamkulam.Model.FileCrypto;
 
 import java.io.File;
 
@@ -32,11 +30,12 @@ public class EncryptService extends Service {
 
                 try {
                     File myFinalDir = (File) intent.getExtras().get("Key_fileName");
-                    FileCrypto.encrypt(myFinalDir, myFinalDir);
+                    FileCrypto.encrypt(getApplicationContext(),myFinalDir, myFinalDir);
                     Log.d("fileCrypto","Encrypted");
+
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.d("fileCrypto Exception",e.getMessage());
+                    Log.d("fileCryptoException",e.getMessage());
                 }
             }
 

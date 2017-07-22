@@ -1,4 +1,4 @@
-package com.learning_app.user.chathamkulam.Model;
+package com.learning_app.user.chathamkulam.Model.BackgroundWork;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -117,9 +117,8 @@ public class OnlineModuleView extends AsyncTask<String, String, String> {
         mWakeLock.release();
         loading.dismiss();
 
-        JSONObject json = null;
         try {
-            json = new JSONObject(result);
+            JSONObject json = new JSONObject(result);
 
             if (json.has("result1") || json.has("result2")){
 

@@ -35,4 +35,6 @@ public class Constants {
     public static final String ONLINE_MODULE_DATA = "http://chathamkulam.org/backend/appStore/video_view.php";
     public static final String ONLINE_VIEW = "http://chathamkulam.org/backend/appStore/online_view.php";
 
+    public static final String PROFILE_UPDATE_URL = "";
+
 }

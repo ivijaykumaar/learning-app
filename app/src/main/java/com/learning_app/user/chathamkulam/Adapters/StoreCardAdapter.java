@@ -38,11 +38,11 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.learning_app.user.chathamkulam.EncryptService;
 import com.learning_app.user.chathamkulam.Fragments.ModuleList;
-import com.learning_app.user.chathamkulam.Model.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
+import com.learning_app.user.chathamkulam.Model.EncryptDecrypt.EncryptService;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
-import com.learning_app.user.chathamkulam.Model.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreEntityObjects;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
@@ -100,6 +100,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
     private String videoCount;
     private String notesCount;
     private String qbankCount;
+    private String amount;
     private int defaultImage;
 
     //    Subscription variables
@@ -221,9 +222,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
             holder.txtQbank.setVisibility(View.GONE);
         }
 
-        RegisterMember registerMember = RegisterMember.getInstance(mContext);;
-        final Cursor cursorResult = registerMember.getDetails();
-
         checkingCards = new CheckingCards(mContext);
 
         holder.IocVideo.setOnClickListener(new View.OnClickListener() {
@@ -326,11 +324,12 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                 videoCount = storeEntityObjects.getSubject_details().get(position).getVideo_count();
                 notesCount = storeEntityObjects.getSubject_details().get(position).getFile_count();
                 qbankCount = storeEntityObjects.getSubject_details().get(position).getQa_count();
+                amount = storeEntityObjects.getSubject_details().get(position).getAmount();
 
                 if (holder.checkBoxSubject.isChecked()){
 
                     boolean IsEntry = checkingCards.addCheckData(String.valueOf(position),country,university,course,
-                            semester,subject,subjectId,subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
+                            semester,subject,subjectId,subjectNumber,amount,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
                     if (IsEntry) {
 
                         Log.d("Check subject","Successfully Added");
@@ -488,23 +487,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                     intent.putExtra("Key_fileName",myFinalDir);
                                     mContext.startService(intent);
 
-//                                    AsyncTask.execute(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            //TODO your background code
-//
-//                                            try {
-//                                                FileCrypto.encrypt(myFinalDir, myFinalDir);
-//                                                Log.d("fileCrypto","Encrypted");
-//                                            } catch (Exception e) {
-//                                                e.printStackTrace();
-//                                                Log.d("fileCrypto Exception",e.getMessage());
-//                                            }
-//
-//                                        }
-//
-//                                    });
-
                                     break;
                                 }
 
@@ -516,9 +498,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                 }
 
                                 dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
-//                                ProgressBarTask task = new ProgressBarTask(mContext);
-//                                task.setProgress(dl_progress);
-
                                 cursor.close();
                             }
                         }
@@ -526,14 +505,12 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
                     IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 
-                    final int finalI = i;
                     BroadcastReceiver receiver = new BroadcastReceiver() {
                         public void onReceive(Context ctxt, Intent intent) {
                             dlcount++;
 
                             if(dlcount == AsyncUrl.url_arrayList.size()) {
 
-//                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
                                 StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
 
                                 if (!storeEntireDetails.ifExists(subject)){
@@ -548,7 +525,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                     }
                                     Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
                                     subscription(mContext);
-//                                AskQuestion(mContext);
                                 }
                             }
                         }
@@ -619,21 +595,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                         Intent intent = new Intent(mContext, EncryptService.class);
                                         intent.putExtra("Key_fileName",myFinalDir);
                                         mContext.startService(intent);
-
-//                                        AsyncTask.execute(new Runnable() {
-//                                            @Override
-//                                            public void run() {
-//                                                //TODO your background code
-//
-//                                                try {
-//                                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
-//                                                    Log.d("fileCrypto","Encrypted");
-//                                                } catch (Exception e) {
-//                                                    e.printStackTrace();
-//                                                    Log.d("fileCrypto Exception",e.getMessage());
-//                                                }
-//                                            }
-//                                        });
                                     }
                                     break;
                                 }
@@ -644,9 +605,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                 }
 
                                 dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
-//                                ProgressBarTask task = new ProgressBarTask(mContext);
-//                                task.setProgress(dl_progress);
-
                                 cursor.close();
                             }
                         }
@@ -655,8 +613,7 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
 
                     IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 
-                    final int finalI1 = i;
-                    BroadcastReceiver receiver =new BroadcastReceiver() {
+                    BroadcastReceiver receiver = new BroadcastReceiver() {
                         public void onReceive(Context ctxt, Intent intent) {
 
                             Log.v("Download Others","Download Complete");
@@ -664,7 +621,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                             dlcount++;
                             if(dlcount == AsyncUrl.url_arrayList.size()) {
 
-//                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
                                 StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
 
                                 if (!storeEntireDetails.ifExists(subject)){
@@ -679,7 +635,6 @@ public class StoreCardAdapter extends RecyclerView.Adapter<StoreCardAdapter.MyVi
                                     }
                                     Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
                                     subscription(mContext);
-//                                AskQuestion(mContext);
                                 }
                             }
                         }

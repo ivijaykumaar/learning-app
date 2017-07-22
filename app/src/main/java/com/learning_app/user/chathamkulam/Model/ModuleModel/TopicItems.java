@@ -6,7 +6,7 @@ package com.learning_app.user.chathamkulam.Model.ModuleModel;
 
 public class TopicItems {
 
-    private String sem_no,subject_id,sub_no,module_no,topic_no,topic_name,topic_duration,pauseDuration,totalDuration;
+    private String sem_no,subject_id,sub_no,module_no,topic_no,topic_name,topic_duration,totalDuration,count;
 
     public String getSem_no() {
         return sem_no;
@@ -64,19 +64,19 @@ public class TopicItems {
         this.topic_duration = topic_duration;
     }
 
-    public String getPauseDuration() {
-        return pauseDuration;
-    }
-
-    public void setPauseDuration(String pauseDuration) {
-        this.pauseDuration = pauseDuration;
-    }
-
     public String getTotalDuration() {
         return totalDuration;
     }
 
     public void setTotalDuration(String totalDuration) {
         this.totalDuration = totalDuration;
+    }
+
+    public String getCount() {
+        return count;
+    }
+
+    public void setCount(String count) {
+        this.count = count;
     }
 }

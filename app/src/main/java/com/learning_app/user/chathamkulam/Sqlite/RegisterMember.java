@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -57,13 +56,14 @@ public class RegisterMember extends SQLiteOpenHelper {
 
     }
 
-    public boolean addMember(String userName,String emailId,String mobileNo){
+    public boolean addMember(String userName,String emailId,String mobileNo,byte[] image){
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(Col_UserName,userName);
         contentValues.put(Col_EmailId,emailId);
         contentValues.put(Col_MobileNo,mobileNo);
+        contentValues.put(Col_ProfilePic,image);
 
         long result = db.insert(TABLE_NAME,null,contentValues);
 
@@ -74,25 +74,23 @@ public class RegisterMember extends SQLiteOpenHelper {
         }
     }
 
-    public boolean setProfile(byte[] image) throws SQLiteException {
-        SQLiteDatabase db = this.getWritableDatabase();
+    public boolean updatePic(String name,String email,String number,byte[] image){
 
-        ContentValues contentValues = new  ContentValues();
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Col_UserName, name);
+        contentValues.put(Col_EmailId, email);
+        contentValues.put(Col_MobileNo, number);
         contentValues.put(Col_ProfilePic, image);
 
-        long result = db.insert(TABLE_NAME,null,contentValues);
+        db.update(TABLE_NAME,contentValues,null,null);
+        return true;
 
-        if (result == -1){
-            return false;
-        }else {
-            return true;
-        }
     }
-
 
     public Cursor getDetails(){
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor data = db.rawQuery("SELECT USERNAME,EMAIL_ID,MOBILE_NUMBER FROM " + TABLE_NAME,null);
+        Cursor data = db.rawQuery("SELECT * FROM " + TABLE_NAME,null);
         return data;
     }
 

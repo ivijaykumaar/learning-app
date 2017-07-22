@@ -43,7 +43,7 @@ public class SplashScreen extends Activity {
 
                         while (cursorResultEmail.moveToNext()) {
 
-                            String userEmail = cursorResultEmail.getString(1);
+                            String userEmail = cursorResultEmail.getString(2);
 
                             if (registerMember.ifExists(userEmail)){
 

@@ -3,18 +3,11 @@ package com.learning_app.user.chathamkulam.SearchFilters;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.DownloadManager;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -43,22 +35,18 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.learning_app.user.chathamkulam.Adapters.CustomVolleyImageLoader;
 import com.learning_app.user.chathamkulam.Fragments.ModuleList;
-import com.learning_app.user.chathamkulam.Model.AsyncUrl;
-import com.learning_app.user.chathamkulam.Model.FileCrypto;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
-import com.learning_app.user.chathamkulam.Model.OnlineModuleView;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreEntityObjects;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
-import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 import com.learning_app.user.chathamkulam.Viewer.NSPDFViewer;
 import com.learning_app.user.chathamkulam.Viewer.QBPDFViewer;
 
 import org.json.JSONArray;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +94,7 @@ public class StoreCardFilterAdapter extends RecyclerView.Adapter<StoreCardFilter
     private String videoCount;
     private String notesCount;
     private String qbankCount;
+    private String amount;
 
     //    Subscription variables
     private static String file_Url;
@@ -329,11 +318,12 @@ public class StoreCardFilterAdapter extends RecyclerView.Adapter<StoreCardFilter
                 videoCount = storeEntityObjects.getVideo_count();
                 notesCount = storeEntityObjects.getFile_count();
                 qbankCount = storeEntityObjects.getQa_count();
+                amount = storeEntityObjects.getAmount();
 
                 if (holder.checkBoxSubject.isChecked()){
 
                     boolean IsEntry = checkingCards.addCheckData(String.valueOf(position),country,university,course,
-                            semester,subject,subjectId,subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
+                            semester,subject,subjectId,subjectNumber,amount,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
                     if (IsEntry) {
 
                         Log.d("Check subject","Successfully Added");
@@ -443,295 +433,295 @@ public class StoreCardFilterAdapter extends RecyclerView.Adapter<StoreCardFilter
         };
     }
 
-    public void DownloadFile(final Activity activity, final String country, final String university, final String course,
-                             final String semester, final String subject, final String subjectId,
-                             final String subjectNumber, final String free_validity, final String paid_validity, final String duration, final String videoCount,
-                             final String notesCount, final String qbankCount){
-
-//        Check Android Versions
-        int currentapiVersion = Build.VERSION.SDK_INT;
-        if (currentapiVersion >= 23) {
-
-//             Do something for 23 and above versions
-            verifyStoragePermissions(activity);
-        }
-
-        for (int i = 0; i < AsyncUrl.url_arrayList.size(); i++) {
-
-            file_Url = String.valueOf(AsyncUrl.url_arrayList.get(i));
-            final String fileType = file_Url.substring(file_Url.lastIndexOf(".") + 1);
-
-            String file_Name = String.valueOf(AsyncUrl.name_arrayList.get(i));
-
-            if (fileType.equals("mp4")) {
-
-                String[] separated = file_Name.split("_");
-                String fileName = separated[0].trim();
-                String ModuleName = separated[1].trim();
-                String TopicName = separated[2].trim();
-
-                String[] sepTopic = TopicName.split("-");
-                String finalTopicName = sepTopic[0].trim();
-                String finalTopicLength = sepTopic[1].trim();
-
-                String[] sepLength = finalTopicLength.split(":");
-                String hours = sepLength[0].trim();
-                String minutes = sepLength[1].trim();
-                String seconds = sepLength[2].trim();
-
-                String DNAME = "Chathamkulam"+"/"+subject+"/"+ModuleName;
-                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME.trim());
-                if(!rootPath.exists()) {
-                    rootPath.mkdirs();
-                }
-
-                if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                    Log.v("Cannot use storage","Cannot use storage");
-                }
-
-                final File myFinalDir = new File(rootPath,hours+minutes+seconds+"-"+finalTopicName);
-
-                try {
-
-                    final DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
-                    Uri uri = Uri.parse(file_Url);
-                    Uri destination = Uri.fromFile(myFinalDir);
-
-                    DownloadManager.Request request = new DownloadManager.Request(uri);
-                    request.setDestinationUri(destination);
-                    request.setAllowedOverRoaming(false);
-                    request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
-                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    final Long downloadId = downloadManager.enqueue(request);
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            boolean downloading = true;
-
-                            while(downloading){
-
-                                DownloadManager.Query q = new DownloadManager.Query();
-                                q.setFilterById(downloadId);
-
-                                Cursor cursor = downloadManager.query(q);
-                                cursor.moveToFirst();
-
-                                int bytes_downloaded = cursor.getInt(cursor
-                                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-
-                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                                        == DownloadManager.STATUS_SUCCESSFUL) {
-                                    downloading = false;
-                                }
-
-                                int status =cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-
-                                if (status==DownloadManager.STATUS_SUCCESSFUL) {
-                                    Log.d("Download status","done");
-
-                                    AsyncTask.execute(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            //TODO your background code
-
-                                            try {
-                                                FileCrypto.encrypt(myFinalDir, myFinalDir);
-                                                Log.d("fileCrypto","Encrypted");
-                                            }catch (Exception e) {
-                                                e.printStackTrace();
-                                                Log.d("fileCrypto Exception",e.getMessage());
-                                            }
-
-                                        }
-                                    });
-
-                                    break;
-                                }
-
-                                if (status == DownloadManager.STATUS_FAILED || status == DownloadManager.ERROR_UNKNOWN ) {
-                                    Log.d("Download status","failed");
-
-                                    downloadManager.remove(downloadId);
-                                    break;
-                                }
-
-                                dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
-//                                ProgressBarTask task = new ProgressBarTask(mContext);
-//                                task.setProgress(dl_progress);
-
-                                cursor.close();
-                            }
-                        }
-                    }).start();
-
-                    IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-
-                    final int finalI = i;
-                    BroadcastReceiver receiver = new BroadcastReceiver() {
-                        public void onReceive(Context ctxt, Intent intent) {
-                            dlcount++;
-
-                            if(dlcount == AsyncUrl.url_arrayList.size()) {
-
-//                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
-                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
-
-                                if (!storeEntireDetails.ifExists(subject)){
-
-                                    boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
-                                            subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
-                                    if (IsEntry) {
-                                        Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
-
-                                    } else {
-                                        Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
-                                    }
-                                    Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
-                                    subscription(mContext);
-//                                AskQuestion(mContext);
-                                }
-                            }
-                        }
-                    };
-                    mContext.registerReceiver( receiver, filter);
-
-                }catch (Exception e){
-                    Log.d("DManagerException",e.getMessage());
-                }
-            } else {
-                Log.v("Video result", "There is no video file");
-            }
-
-            if (!fileType.equals("mp4")) {
-
-                String DNAME = "Chathamkulam"+"/"+subject;
-                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME.trim());
-                if(!rootPath.exists()) {
-                    rootPath.mkdirs();
-                }
-                if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                    Log.v("Cannot use storage","Cannot use storage");
-                }
-
-                final File myFinalDir = new File(rootPath,file_Name);
-
-                try {
-                    final DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
-                    Uri uri = Uri.parse(file_Url);
-                    Uri destination = Uri.fromFile(myFinalDir);
-
-                    DownloadManager.Request request = new DownloadManager.Request(uri);
-                    request.setDestinationUri(destination);
-                    request.setAllowedOverRoaming(false);
-                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    final Long downloadId = downloadManager.enqueue(request);
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            boolean downloading = true;
-
-                            while(downloading){
-
-                                DownloadManager.Query q = new DownloadManager.Query();
-                                q.setFilterById(downloadId);
-
-                                Cursor cursor = downloadManager.query(q);
-                                cursor.moveToFirst();
-
-                                int bytes_downloaded = cursor.getInt(cursor
-                                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-
-                                int status =cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-
-                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
-                                        == DownloadManager.STATUS_SUCCESSFUL) {
-                                    downloading = false;
-                                }
-
-                                if (status==DownloadManager.STATUS_SUCCESSFUL) {
-                                    Log.d("Download status","done");
-
-                                    if (!fileType.equals("jpg")){
-
-                                        AsyncTask.execute(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                //TODO your background code
-
-                                                try {
-                                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
-                                                    Log.d("fileCrypto","Encrypted");
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                    Log.d("fileCrypto Exception",e.getMessage());
-                                                }
-                                            }
-                                        });
-                                    }
-                                    break;
-                                }
-                                if ( status == DownloadManager.STATUS_FAILED || status == DownloadManager.ERROR_UNKNOWN) {
-                                    Log.d("Download status","failed");
-                                    downloadManager.remove(downloadId);
-                                    break;
-                                }
-
-                                dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
-//                                ProgressBarTask task = new ProgressBarTask(mContext);
-//                                task.setProgress(dl_progress);
-
-                                cursor.close();
-                            }
-                        }
-                    }).start();
-
-
-                    IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-
-                    final int finalI1 = i;
-                    BroadcastReceiver receiver =new BroadcastReceiver() {
-                        public void onReceive(Context ctxt, Intent intent) {
-
-                            Log.v("Download Others","Download Complete");
-
-                            dlcount++;
-                            if(dlcount == AsyncUrl.url_arrayList.size()) {
-
-//                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
-                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
-
-                                if (!storeEntireDetails.ifExists(subject)){
-
-                                    boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
-                                            subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
-                                    if (IsEntry) {
-                                        Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
-
-                                    } else {
-                                        Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
-                                    }
-                                    Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
-                                    subscription(mContext);
-//                                AskQuestion(mContext);
-                                }
-                            }
-                        }
-                    };
-                    mContext.registerReceiver( receiver, filter);
-
-                }catch (Exception e){
-                    Log.d("DownloadManager",e.getMessage());
-                }
-                Log.d("File path", myFinalDir.toString());
-            }
-        }
-    }
+//    public void DownloadFile(final Activity activity, final String country, final String university, final String course,
+//                             final String semester, final String subject, final String subjectId,
+//                             final String subjectNumber, final String free_validity, final String paid_validity, final String duration, final String videoCount,
+//                             final String notesCount, final String qbankCount){
+//
+////        Check Android Versions
+//        int currentapiVersion = Build.VERSION.SDK_INT;
+//        if (currentapiVersion >= 23) {
+//
+////             Do something for 23 and above versions
+//            verifyStoragePermissions(activity);
+//        }
+//
+//        for (int i = 0; i < AsyncUrl.url_arrayList.size(); i++) {
+//
+//            file_Url = String.valueOf(AsyncUrl.url_arrayList.get(i));
+//            final String fileType = file_Url.substring(file_Url.lastIndexOf(".") + 1);
+//
+//            String file_Name = String.valueOf(AsyncUrl.name_arrayList.get(i));
+//
+//            if (fileType.equals("mp4")) {
+//
+//                String[] separated = file_Name.split("_");
+//                String fileName = separated[0].trim();
+//                String ModuleName = separated[1].trim();
+//                String TopicName = separated[2].trim();
+//
+//                String[] sepTopic = TopicName.split("-");
+//                String finalTopicName = sepTopic[0].trim();
+//                String finalTopicLength = sepTopic[1].trim();
+//
+//                String[] sepLength = finalTopicLength.split(":");
+//                String hours = sepLength[0].trim();
+//                String minutes = sepLength[1].trim();
+//                String seconds = sepLength[2].trim();
+//
+//                String DNAME = "Chathamkulam"+"/"+subject+"/"+ModuleName;
+//                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME.trim());
+//                if(!rootPath.exists()) {
+//                    rootPath.mkdirs();
+//                }
+//
+//                if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+//                    Log.v("Cannot use storage","Cannot use storage");
+//                }
+//
+//                final File myFinalDir = new File(rootPath,hours+minutes+seconds+"-"+finalTopicName);
+//
+//                try {
+//
+//                    final DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+//                    Uri uri = Uri.parse(file_Url);
+//                    Uri destination = Uri.fromFile(myFinalDir);
+//
+//                    DownloadManager.Request request = new DownloadManager.Request(uri);
+//                    request.setDestinationUri(destination);
+//                    request.setAllowedOverRoaming(false);
+//                    request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+//                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                    final Long downloadId = downloadManager.enqueue(request);
+//
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            boolean downloading = true;
+//
+//                            while(downloading){
+//
+//                                DownloadManager.Query q = new DownloadManager.Query();
+//                                q.setFilterById(downloadId);
+//
+//                                Cursor cursor = downloadManager.query(q);
+//                                cursor.moveToFirst();
+//
+//                                int bytes_downloaded = cursor.getInt(cursor
+//                                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+//                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+//
+//                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+//                                        == DownloadManager.STATUS_SUCCESSFUL) {
+//                                    downloading = false;
+//                                }
+//
+//                                int status =cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+//
+//                                if (status==DownloadManager.STATUS_SUCCESSFUL) {
+//                                    Log.d("Download status","done");
+//
+//                                    AsyncTask.execute(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            //TODO your background code
+//
+//                                            try {
+//                                                FileCrypto.encrypt(myFinalDir, myFinalDir);
+//                                                Log.d("fileCrypto","Encrypted");
+//                                            }catch (Exception e) {
+//                                                e.printStackTrace();
+//                                                Log.d("fileCrypto Exception",e.getMessage());
+//                                            }
+//
+//                                        }
+//                                    });
+//
+//                                    break;
+//                                }
+//
+//                                if (status == DownloadManager.STATUS_FAILED || status == DownloadManager.ERROR_UNKNOWN ) {
+//                                    Log.d("Download status","failed");
+//
+//                                    downloadManager.remove(downloadId);
+//                                    break;
+//                                }
+//
+//                                dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
+////                                ProgressBarTask task = new ProgressBarTask(mContext);
+////                                task.setProgress(dl_progress);
+//
+//                                cursor.close();
+//                            }
+//                        }
+//                    }).start();
+//
+//                    IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+//
+//                    final int finalI = i;
+//                    BroadcastReceiver receiver = new BroadcastReceiver() {
+//                        public void onReceive(Context ctxt, Intent intent) {
+//                            dlcount++;
+//
+//                            if(dlcount == AsyncUrl.url_arrayList.size()) {
+//
+////                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
+//                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
+//
+//                                if (!storeEntireDetails.ifExists(subject)){
+//
+//                                    boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
+//                                            subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
+//                                    if (IsEntry) {
+//                                        Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
+//
+//                                    } else {
+//                                        Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
+//                                    }
+//                                    Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
+//                                    subscription(mContext);
+////                                AskQuestion(mContext);
+//                                }
+//                            }
+//                        }
+//                    };
+//                    mContext.registerReceiver( receiver, filter);
+//
+//                }catch (Exception e){
+//                    Log.d("DManagerException",e.getMessage());
+//                }
+//            } else {
+//                Log.v("Video result", "There is no video file");
+//            }
+//
+//            if (!fileType.equals("mp4")) {
+//
+//                String DNAME = "Chathamkulam"+"/"+subject;
+//                File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME.trim());
+//                if(!rootPath.exists()) {
+//                    rootPath.mkdirs();
+//                }
+//                if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+//                    Log.v("Cannot use storage","Cannot use storage");
+//                }
+//
+//                final File myFinalDir = new File(rootPath,file_Name);
+//
+//                try {
+//                    final DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+//                    Uri uri = Uri.parse(file_Url);
+//                    Uri destination = Uri.fromFile(myFinalDir);
+//
+//                    DownloadManager.Request request = new DownloadManager.Request(uri);
+//                    request.setDestinationUri(destination);
+//                    request.setAllowedOverRoaming(false);
+//                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//                    final Long downloadId = downloadManager.enqueue(request);
+//
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            boolean downloading = true;
+//
+//                            while(downloading){
+//
+//                                DownloadManager.Query q = new DownloadManager.Query();
+//                                q.setFilterById(downloadId);
+//
+//                                Cursor cursor = downloadManager.query(q);
+//                                cursor.moveToFirst();
+//
+//                                int bytes_downloaded = cursor.getInt(cursor
+//                                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+//                                int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+//
+//                                int status =cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+//
+//                                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
+//                                        == DownloadManager.STATUS_SUCCESSFUL) {
+//                                    downloading = false;
+//                                }
+//
+//                                if (status==DownloadManager.STATUS_SUCCESSFUL) {
+//                                    Log.d("Download status","done");
+//
+//                                    if (!fileType.equals("jpg")){
+//
+//                                        AsyncTask.execute(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                //TODO your background code
+//
+//                                                try {
+//                                                    FileCrypto.encrypt(myFinalDir, myFinalDir);
+//                                                    Log.d("fileCrypto","Encrypted");
+//                                                } catch (Exception e) {
+//                                                    e.printStackTrace();
+//                                                    Log.d("fileCrypto Exception",e.getMessage());
+//                                                }
+//                                            }
+//                                        });
+//                                    }
+//                                    break;
+//                                }
+//                                if ( status == DownloadManager.STATUS_FAILED || status == DownloadManager.ERROR_UNKNOWN) {
+//                                    Log.d("Download status","failed");
+//                                    downloadManager.remove(downloadId);
+//                                    break;
+//                                }
+//
+//                                dl_progress = (int) ((bytes_downloaded * 100L) / bytes_total);
+////                                ProgressBarTask task = new ProgressBarTask(mContext);
+////                                task.setProgress(dl_progress);
+//
+//                                cursor.close();
+//                            }
+//                        }
+//                    }).start();
+//
+//
+//                    IntentFilter filter = new IntentFilter( DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+//
+//                    final int finalI1 = i;
+//                    BroadcastReceiver receiver =new BroadcastReceiver() {
+//                        public void onReceive(Context ctxt, Intent intent) {
+//
+//                            Log.v("Download Others","Download Complete");
+//
+//                            dlcount++;
+//                            if(dlcount == AsyncUrl.url_arrayList.size()) {
+//
+////                                Toast.makeText(mContext,"Completed",Toast.LENGTH_LONG).show();
+//                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(activity);
+//
+//                                if (!storeEntireDetails.ifExists(subject)){
+//
+//                                    boolean IsEntry = storeEntireDetails.addData(country,university,course,semester,subject,subjectId,
+//                                            subjectNumber,free_validity,paid_validity,duration,videoCount,notesCount,qbankCount);
+//                                    if (IsEntry) {
+//                                        Toast.makeText(activity, "Successfully Added", Toast.LENGTH_LONG).show();
+//
+//                                    } else {
+//                                        Toast.makeText(activity, "Added failed", Toast.LENGTH_LONG).show();
+//                                    }
+//                                    Log.d("databaseValue",country+university+course+semester+subject+subjectId+subjectNumber+duration);
+//                                    subscription(mContext);
+////                                AskQuestion(mContext);
+//                                }
+//                            }
+//                        }
+//                    };
+//                    mContext.registerReceiver( receiver, filter);
+//
+//                }catch (Exception e){
+//                    Log.d("DownloadManager",e.getMessage());
+//                }
+//                Log.d("File path", myFinalDir.toString());
+//            }
+//        }
+//    }
 
     public static void subscription(final Context myContext){
 
@@ -765,7 +755,7 @@ public class StoreCardFilterAdapter extends RecyclerView.Adapter<StoreCardFilter
                 Cursor cursorResult = registerMember.getDetails();
 
                 while (cursorResult.moveToNext()) {
-                    String MobileNumber= cursorResult.getString(2);
+                    String MobileNumber= cursorResult.getString(3);
 
                     if (MobileNumber != null && file_Url != null) {
                         Hashmap.put(PHONENUMBER, MobileNumber);

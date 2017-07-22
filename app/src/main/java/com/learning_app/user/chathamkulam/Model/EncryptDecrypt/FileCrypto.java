@@ -1,10 +1,8 @@
-package com.learning_app.user.chathamkulam.Model;
+package com.learning_app.user.chathamkulam.Model.EncryptDecrypt;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-
-import com.learning_app.user.chathamkulam.EncryptService;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,9 +21,8 @@ public class FileCrypto {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES";
     private static String keyString = "ASDFGHJKLASDFGHJ";
-    private static Context context;
 
-    public static void encrypt(File inputFile, File outputFile)
+    public static void encrypt(Context context,File inputFile, File outputFile)
             throws Exception {
         doCrypto(Cipher.ENCRYPT_MODE, inputFile, outputFile);
         System.out.println("File encrypted successfully!");

@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.learning_app.user.chathamkulam.Model.ModuleModel.ModuleItems;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
-import com.learning_app.user.chathamkulam.Model.OnlineModuleView;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Viewer.NormalVideoView;
@@ -81,22 +81,30 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
             holder.txtTopicDuration.setText(moduleItems.getTopic_details().get(position).getTopic_duration());
 
             int totalDuration = Integer.parseInt(moduleItems.getTopic_details().get(position).getTotalDuration());
-            int pauseDuration = Integer.parseInt(moduleItems.getTopic_details().get(position).getPauseDuration());
+            int count = Integer.parseInt(moduleItems.getTopic_details().get(position).getCount());
 
-            if (totalDuration != 0 && pauseDuration != 0){
-                int percent = ((int) pauseDuration * 100) / totalDuration;
+            Log.d("values",totalDuration+" "+count);
 
-                holder.videoProgress.setProgress(percent);
+            if (totalDuration != 0){
 
-                if (percent >= 70){
+                if (count == 1){
 
-                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY);
+                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
+                    holder.videoProgress.setProgress(100);
 
                 }
 
-                if (percent <= 30){
+                if (count == 2){
 
-                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
+                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
+                    holder.videoProgress.setProgress(100);
+
+                }
+
+                if (count >= 3){
+
+                    holder.videoProgress.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY);
+                    holder.videoProgress.setProgress(100);
 
                 }
 
@@ -128,9 +136,6 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
                     sendValue.putExtra("Key_fileName",currentTopicName);
                     sendValue.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(sendValue);
-
-//                VideoHandler videoHandler = VideoHandler.getInstance(mContext);
-//                videoHandler.DeleteAll();
 
                     Log.v("sendValue",position +"   "+moduleName+"  "+currentTopicName);
 
@@ -173,13 +178,6 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
                     OnlineModuleView async = new OnlineModuleView
                             (ONLINE_VIEW,params,mContext,NormalVideoView.class,currentSubjectName);
                     async.execute();
-
-
-//                    Intent sendValue = new Intent(mContext,NormalVideoView.class);
-//                    sendValue.putExtra("Key_onlineSubName",currentSubjectName);
-//                    sendValue.putExtra("Key_url","url");
-//                    sendValue.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    mContext.startActivity(sendValue);
 
                     Log.v("sendValue",position +"   "+currentSubjectName);
 

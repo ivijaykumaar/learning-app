@@ -9,7 +9,7 @@ import java.util.List;
 public class ModuleItems {
 
     private String module_name;
-    private String sem_no,subject_id,sub_no,module_no,topic_no,topic_name,topic_duration,pauseDuration,totalDuration;
+    private String sem_no,subject_id,sub_no,module_no,topic_no,topic_name,topic_duration,pauseDuration,totalDuration,count;
 
     private List<TopicItems> topic_details;
 
@@ -99,5 +99,13 @@ public class ModuleItems {
 
     public void setTotalDuration(String totalDuration) {
         this.totalDuration = totalDuration;
+    }
+
+    public String getCount() {
+        return count;
+    }
+
+    public void setCount(String count) {
+        this.count = count;
     }
 }

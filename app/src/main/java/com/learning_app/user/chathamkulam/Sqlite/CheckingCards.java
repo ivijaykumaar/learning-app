@@ -23,6 +23,7 @@ public class CheckingCards extends SQLiteOpenHelper {
     public static final String Col_Subject = "SUBJECT";
     public static final String Col_Subject_Id = "SUBJECT_ID";
     public static final String Col_Subject_No = "SUBJECT_NO";
+    public static final String Col_Amount = "AMOUNT";
     public static final String Col_Free_Validity = "FREE_VALIDITY";
     public static final String Col_Paid_Validity = "PAID_VALIDITY";
     public static final String Col_Duration = "DURATION";
@@ -39,7 +40,7 @@ public class CheckingCards extends SQLiteOpenHelper {
 
         String createTable = "CREATE TABLE " + TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " POSITION TEXT,COUNTRY TEXT, UNIVERSITY TEXT, COURSE TEXT,SEMESTER TEXT, SUBJECT TEXT," +
-                " SUBJECT_ID TEXT, SUBJECT_NO TEXT, FREE_VALIDITY TEXT, PAID_VALIDITY TEXT,DURATION TEXT," +
+                " SUBJECT_ID TEXT, SUBJECT_NO TEXT,AMOUNT, FREE_VALIDITY TEXT, PAID_VALIDITY TEXT,DURATION TEXT," +
                 "VIDEOCOUNT TEXT,NOTESCOUNT TEXT,QBANKCOUNT TEXT)";
         db.execSQL(createTable);
 
@@ -53,7 +54,7 @@ public class CheckingCards extends SQLiteOpenHelper {
     }
 
     public boolean addCheckData(String position,String country,String university,String course,String semester,
-                           String subject,String subject_id,String subject_no,String free_validity,String paid_validity,String duration,
+                           String subject,String subject_id,String subject_no,String amount,String free_validity,String paid_validity,String duration,
                                 String videoCount,String notesCount,String qbankCount){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -66,6 +67,7 @@ public class CheckingCards extends SQLiteOpenHelper {
         contentValues.put(Col_Subject,subject);
         contentValues.put(Col_Subject_Id,subject_id);
         contentValues.put(Col_Subject_No,subject_no);
+        contentValues.put(Col_Amount,amount);
         contentValues.put(Col_Free_Validity,free_validity);
         contentValues.put(Col_Paid_Validity,paid_validity);
         contentValues.put(Col_Duration,duration);

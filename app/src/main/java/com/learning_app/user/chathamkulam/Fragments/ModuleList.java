@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning_app.user.chathamkulam.Adapters.ModuleAdapter;
 import com.learning_app.user.chathamkulam.Adapters.StoreCardAdapter;
-import com.learning_app.user.chathamkulam.Model.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
 import com.learning_app.user.chathamkulam.Model.ModuleModel.ModuleItems;
 import com.learning_app.user.chathamkulam.Model.ModuleModel.TopicItems;
 import com.learning_app.user.chathamkulam.SearchFilters.ModuleCardFilterAdapter;
@@ -160,8 +160,9 @@ public class ModuleList extends AppCompatActivity {
                                                         subJsonObject.put("topic_name",finalTopicName);
                                                         subJsonObject.put("topic_duration",finalTopicLength);
                                                         subJsonObject.put("totalDuration",mainCursor.getString(2));
-                                                        subJsonObject.put("pauseDuration", mainCursor.getString(3));
+                                                        subJsonObject.put("count", mainCursor.getString(3));
 
+                                                        Log.d("CheckCount",mainCursor.getString(3));
                                                         subArray.put(subJsonObject);
                                                     }
                                                 }
@@ -173,7 +174,7 @@ public class ModuleList extends AppCompatActivity {
                                                     subJsonObject.put("topic_name",finalTopicName);
                                                     subJsonObject.put("topic_duration",finalTopicLength);
                                                     subJsonObject.put("totalDuration",0);
-                                                    subJsonObject.put("pauseDuration",0);
+                                                    subJsonObject.put("count",0);
 
                                                     subArray.put(subJsonObject);
 
@@ -185,7 +186,7 @@ public class ModuleList extends AppCompatActivity {
                                                 subJsonObject.put("topic_name",finalTopicName);
                                                 subJsonObject.put("topic_duration",finalTopicLength);
                                                 subJsonObject.put("totalDuration",0);
-                                                subJsonObject.put("pauseDuration",0);
+                                                subJsonObject.put("count",0);
 
 //                                            Add SubObject To SubArray
                                                 subArray.put(subJsonObject);
@@ -350,12 +351,13 @@ public class ModuleList extends AppCompatActivity {
 
                     topicItems.setTopic_name(entityObject.getTopic_details().get(i).getTopic_name());
                     topicItems.setTopic_duration(entityObject.getTopic_details().get(i).getTopic_duration());
-                    topicItems.setPauseDuration(entityObject.getTopic_details().get(i).getPauseDuration());
                     topicItems.setTotalDuration(entityObject.getTopic_details().get(i).getTotalDuration());
+                    topicItems.setCount(entityObject.getTopic_details().get(i).getCount());
+
 
                     Log.d("TopicName ", entityObject.getTopic_details().get(i).getTopic_name());
                     Log.d("TopicDuration ", String.valueOf(entityObject.getTopic_details().get(i).getTopic_duration()));
-                    Log.d("PauseDuration ", String.valueOf(entityObject.getTopic_details().get(i).getPauseDuration()));
+                    Log.d("Count", String.valueOf(entityObject.getTopic_details().get(i).getCount()));
                     topicItemsList.add(topicItems);
                 }
 
@@ -439,6 +441,7 @@ public class ModuleList extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.main, menu);
+        menu.findItem(R.id.menu_submit).setVisible(false);
 
         return true;
     }
@@ -558,6 +561,7 @@ public class ModuleList extends AppCompatActivity {
 
         String onlineSubject = getIntent().getStringExtra("Key_subjectName");
         String offlineSubject = getIntent().getStringExtra("Key_video");
+
         if (offlineSubject != null){
 
             JSONArray mainArray = new JSONArray();
@@ -623,7 +627,7 @@ public class ModuleList extends AppCompatActivity {
                                                         mainJsonObject.put("topic_name",finalTopicName);
                                                         mainJsonObject.put("topic_duration",finalTopicLength);
                                                         mainJsonObject.put("totalDuration",mainCursor.getString(2));
-                                                        mainJsonObject.put("pauseDuration", mainCursor.getString(3));
+                                                        mainJsonObject.put("count", mainCursor.getString(3));
                                                         mainArray.put(mainJsonObject);
                                                     }
                                                 }
@@ -636,7 +640,7 @@ public class ModuleList extends AppCompatActivity {
                                                     mainJsonObject.put("topic_name",finalTopicName);
                                                     mainJsonObject.put("topic_duration",finalTopicLength);
                                                     mainJsonObject.put("totalDuration",0);
-                                                    mainJsonObject.put("pauseDuration",0);
+                                                    mainJsonObject.put("count",0);
                                                     mainArray.put(mainJsonObject);
 
                                                 }
@@ -648,7 +652,7 @@ public class ModuleList extends AppCompatActivity {
                                                 mainJsonObject.put("topic_name",finalTopicName);
                                                 mainJsonObject.put("topic_duration",finalTopicLength);
                                                 mainJsonObject.put("totalDuration",0);
-                                                mainJsonObject.put("pauseDuration",0);
+                                                mainJsonObject.put("count",0);
 
 //                                            Add SubObject To SubArray
                                                 mainArray.put(mainJsonObject);
@@ -799,13 +803,13 @@ public class ModuleList extends AppCompatActivity {
                 entityObject.setModule_name(entityObject.getModule_name());
                 entityObject.setTopic_name(entityObject.getTopic_name());
                 entityObject.setTopic_duration(entityObject.getTopic_duration());
-                entityObject.setPauseDuration(entityObject.getPauseDuration());
                 entityObject.setTotalDuration(entityObject.getTotalDuration());
+                entityObject.setCount(entityObject.getCount());
 
 //                Log.d("Module Name", entityObject.getModule_name());
                 Log.d("TopicName ", entityObject.getTopic_name());
                 Log.d("TopicDuration ", String.valueOf(entityObject.getTopic_duration()));
-                Log.d("PauseDuration ", String.valueOf(entityObject.getPauseDuration()));
+                Log.d("count ", String.valueOf(entityObject.getCount()));
 
                 moduleItemsList.add(entityObject);
 

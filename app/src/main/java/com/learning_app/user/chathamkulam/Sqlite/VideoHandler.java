@@ -22,7 +22,7 @@ public class VideoHandler extends SQLiteOpenHelper {
     private static final String Col_Id = "ID";
     private static final String Col_TopicName = "TOPIC_NAME";
     private static final String Col_Total_Time = "TOTAL_TIME";
-    private static final String Col_Pause_Time = "PAUSE_TIME";
+    private static final String Col_Count = "COUNT";
 
     public static VideoHandler getInstance(Context ctx) {
 
@@ -42,7 +42,7 @@ public class VideoHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
 
         String createTable = "CREATE TABLE " + TABLE_VIDEO_HANDLER + " (ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                " TOPIC_NAME TEXT,TOTAL_TIME TEXT,PAUSE_TIME TEXT)";
+                " TOPIC_NAME TEXT, TOTAL_TIME TEXT, COUNT TEXT)";
         db.execSQL(createTable);
 
     }
@@ -54,13 +54,13 @@ public class VideoHandler extends SQLiteOpenHelper {
 
     }
 
-    public boolean AddTopicDetails(String topicName, int totalTime,int pauseTime){
+    public boolean AddTopicDetails(String topicName, int totalTime,int count){
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(Col_TopicName,topicName);
         contentValues.put(Col_Total_Time,totalTime);
-        contentValues.put(Col_Pause_Time,pauseTime);
+        contentValues.put(Col_Count,count);
 
         long result = db.insert(TABLE_VIDEO_HANDLER,null,contentValues);
 
@@ -71,15 +71,15 @@ public class VideoHandler extends SQLiteOpenHelper {
         }
     }
 
-    public boolean UpdateData(String topicName, int totalTime,int pauseTime){
+    public boolean UpdateData(String topicName, int totalTime,int count){
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(Col_TopicName,topicName);
         contentValues.put(Col_Total_Time,totalTime);
-        contentValues.put(Col_Pause_Time,pauseTime);
+        contentValues.put(Col_Count,count);
 
-        db.update(TABLE_VIDEO_HANDLER,contentValues,"TOPIC_NAME = ?",new String[] {topicName});
+        db.update(TABLE_VIDEO_HANDLER,contentValues," TOPIC_NAME = ? ",new String[] {topicName});
         return true;
     }
 
@@ -93,6 +93,13 @@ public class VideoHandler extends SQLiteOpenHelper {
         cursor.close();
         return exists;
     }
+
+    public Cursor getRow(String topicName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.rawQuery("SELECT * FROM "+ TABLE_VIDEO_HANDLER +" WHERE TOPIC_NAME = ?", new String[]{topicName});
+
+    }
+
 
     public Cursor getAllData(){
         SQLiteDatabase db = this.getWritableDatabase();

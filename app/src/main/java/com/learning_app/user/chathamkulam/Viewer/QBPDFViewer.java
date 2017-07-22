@@ -30,9 +30,9 @@ import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnRenderListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.learning_app.user.chathamkulam.Adapters.StoreCardAdapter;
-import com.learning_app.user.chathamkulam.Model.FileCrypto;
+import com.learning_app.user.chathamkulam.Model.EncryptDecrypt.FileCrypto;
 import com.learning_app.user.chathamkulam.Fragments.Drawer;
-import com.learning_app.user.chathamkulam.Model.AsyncUrl;
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
@@ -437,6 +437,7 @@ public class QBPDFViewer extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.main, menu);
+        menu.findItem(R.id.menu_submit).setVisible(false);
 
         return true;
     }
