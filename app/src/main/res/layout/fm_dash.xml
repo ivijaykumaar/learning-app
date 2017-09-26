@@ -1,21 +1,38 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dashMainLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="#9DC4DA">
+    android:background="#9DC4DA"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <ListView
         android:id="@+id/dashMainListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#9DC4DA">
-    </ListView>
+        android:background="#9DC4DA" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/dashFilterView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="5dp"/>
+        android:padding="5dp" />
 
-</LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/countTxttt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12/12"
+        android:padding="10dp"
+        android:textColor="#000"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"/>
+
+</RelativeLayout>

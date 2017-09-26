@@ -29,7 +29,7 @@ import com.learning_app.user.chathamkulam.R;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.learning_app.user.chathamkulam.Model.Constants.ALREADYUSER;
+import static com.learning_app.user.chathamkulam.Apis.API_ALREADY_USER;
 import static com.learning_app.user.chathamkulam.Model.Constants.PHONENUMBER;
 import static com.learning_app.user.chathamkulam.Registration.Registration.deleteCache;
 
@@ -37,13 +37,12 @@ import static com.learning_app.user.chathamkulam.Registration.Registration.delet
 public class AlreadyRegistered extends AppCompatActivity {
 
 
-    EditText MobileEdt,EmailEdt;
+    public static String existingNumber;
+    EditText MobileEdt, EmailEdt;
     LinearLayout numberLay;
     TextView txtNotify;
     CountryCodePicker countryCodePicker;
     String CountryCode;
-    public static String existingNumber;
-
     MainActivity mainActivity;
     VideoView bg_video_view;
     String bg_video_path;
@@ -59,24 +58,30 @@ public class AlreadyRegistered extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.already_registered);
 
-        Button proceedBtn = (Button)findViewById(R.id.proceed_Btn);
-        MobileEdt = (EditText)findViewById(R.id.NumberEdt);
-        countryCodePicker = (CountryCodePicker)findViewById(R.id.already_ccp);
-        EmailEdt = (EditText)findViewById(R.id.edtEmail);
+        Button proceedBtn = (Button) findViewById(R.id.proceed_Btn);
+        MobileEdt = (EditText) findViewById(R.id.NumberEdt);
+        countryCodePicker = (CountryCodePicker) findViewById(R.id.already_ccp);
+        EmailEdt = (EditText) findViewById(R.id.edtEmail);
         EmailEdt.setVisibility(View.GONE);
-        btnMoreOptions = (Button)findViewById(R.id.btnMoreOptions);
-        numberLay = (LinearLayout)findViewById(R.id.numberLay);
-        txtNotify = (TextView)findViewById(R.id.txtNotify);
+        btnMoreOptions = (Button) findViewById(R.id.btnMoreOptions);
+        numberLay = (LinearLayout) findViewById(R.id.numberLay);
+        txtNotify = (TextView) findViewById(R.id.txtNotify);
 
         mainActivity = new MainActivity();
         bg_video_view = (VideoView) findViewById(R.id.bg_video_already_reg);
-        bg_video_path = "android.resource://"+getPackageName()+"/"+R.raw.bg_video_reg;
-        mainActivity.bg_video(bg_video_view,bg_video_path);
+        bg_video_path = "android.resource://" + getPackageName() + "/" + R.raw.bg_video_reg;
+        mainActivity.bg_video(bg_video_view, bg_video_path);
 
         deleteCache(getApplicationContext());
         existingNumber = null;
 
         validation = new Validation();
+
+        String alreadyRegisterNum = getIntent().getStringExtra("Key_NewNumber");
+
+        if (alreadyRegisterNum != null) {
+            MobileEdt.setText(alreadyRegisterNum.substring(3));
+        }
 
         countryCodePicker.setOnCountryChangeListener(new CountryCodePicker.OnCountryChangeListener() {
             @Override
@@ -94,17 +99,17 @@ public class AlreadyRegistered extends AppCompatActivity {
                 CountryCode = countryCodePicker.getSelectedCountryCodeWithPlus();
 
                 String mobileNum = MobileEdt.getText().toString();
-                if (mobileNum.length() != 10){
+                if (mobileNum.length() != 10) {
                     MobileEdt.setError("Invalid Number");
-                }else if (AlreadyRegister()){
-                    Toast.makeText(getApplicationContext(),"Checking",Toast.LENGTH_SHORT).show();
+                } else if (AlreadyRegister()) {
+                    Toast.makeText(getApplicationContext(), "Checking", Toast.LENGTH_SHORT).show();
                 }
 
                 String emailId = EmailEdt.getText().toString();
-                if (!validation.isValidEmail(emailId)){
+                if (!validation.isValidEmail(emailId)) {
                     EmailEdt.setError("Invalid Email");
-                }else if (AlreadyRegister()){
-                    Toast.makeText(getApplicationContext(),"Checking",Toast.LENGTH_SHORT).show();
+                } else if (AlreadyRegister()) {
+                    Toast.makeText(getApplicationContext(), "Checking", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -125,13 +130,13 @@ public class AlreadyRegistered extends AppCompatActivity {
 
                             case R.id.createAcc:
 
-                                startActivity(new Intent(getApplicationContext(),Registration.class));
+                                startActivity(new Intent(getApplicationContext(), Registration.class));
 
                                 break;
 
                             case R.id.lossPhone:
 
-                                if (click){
+                                if (click) {
 
                                     numberLay.setVisibility(View.GONE);
                                     EmailEdt.setVisibility(View.VISIBLE);
@@ -158,36 +163,36 @@ public class AlreadyRegistered extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        mainActivity.bg_video(bg_video_view,bg_video_path);
+        mainActivity.bg_video(bg_video_view, bg_video_path);
     }
 
-    public boolean AlreadyRegister(){
+    public boolean AlreadyRegister() {
 
-        existingNumber = CountryCode+MobileEdt.getText().toString();
+        existingNumber = CountryCode + MobileEdt.getText().toString();
 
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        final ProgressDialog loading = ProgressDialog.show(AlreadyRegistered.this, "Checking", "Please wait your detail will be check", false,false);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,ALREADYUSER,new Response.Listener<String>() {
+        final ProgressDialog loading = ProgressDialog.show(AlreadyRegistered.this, "Checking", "Please wait your detail will be check", false, false);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ALREADY_USER, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
-                Log.d("registerResponse",response);
+                Log.d("registerResponse", response);
 
-                if (response.equalsIgnoreCase("1")){
+                if (response.equalsIgnoreCase("1")) {
                     loading.dismiss();
 
-                    Intent i = new Intent(AlreadyRegistered.this,OtpConformation.class);
-                    i.putExtra("Key_AlreadyNumber",existingNumber);
+                    Intent i = new Intent(AlreadyRegistered.this, OtpConformation.class);
+                    i.putExtra("Key_AlreadyNumber", existingNumber);
                     startActivity(i);
 
-                    Toast.makeText(AlreadyRegistered.this,"Your otp will be send",Toast.LENGTH_SHORT).show();
-                }else{
+                    Toast.makeText(AlreadyRegistered.this, "Your otp will be send", Toast.LENGTH_SHORT).show();
+                } else {
 
                     loading.dismiss();
-                    Toast.makeText(AlreadyRegistered.this,"You are a new user please registered us",Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(AlreadyRegistered.this,Registration.class);
+                    Toast.makeText(AlreadyRegistered.this, "You are a new user please registered us", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(AlreadyRegistered.this, Registration.class);
                     startActivity(i);
                 }
 
@@ -197,16 +202,16 @@ public class AlreadyRegistered extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
 
                 loading.dismiss();
-                Toast.makeText(AlreadyRegistered.this,error.toString(),Toast.LENGTH_LONG).show();
+                Toast.makeText(AlreadyRegistered.this, "Bad Network Connection", Toast.LENGTH_LONG).show();
 
             }
-        }){
+        }) {
 
             @Override
-            protected Map<String,String> getParams(){
+            protected Map<String, String> getParams() {
 
-                Map<String,String> Hashmap = new HashMap<String, String>();
-                Hashmap.put(PHONENUMBER,existingNumber);
+                Map<String, String> Hashmap = new HashMap<String, String>();
+                Hashmap.put(PHONENUMBER, existingNumber);
 
                 return Hashmap;
             }

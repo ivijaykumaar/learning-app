@@ -1,55 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#9DC4DA">
+    android:background="#9DC4DA"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/first_llayout"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnOnline"
+            style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="100dp"
             android:layout_height="25dp"
-            android:text="Online View"
-            tools:ignore="ButtonStyle"
-            android:textSize="14.5dp"
-            style="@style/Widget.AppCompat.Button.Small"
             android:background="@drawable/rounded_edittxt"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:text="Online View"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="14.5dp"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/btnTrial"
+            style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="100dp"
             android:layout_height="25dp"
-            android:text="Trial"
-            android:background="@drawable/rounded_edittxt"
-            tools:ignore="ButtonStyle"
-            android:textSize="15dp"
-            style="@style/Widget.AppCompat.Button.Small"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginLeft="5dp"/>
+            android:background="@drawable/rounded_edittxt"
+            android:text="Trial"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="15dp"
+            tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/btnBuy"
+            style="@style/Widget.AppCompat.Button.Small"
             android:layout_width="100dp"
             android:layout_height="25dp"
-            android:text="Buy"
-            android:textSize="15dp"
             android:background="@drawable/rounded_edittxt"
-            tools:ignore="ButtonStyle"
-            style="@style/Widget.AppCompat.Button.Small"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:text="Buy"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="15dp"
+            tools:ignore="ButtonStyle" />
 
     </LinearLayout>
 
@@ -57,25 +56,35 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/colorPrimary"
         android:layout_below="@id/first_llayout"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"/>
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/colorPrimary" />
 
     <ListView
         android:id="@+id/storeMainListView"
-        android:layout_below="@+id/first_llayout"
-        android:background="#9DC4DA"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </ListView>
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/first_llayout"
+        android:background="#9DC4DA" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/storeFilterView"
-        android:layout_below="@+id/view"
         android:layout_width="match_parent"
-        android:padding="5dp"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@+id/view"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/countTxttt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="12/12"
+        android:padding="10dp"
+        android:textColor="#000"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"/>
 
 </RelativeLayout>

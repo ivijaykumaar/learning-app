@@ -22,7 +22,7 @@ public class FileCrypto {
     private static final String TRANSFORMATION = "AES";
     private static String keyString = "ASDFGHJKLASDFGHJ";
 
-    public static void encrypt(Context context,File inputFile, File outputFile)
+    public static void encrypt(Context context, File inputFile, File outputFile)
             throws Exception {
         doCrypto(Cipher.ENCRYPT_MODE, inputFile, outputFile);
         System.out.println("File encrypted successfully!");

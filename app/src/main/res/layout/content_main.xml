@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#9DC4DA"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.learning_app.user.chathamkulam.Fragments.Drawer"
-    tools:showIn="@layout/app_bar_main"
-    android:background="#9DC4DA">
+    tools:showIn="@layout/app_bar_main">
 
     <RelativeLayout
         android:id="@+id/content_frame"

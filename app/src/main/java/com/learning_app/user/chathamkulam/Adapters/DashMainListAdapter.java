@@ -1,7 +1,9 @@
 package com.learning_app.user.chathamkulam.Adapters;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,10 @@ public class DashMainListAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater inflater;
     private ArrayList<DashEntityObjects> mainArrayList = new ArrayList();
+
+    private boolean loading = true;
+    int pastVisiblesItems, visibleItemCount, totalItemCount;
+    LinearLayoutManager mLayoutManager;
 
     public DashMainListAdapter(Context context, ArrayList<DashEntityObjects> mainArrayList) {
         this.context = context;
@@ -62,38 +68,41 @@ public class DashMainListAdapter extends BaseAdapter {
         mViewHolder.txtUniversity.setText(dashEntityObjects.getUniversity());
         mViewHolder.txtCourse.setText(dashEntityObjects.getCourse());
 
-        if (dashEntityObjects.getSemester().equals("0")){
+        if (dashEntityObjects.getSemester().equals("0")) {
             mViewHolder.txtSemester.setText("Semester  N/A");
         } else {
 
-            mViewHolder.txtSemester.setText("Semester  "+dashEntityObjects.getSemester());
+            mViewHolder.txtSemester.setText("Semester "+dashEntityObjects.getSemester());
         }
 
 //        Finally initializing our adapter
         ArrayList<DashEntityObjects> REDashList = new ArrayList<>();
 
-        for(int i = 0; i< dashEntityObjects.getSubject_details().size(); i++){
+        for (int i = 0; i < dashEntityObjects.getSubject_details().size(); i++) {
             REDashList.add(dashEntityObjects);
         }
 
-        DashCardAdapter adapter = new DashCardAdapter(context,REDashList);
+        DashCardAdapter adapter = new DashCardAdapter(context, REDashList);
         mViewHolder.recyclerView.setAdapter(adapter);
+
+        mViewHolder.countTxt.setText("<"+adapter.getItemCount()+">");
 
         return convertView;
     }
 
     private class MyViewHolder {
-        TextView txtCountry,txtUniversity,txtCourse,txtSemester;
+        TextView txtCountry, txtUniversity, txtCourse, txtSemester,countTxt;
         RecyclerView recyclerView;
 
         private MyViewHolder(View view) {
 
             //Initializing Views
-            txtCountry = (TextView)view.findViewById(R.id.txtCountry);
-            txtUniversity = (TextView)view.findViewById(R.id.txtUniversity);
-            txtCourse = (TextView)view.findViewById(R.id.txtCourse);
-            txtSemester = (TextView)view.findViewById(R.id.txtSemester);
-            recyclerView = (RecyclerView)view.findViewById(R.id.dash_recycler_view);
+            txtCountry = (TextView) view.findViewById(R.id.txtCountry);
+            txtUniversity = (TextView) view.findViewById(R.id.txtUniversity);
+            txtCourse = (TextView) view.findViewById(R.id.txtCourse);
+            txtSemester = (TextView) view.findViewById(R.id.txtSemester);
+            recyclerView = (RecyclerView) view.findViewById(R.id.dash_recycler_view);
+            countTxt = (TextView)view.findViewById(R.id.countTxt);
 
         }
     }

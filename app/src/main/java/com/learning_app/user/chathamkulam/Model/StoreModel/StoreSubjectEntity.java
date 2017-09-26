@@ -4,10 +4,10 @@ package com.learning_app.user.chathamkulam.Model.StoreModel;
  * Created by Naren on 29-05-2017.
  */
 public class StoreSubjectEntity {
-    private String subject_name, amount, price_type, free_validity, paid_validity,
-            file,id,sub_no,paid_validity_date,free_validity_date,size,qa_count,file_count,video_count;
+    private String subject_name, sub_no, sub_cost, trial, file, size, file_count, qa_count, video_count, url;
 
-    public StoreSubjectEntity(){}
+    public StoreSubjectEntity() {
+    }
 
     public String getSubject_name() {
         return subject_name;
@@ -15,54 +15,6 @@ public class StoreSubjectEntity {
 
     public void setSubject_name(String subject_name) {
         this.subject_name = subject_name;
-    }
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
-    public String getPrice_type() {
-        return price_type;
-    }
-
-    public void setPrice_type(String price_type) {
-        this.price_type = price_type;
-    }
-
-    public String getFree_validity() {
-        return free_validity;
-    }
-
-    public void setFree_validity(String free_validity) {
-        this.free_validity = free_validity;
-    }
-
-    public String getPaid_validity() {
-        return paid_validity;
-    }
-
-    public void setPaid_validity(String paid_validity) {
-        this.paid_validity = paid_validity;
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public void setFile(String file) {
-        this.file = file;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getSub_no() {
@@ -73,20 +25,28 @@ public class StoreSubjectEntity {
         this.sub_no = sub_no;
     }
 
-    public String getPaid_validity_date() {
-        return paid_validity_date;
+    public String getSub_cost() {
+        return sub_cost;
     }
 
-    public void setPaid_validity_date(String paid_validity_date) {
-        this.paid_validity_date = paid_validity_date;
+    public void setSub_cost(String sub_cost) {
+        this.sub_cost = sub_cost;
     }
 
-    public String getFree_validity_date() {
-        return free_validity_date;
+    public String getTrial() {
+        return trial;
     }
 
-    public void setFree_validity_date(String free_validity_date) {
-        this.free_validity_date = free_validity_date;
+    public void setTrial(String trial) {
+        this.trial = trial;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
     }
 
     public String getSize() {
@@ -97,14 +57,6 @@ public class StoreSubjectEntity {
         this.size = size;
     }
 
-    public String getQa_count() {
-        return qa_count;
-    }
-
-    public void setQa_count(String qa_count) {
-        this.qa_count = qa_count;
-    }
-
     public String getFile_count() {
         return file_count;
     }
@@ -113,11 +65,27 @@ public class StoreSubjectEntity {
         this.file_count = file_count;
     }
 
+    public String getQa_count() {
+        return qa_count;
+    }
+
+    public void setQa_count(String qa_count) {
+        this.qa_count = qa_count;
+    }
+
     public String getVideo_count() {
         return video_count;
     }
 
     public void setVideo_count(String video_count) {
         this.video_count = video_count;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

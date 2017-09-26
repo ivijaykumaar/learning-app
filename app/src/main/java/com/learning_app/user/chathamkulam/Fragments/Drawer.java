@@ -34,6 +34,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.learning_app.user.chathamkulam.EditProfileStatus;
+import com.learning_app.user.chathamkulam.Feedback.FMFeedBack;
 import com.learning_app.user.chathamkulam.GCMRegistrationIntentService;
 import com.learning_app.user.chathamkulam.Model.BackgroundWork.VersionChecker;
 import com.learning_app.user.chathamkulam.Model.DbBitmapUtility;
@@ -42,6 +43,7 @@ import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 import com.rom4ek.arcnavigationview.ArcNavigationView;
+import com.tonyodev.fetch.Fetch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,10 +69,38 @@ public class Drawer extends AppCompatActivity
 
     RegisterMember registerMember;
     Cursor cursorResult;
-
+    DbBitmapUtility dbBitmapUtility;
     private BroadcastReceiver broadcastReceiver;
 
-    DbBitmapUtility dbBitmapUtility;
+    public static void setBadge(Context context, int count) {
+
+        String launcherClassName = getLauncherClassName(context);
+        if (launcherClassName == null) {
+            return;
+        }
+        Intent intent = new Intent("android.intent.action.BADGE_COUNT_UPDATE");
+        intent.putExtra("badge_count", count);
+        intent.putExtra("badge_count_package_name", context.getPackageName());
+        intent.putExtra("badge_count_class_name", launcherClassName);
+        context.sendBroadcast(intent);
+    }
+
+    public static String getLauncherClassName(Context context) {
+
+        PackageManager pm = context.getPackageManager();
+
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            String pkgName = resolveInfo.activityInfo.applicationInfo.packageName;
+            if (pkgName.equalsIgnoreCase(context.getPackageName())) {
+                return resolveInfo.activityInfo.name;
+            }
+        }
+        return null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,12 +124,14 @@ public class Drawer extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         TextView navUserName = (TextView) headerView.findViewById(R.id.navUserName);
         TextView navEmailId = (TextView) headerView.findViewById(R.id.navEmailId);
-        editProfile = (ImageView)headerView.findViewById(R.id.editProfilePic_img);
+        editProfile = (ImageView) headerView.findViewById(R.id.editProfilePic_img);
         circleImageView = (CircleImageView) headerView.findViewById(R.id.circle_imageView);
 
         dbBitmapUtility = new DbBitmapUtility();
-        registerMember = RegisterMember.getInstance(this);;
+        registerMember = RegisterMember.getInstance(this);
         cursorResult = registerMember.getDetails();
+
+        Fetch.startService(this);
 
         while (cursorResult.moveToNext()) {
 
@@ -107,7 +139,7 @@ public class Drawer extends AppCompatActivity
             String emailId = cursorResult.getString(2);
             byte[] profile = cursorResult.getBlob(4);
 
-            Log.d("profileStatus",cursorResult.getCount()+" "+userName+"  "+emailId+" "+Arrays.toString(profile));
+            Log.d("profileStatus", cursorResult.getCount() + " " + userName + "  " + emailId + " " + Arrays.toString(profile));
 
             navUserName.setText(userName);
             navEmailId.setText(emailId);
@@ -115,20 +147,22 @@ public class Drawer extends AppCompatActivity
 
         }
 
-        final StoreEntireDetails databaseHelperStore = new StoreEntireDetails(getApplicationContext());
+        StoreEntireDetails databaseHelperStore = new StoreEntireDetails(getApplicationContext());
 
         Cursor Result = databaseHelperStore.getSubjectFromTable();
 
         if (Result.getCount() == 0) {
 
             NavigationItemSelected(R.id.nav_store);
-            Toast.makeText(getApplicationContext(),"Please download our subjects",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"Please download our subjects", Toast.LENGTH_LONG).show();
 
         } else {
 
             NavigationItemSelected(R.id.nav_dashboard);
 
         }
+
+//        startActivity(new Intent(this, Test.class));
 
         internetDetector = new InternetDetector(getApplicationContext());
         isConnectionExist = internetDetector.checkMobileInternetConn();
@@ -159,14 +193,14 @@ public class Drawer extends AppCompatActivity
 
                 //If the broadcast has received with success
                 //that means device is registered successfully
-                if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_SUCCESS)){
+                if (intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_SUCCESS)) {
                     //Getting the registration token from the intent
                     String token = intent.getStringExtra("token");
                     //Displaying the token as toast
                     Toast.makeText(getApplicationContext(), "Registration token:" + token, Toast.LENGTH_LONG).show();
 
                     //if the intent is not with success then displaying error messages
-                } else if(intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_ERROR)){
+                } else if (intent.getAction().equals(GCMRegistrationIntentService.REGISTRATION_ERROR)) {
                     Toast.makeText(getApplicationContext(), "GCM registration error!", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Error occurred", Toast.LENGTH_LONG).show();
@@ -178,9 +212,9 @@ public class Drawer extends AppCompatActivity
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
 
         //if play service is not available
-        if(ConnectionResult.SUCCESS != resultCode) {
+        if (ConnectionResult.SUCCESS != resultCode) {
             //If play service is supported but not installed
-            if(GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
                 //Displaying message that play service is not installed
                 Toast.makeText(getApplicationContext(), "Google Play Service is not install/enabled in this device!", Toast.LENGTH_LONG).show();
                 GooglePlayServicesUtil.showErrorNotification(resultCode, getApplicationContext());
@@ -210,7 +244,6 @@ public class Drawer extends AppCompatActivity
                 new IntentFilter(GCMRegistrationIntentService.REGISTRATION_ERROR));
     }
 
-
     //Unregistering receiver on activity paused
     @Override
     protected void onPause() {
@@ -219,46 +252,29 @@ public class Drawer extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
-    public static void setBadge(Context context, int count) {
-
-        String launcherClassName = getLauncherClassName(context);
-        if (launcherClassName == null) {
-            return;
-        }
-        Intent intent = new Intent("android.intent.action.BADGE_COUNT_UPDATE");
-        intent.putExtra("badge_count", count);
-        intent.putExtra("badge_count_package_name", context.getPackageName());
-        intent.putExtra("badge_count_class_name", launcherClassName);
-        context.sendBroadcast(intent);
-    }
-
-    public static String getLauncherClassName(Context context) {
-
-        PackageManager pm = context.getPackageManager();
-
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        List<ResolveInfo> resolveInfos = pm.queryIntentActivities(intent, 0);
-        for (ResolveInfo resolveInfo : resolveInfos) {
-            String pkgName = resolveInfo.activityInfo.applicationInfo.packageName;
-            if (pkgName.equalsIgnoreCase(context.getPackageName())) {
-                return resolveInfo.activityInfo.name;
-            }
-        }
-
-        return null;
-    }
-
     @Override
     public void onBackPressed() {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationItemSelected(R.id.nav_dashboard);
+        List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+
+        boolean handled = false;
+
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (!NavigationItemSelected(R.id.nav_dashboard)){
-            backButtonHandler();
+        } else {
+            for (Fragment f : fragmentList) {
+                if (f instanceof FMDashboard) {
+                    handled = f.isAdded();
+                    if (handled) {
+                        backButtonHandler();
+                        break;
+                    }
+                }
+            }
+            if (!handled) {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -279,7 +295,7 @@ public class Drawer extends AppCompatActivity
 
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = "Select your option";
+                String shareBody = "https://play.google.com/store/apps/details?id=com.learning_app.user.chathamkulam&hl=en";
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                 startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -299,10 +315,10 @@ public class Drawer extends AppCompatActivity
 
     }
 
-    public boolean NavigationItemSelected(int  getItemId){
+    public boolean NavigationItemSelected(int getItemId) {
 
 
-        switch (getItemId){
+        switch (getItemId) {
 
             case R.id.nav_dashboard:
 
@@ -324,12 +340,12 @@ public class Drawer extends AppCompatActivity
 
             case R.id.nav_calc:
 
-                ArrayList<HashMap<String,Object>> items =new ArrayList<HashMap<String,Object>>();
+                ArrayList<HashMap<String, Object>> items = new ArrayList<HashMap<String, Object>>();
 
                 final PackageManager pm = getPackageManager();
                 List<PackageInfo> packs = pm.getInstalledPackages(0);
                 for (PackageInfo pi : packs) {
-                    if(pi.packageName.toLowerCase().contains("calcul")){
+                    if (pi.packageName.toLowerCase().contains("calcul")) {
                         HashMap<String, Object> map = new HashMap<String, Object>();
                         map.put("appName", pi.applicationInfo.loadLabel(pm));
                         map.put("packageName", pi.packageName);
@@ -337,13 +353,12 @@ public class Drawer extends AppCompatActivity
                     }
                 }
 
-                if(items.size()>=1){
+                if (items.size() >= 1) {
                     String packageName = (String) items.get(0).get("packageName");
                     Intent i = pm.getLaunchIntentForPackage(packageName);
                     if (i != null)
                         startActivity(i);
-                }
-                else {
+                } else {
                     // Application not found
                 }
 
@@ -358,11 +373,12 @@ public class Drawer extends AppCompatActivity
 
         }
 
-        if (fragment !=null){
+        if (fragment != null) {
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.content_frame,fragment);
+            ft.replace(R.id.content_frame, fragment);
+            ft.addToBackStack(null);
             ft.commit();
         }
 

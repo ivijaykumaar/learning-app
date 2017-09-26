@@ -1,12 +1,11 @@
 package com.learning_app.user.chathamkulam.Fragments;
 
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -26,12 +25,11 @@ import android.widget.TextView;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learning_app.user.chathamkulam.Adapters.ModuleAdapter;
-import com.learning_app.user.chathamkulam.Adapters.StoreCardAdapter;
-import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
+import com.learning_app.user.chathamkulam.FetchDownloadManager;
 import com.learning_app.user.chathamkulam.Model.ModuleModel.ModuleItems;
 import com.learning_app.user.chathamkulam.Model.ModuleModel.TopicItems;
-import com.learning_app.user.chathamkulam.SearchFilters.ModuleCardFilterAdapter;
 import com.learning_app.user.chathamkulam.R;
+import com.learning_app.user.chathamkulam.SearchFilters.ModuleCardFilterAdapter;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 import com.learning_app.user.chathamkulam.Sqlite.VideoHandler;
 
@@ -42,10 +40,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-
-import static com.learning_app.user.chathamkulam.Model.Constants.GET_URLS;
 
 /**
  * Created by User on 6/1/2017.
@@ -53,388 +49,359 @@ import static com.learning_app.user.chathamkulam.Model.Constants.GET_URLS;
 
 public class ModuleList extends AppCompatActivity {
 
+    public static String currentSubjectName;
     ListView moduleListView;
     ModuleAdapter moduleAdapter;
-
     RecyclerView moduleFilterView;
     ModuleCardFilterAdapter cardFilterAdapter;
-
-    public static String currentSubjectName;
     TextView txtRibbon;
     VideoHandler videoHandler;
 
-    //   Download AsyncUrl variables
-    private JSONArray UrlResult = null;
-    private String URL_JSON_ARRAY = "result";
-    private String current_url = "file";
-    private String current_name = "name";
-    private ArrayList<String> url_arrayList;
-    private ArrayList<String> name_arrayList;
-    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.module_list);
 
-        txtRibbon = (TextView)findViewById(R.id.txtRibbon);
+        txtRibbon = (TextView) findViewById(R.id.txtRibbon);
         videoHandler = VideoHandler.getInstance(getApplicationContext());
-        moduleFilterView = (RecyclerView)findViewById(R.id.moduleFilterView);
-        moduleListView = (ListView)findViewById(R.id.moduleList);
+        moduleFilterView = (RecyclerView) findViewById(R.id.moduleFilterView);
+        moduleListView = (ListView) findViewById(R.id.moduleList);
         moduleFilterView.setVisibility(View.GONE);
 
 //        Create Main Array
-        JSONArray mainArray = new JSONArray();
+        final JSONArray mainArray = new JSONArray();
 
         currentSubjectName = getIntent().getStringExtra("Key_video");
         getSupportActionBar().setTitle(currentSubjectName);
 
-        if (currentSubjectName != null){
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
 
-            txtRibbon.setVisibility(View.GONE);
-            String MainDir = "Chathamkulam"+"/"+currentSubjectName;
-            File mainPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), MainDir);
+            public void run() {
 
-            if (mainPath.exists()){
+                if (currentSubjectName != null) {
 
-                File moduleList[] = mainPath.listFiles();
+                    txtRibbon.setVisibility(View.GONE);
+
+                    File mydir = getApplicationContext().getDir("Chathamkulam", Context.MODE_PRIVATE);
+                    File mainPath = new File(mydir, currentSubjectName);
+
+                    if (mainPath.exists()) {
+
+                        File[] moduleList = mainPath.listFiles();
+                        Arrays.sort(moduleList);
 
 //        Get Values frm SDCard
-                try {
+                        try {
 
-                    if (moduleList != null && moduleList.length > 0) {
-                        for (File aModuleList : moduleList) {
+                            if (moduleList != null && moduleList.length > 0) {
+                                for (File aModuleList : moduleList) {
 
 //                Create Main Object
-                            JSONObject mainJsonObject = new JSONObject();
+                                    JSONObject mainJsonObject = new JSONObject();
 
 //                    Create Sub Array
-                            JSONArray subArray = new JSONArray();
+                                    JSONArray subArray = new JSONArray();
 
-                            if (aModuleList.isDirectory()) {
+                                    if (aModuleList.isDirectory()) {
 
-                                String moduleConvert = aModuleList.getName();
-                                String moduleName = moduleConvert.replaceAll("%20","  ");
+                                        String moduleName = aModuleList.getName();
 
-                                mainJsonObject.put("module_name",moduleName);
+                                        mainJsonObject.put("module_name", moduleName);
+//                                        Log.d("#check",moduleName);
 
-                                String SubDir = "Chathamkulam"+"/"+currentSubjectName+"/"+moduleName;
-                                File subPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), SubDir);
+                                        File mydirr = getApplicationContext().getDir("Chathamkulam", Context.MODE_PRIVATE);
+                                        File mainPathh = new File(mydirr, currentSubjectName);
+                                        File subPath = new File(mainPathh, moduleName);
 
-                                File topicList[] = subPath.listFiles();
+                                        File[] topicList = subPath.listFiles();
+                                        Arrays.sort(topicList);
 
-                                if (topicList != null && topicList.length > 0){
+                                        if (topicList != null && topicList.length > 0) {
 
-                                    for (File aTopicList : topicList){
+                                            for (File aTopicList : topicList) {
 
-                                        if (aTopicList.isFile()){
+                                                if (aTopicList.isFile()) {
 
-                                            String topicConvert = aTopicList.getName();
-                                            String checkTopic = aTopicList.getAbsolutePath();
-                                            String topicName = topicConvert.replaceAll("%20","  ");
-                                            String[] sep = topicConvert.split("\\.");
-                                            Log.d("###Topic",topicName);
-                                            String Topic = sep[0];
+                                                    String topicConvert = aTopicList.getName();
+                                                    String checkTopic = aTopicList.getAbsolutePath();
 
-                                            String[] sepLength = Topic.split("-");
-                                            String topicLength = sepLength[0];
-                                            String finalTopicName = sepLength[1];
+//                                                    String data = "00-01-00-Finance Toic1.mp4";
+//                                                    Log.d("#check",topicConvert);
+                                                    String[] sep = topicConvert.split("-", 4);
+                                                    String topicDuration = sep[0] + ":" + sep[1] + ":" + sep[2];
+                                                    String fileName = sep[3];
 
-                                            StringBuilder finalTopicLength = new StringBuilder(topicLength);
-                                            // insert character value at offset 8
-                                            finalTopicLength.insert(2, ':');
-                                            finalTopicLength.insert(5, ':');
+//                                                    Log.d("#check",fileName+" ");
+                                                    String[] sepp = fileName.split("\\.");
+                                                    String topicName = sepp[0];
+                                                    String type = sepp[1];
 
-                                            Cursor mainCursor = videoHandler.getAllData();
+                                                    Cursor mainCursor = videoHandler.getAllData();
 
-                                            if (mainCursor.getCount() != 0){
+                                                    if (mainCursor.getCount() != 0) {
 
-                                                while (mainCursor.moveToNext()) {
+                                                        while (mainCursor.moveToNext()) {
 
-                                                    String topic = mainCursor.getString(1);
-                                                    Log.d("check",topic);
+                                                            String topic = mainCursor.getString(1);
 
-                                                    if (topic.equals(checkTopic)){
+                                                            if (topic.equals(checkTopic)) {
+
+                                                                JSONObject subJsonObject = new JSONObject();
+                                                                subJsonObject.put("topic_name", topicName);
+                                                                subJsonObject.put("topic_duration", topicDuration);
+                                                                subJsonObject.put("totalDuration", mainCursor.getString(2));
+                                                                subJsonObject.put("count", mainCursor.getString(3));
+
+                                                                subArray.put(subJsonObject);
+                                                            }
+                                                        }
+                                                        mainCursor.close();
+
+                                                        if (!videoHandler.ifExists(checkTopic)) {
+
+                                                            JSONObject subJsonObject = new JSONObject();
+                                                            subJsonObject.put("topic_name", topicName);
+                                                            subJsonObject.put("topic_duration", topicDuration);
+                                                            subJsonObject.put("totalDuration", 0);
+                                                            subJsonObject.put("count", 0);
+
+                                                            subArray.put(subJsonObject);
+
+                                                        }
+
+                                                    } else {
 
                                                         JSONObject subJsonObject = new JSONObject();
-                                                        subJsonObject.put("topic_name",finalTopicName);
-                                                        subJsonObject.put("topic_duration",finalTopicLength);
-                                                        subJsonObject.put("totalDuration",mainCursor.getString(2));
-                                                        subJsonObject.put("count", mainCursor.getString(3));
+                                                        subJsonObject.put("topic_name", topicName);
+                                                        subJsonObject.put("topic_duration", topicDuration);
+                                                        subJsonObject.put("totalDuration", 0);
+                                                        subJsonObject.put("count", 0);
 
-                                                        Log.d("CheckCount",mainCursor.getString(3));
+//                                            Add SubObject To SubArray
                                                         subArray.put(subJsonObject);
                                                     }
                                                 }
-                                                mainCursor.close();
-
-                                                if (!videoHandler.ifExists(checkTopic)){
-
-                                                    JSONObject subJsonObject = new JSONObject();
-                                                    subJsonObject.put("topic_name",finalTopicName);
-                                                    subJsonObject.put("topic_duration",finalTopicLength);
-                                                    subJsonObject.put("totalDuration",0);
-                                                    subJsonObject.put("count",0);
-
-                                                    subArray.put(subJsonObject);
-
-                                                }
-
-                                            } else {
-
-                                                JSONObject subJsonObject = new JSONObject();
-                                                subJsonObject.put("topic_name",finalTopicName);
-                                                subJsonObject.put("topic_duration",finalTopicLength);
-                                                subJsonObject.put("totalDuration",0);
-                                                subJsonObject.put("count",0);
-
-//                                            Add SubObject To SubArray
-                                                subArray.put(subJsonObject);
-
-                                                Log.d("Topic Name Converted",finalTopicName);
-                                                Log.d("Topic Length Converted", String.valueOf(finalTopicLength));
                                             }
-                                        }
-                                    }
 
-                                }else {
-                                    Log.d("Topic List","Empty Content");
-                                }
+                                        } else {
+                                            Log.d("Topic List", "Empty Content");
+                                        }
 
 //                        Add SubArray To MainObject
-                                mainJsonObject.put("topic_details",subArray);
-                                mainArray.put(mainJsonObject);
+                                        mainJsonObject.put("topic_details", subArray);
+                                        mainArray.put(mainJsonObject);
+                                    }
+                                }
+                            } else {
+
+                                Log.d("Module List", "Empty Content");
                             }
+
+                            Log.d("Module Json", String.valueOf(mainArray));
+                        } catch (JSONException e) {
+
+                            Log.d("JSONException", e.getMessage());
+
                         }
+
                     } else {
 
-                        Log.d("Module List","Empty Content");
-                    }
+                        Log.d("FolderInfo", "Not found");
 
-                    Log.d("Module Json", String.valueOf(mainArray));
-                }catch (JSONException e){
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(ModuleList.this);
+                        builder.setTitle("Restoration Process");
+                        builder.setMessage("Your file contents are missing do you want restore it, By free downloading?")
+                                .setCancelable(false)
+                                .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                                    public void onClick(DialogInterface dialog, int id) {
 
-                    Log.d("JSONException",e.getMessage());
+                                        StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getApplicationContext());
+                                        Cursor cursor = storeEntireDetails.getSubjectRow(currentSubjectName);
+                                        Log.d("cursorInfo", String.valueOf(cursor.getCount()));
 
-                }
+                                        if (cursor.getCount() != 0) {
 
-            } else {
+                                            if (cursor.moveToFirst()) {
 
-                Log.d("FolderInfo","Not found");
+                                                do {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Restoration Process");
-                builder.setMessage("Your file contents are missing do you want restore it, By free downloading?")
-                        .setCancelable(false)
-                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
+                                                    String country = cursor.getString(1);
+                                                    String university = cursor.getString(2);
+                                                    String course = cursor.getString(3);
+                                                    String semester = cursor.getString(4);
+                                                    String subjectId = cursor.getString(5);
+                                                    String subjectNumber = cursor.getString(6);
+                                                    String subject = cursor.getString(7);
+                                                    String subjectCost = cursor.getString(8);
+                                                    String trial = cursor.getString(9);
+                                                    String duration = cursor.getString(10);
+                                                    String notes_count = cursor.getString(11);
+                                                    String qbank_count = cursor.getString(12);
+                                                    String video_count = cursor.getString(13);
+                                                    String zip_url = cursor.getString(14);
+                                                    String validityTill = cursor.getString(15);
+                                                    String progress = cursor.getString(16);
+                                                    String status = cursor.getString(17);
 
-                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getApplicationContext());
-                                Cursor cursor = storeEntireDetails.getSubjectRow(currentSubjectName);
-                                Log.d("cursorInfo", String.valueOf(cursor.getCount()));
+                                                    new Thread(new FetchDownloadManager(zip_url, country, university, course, semester, subjectId, subjectNumber, subject,
+                                                            subjectCost, trial, duration, notes_count, qbank_count, video_count, getApplicationContext(), "restore")).start();
 
-                                if (cursor.getCount() != 0){
+                                                    startActivity(new Intent(getApplicationContext(), Drawer.class));
 
-                                    if (cursor.moveToFirst()){
+                                                } while (cursor.moveToNext());
 
-                                        do {
+                                            }
+                                            cursor.close();
+                                        }
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
 
-                                            Log.d("#country",cursor.getString(1)+"  ");
-                                            Log.d("#university", cursor.getString(2)+"  ");
-                                            Log.d("#course", cursor.getString(3)+"  ");
-                                            Log.d("#sem", cursor.getString(4)+"  ");
-                                            Log.d("#subject", cursor.getString(5)+"  ");
-//                            subject = cursor.getString(5);
-                                            Log.d("#sub_no", cursor.getString(6)+"  ");
-                                            Log.d("#subject_id", cursor.getString(7)+"  ");
-                                            Log.d("#free_validity", cursor.getString(8)+"  ");
-//                            freeValidity = cursor.getString(8);
-                                            Log.d("#paid_validity", cursor.getString(9)+"  ");
-                                            Log.d("#duration", cursor.getString(10)+"  ");
+                                        dialog.cancel();
+                                        Intent intent = new Intent(ModuleList.this, Drawer.class);
+                                        startActivity(intent);
+                                    }
+                                });
 
-                                            final String country = cursor.getString(1);
-                                            final String university = cursor.getString(2);
-                                            final String course = cursor.getString(3);
-                                            final String semester = cursor.getString(4);
-                                            final String subject = cursor.getString(5);
-                                            final String subjectId = cursor.getString(6);
-                                            final String subjectNumber = cursor.getString(7);
-                                            final String freeValidity = cursor.getString(8);
-                                            final String paidValidity = cursor.getString(9);
-                                            final String duration = cursor.getString(10);
-                                            final String videoCount = cursor.getString(11);
-                                            final String notesCount = cursor.getString(12);
-                                            final String qbankCount = cursor.getString(13);
+                        handler.post(new Runnable() {
+                            public void run() {
 
-//                            put values for download
-                                            HashMap<String,String> params = new HashMap<String, String>();
-                                            params.put("sem_no",semester);
-                                            params.put("id",subjectId);
-                                            params.put("sub_no",subjectNumber);
-                                            params.put("type","url");
+                                AlertDialog alert = builder.create();
+                                alert.show();
 
-                                            Log.v("Hash Values",params.toString());
-
-                                            url_arrayList = new ArrayList<String>();
-                                            name_arrayList = new ArrayList<String>();
-
-                                            AsyncUrl asyncUrl = new AsyncUrl(ModuleList.this,params,UrlResult,URL_JSON_ARRAY,
-                                                    current_url,current_name,url_arrayList,name_arrayList,progressDialog);
-                                            asyncUrl.execute(GET_URLS);
-
-                                            final Handler handler = new Handler();
-                                            handler.postDelayed(new Runnable() {
-                                                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                                                @Override
-                                                public void run() {
-//                                    Do something after 100ms
-                                                    Log.v("Check UrlArraylist", String.valueOf(AsyncUrl.url_arrayList.size()));
-                                                    Log.v("Check NameArraylist", String.valueOf(AsyncUrl.name_arrayList.size()));
-
-                                                    if (AsyncUrl.url_arrayList != null){
-
-                                                        Log.v("Check Entry", String.valueOf(url_arrayList.size()));
-                                                        final StoreCardAdapter adapter = new StoreCardAdapter(ModuleList.this);
-                                                        adapter.DownloadFile(ModuleList.this,country,university,course,semester,subject,subjectId,
-                                                                subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
-
-                                                    }
-                                                }
-                                            }, 10000);
-
-                                        }while (cursor.moveToNext());
-
-                                    } cursor.close();
-                                }
-
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-                                dialog.cancel();
-                                Intent intent = new Intent(ModuleList.this,Drawer.class);
-                                startActivity(intent);
                             }
                         });
-
-                AlertDialog alert = builder.create();
-                alert.show();
-
-            }
+                    }
 
 //        ListOUt the SDCard Values
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<ModuleItems> moduleItemses = new ArrayList<>();
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<ModuleItems> moduleItemses = new ArrayList<>();
+
+                    final ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
+                    List<TopicItems> topicItemsList = new ArrayList<TopicItems>();
+
+                    try {
+                        moduleItemses = mapper.readValue(String.valueOf(mainArray), new TypeReference<List<ModuleItems>>() {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    ModuleItems moduleItems = new ModuleItems();
+                    TopicItems topicItems = new TopicItems();
+
+                    for (ModuleItems entityObject : moduleItemses) {
+
+                        entityObject.setModule_name(entityObject.getModule_name());
+
+                        for (int i = 0; i < entityObject.getTopic_details().size(); i++) {
+
+                            topicItems.setTopic_name(entityObject.getTopic_details().get(i).getTopic_name());
+                            topicItems.setTopic_duration(entityObject.getTopic_details().get(i).getTopic_duration());
+                            topicItems.setTotalDuration(entityObject.getTopic_details().get(i).getTotalDuration());
+                            topicItems.setCount(entityObject.getTopic_details().get(i).getCount());
+
+                            topicItemsList.add(topicItems);
+                        }
+
+                        moduleItems.setTopic_details(topicItemsList);
+
+                        moduleItemsList.add(entityObject);
+
+                    }
+
+                    handler.post(new Runnable() {
+                        public void run() {
+
+                            //        Initialize views
+                            moduleAdapter = new ModuleAdapter(ModuleList.this, moduleItemsList);
+                            moduleListView.setAdapter(moduleAdapter);
+                            moduleListView.deferNotifyDataSetChanged();
+
+                        }
+                    });
 
 
-            ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
-            List<TopicItems> topicItemsList = new ArrayList<TopicItems>();
+                } else {
 
-            try {
-                moduleItemses =  mapper.readValue(String.valueOf(mainArray), new TypeReference<List<ModuleItems>>(){});
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                    currentSubjectName = getIntent().getStringExtra("Key_subjectName");
+                    getSupportActionBar().setTitle(currentSubjectName);
 
-            ModuleItems moduleItems = new ModuleItems();
-            TopicItems topicItems = new TopicItems();
-
-            for (ModuleItems entityObject : moduleItemses){
-
-                entityObject.setModule_name(entityObject.getModule_name());
-
-                Log.d("Module Name", entityObject.getModule_name());
-
-                for(int i = 0; i<entityObject.getTopic_details().size(); i++){
-
-                    topicItems.setTopic_name(entityObject.getTopic_details().get(i).getTopic_name());
-                    topicItems.setTopic_duration(entityObject.getTopic_details().get(i).getTopic_duration());
-                    topicItems.setTotalDuration(entityObject.getTopic_details().get(i).getTotalDuration());
-                    topicItems.setCount(entityObject.getTopic_details().get(i).getCount());
-
-
-                    Log.d("TopicName ", entityObject.getTopic_details().get(i).getTopic_name());
-                    Log.d("TopicDuration ", String.valueOf(entityObject.getTopic_details().get(i).getTopic_duration()));
-                    Log.d("Count", String.valueOf(entityObject.getTopic_details().get(i).getCount()));
-                    topicItemsList.add(topicItems);
-                }
-
-                moduleItems.setTopic_details(topicItemsList);
-
-                moduleItemsList.add(entityObject);
-
-            }
-//        Initialize views
-            moduleAdapter = new ModuleAdapter(this,moduleItemsList);
-            moduleListView.setAdapter(moduleAdapter);
-            moduleListView.deferNotifyDataSetChanged();
-
-        } else {
-
-            currentSubjectName = getIntent().getStringExtra("Key_subjectName");
-            getSupportActionBar().setTitle(currentSubjectName);
-
-            txtRibbon.setVisibility(View.VISIBLE);
+                    txtRibbon.setVisibility(View.VISIBLE);
 
 //            ListOUt the Online values
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<ModuleItems> moduleItemses = new ArrayList<>();
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<ModuleItems> moduleItemses = new ArrayList<>();
 
-            ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
-            List<TopicItems> topicItemsList = new ArrayList<TopicItems>();
+                    final ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
+                    List<TopicItems> topicItemsList = new ArrayList<TopicItems>();
 
-            try {
-                String onlineJsonArray = getIntent().getStringExtra("Key_OnlineJson");
-                Log.d("OnlineJson",onlineJsonArray+"  ");
+                    try {
+                        String onlineJsonArray = getIntent().getStringExtra("Key_OnlineJson");
+                        Log.d("OnlineJson", onlineJsonArray + "  ");
 
-                moduleItemses =  mapper.readValue(String.valueOf(onlineJsonArray), new TypeReference<List<ModuleItems>>(){});
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                        moduleItemses = mapper.readValue(String.valueOf(onlineJsonArray), new TypeReference<List<ModuleItems>>() {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-            ModuleItems moduleItems = new ModuleItems();
-            TopicItems topicItems = new TopicItems();
+                    ModuleItems moduleItems = new ModuleItems();
+                    TopicItems topicItems = new TopicItems();
 
-            for (ModuleItems entityObject : moduleItemses){
+                    for (ModuleItems entityObject : moduleItemses) {
 
-                entityObject.setModule_name(entityObject.getModule_name());
+                        entityObject.setModule_name(entityObject.getModule_name());
+                        entityObject.setSubject_id(entityObject.getSubject_id());
+                        entityObject.setSem_no(entityObject.getSem_no());
+                        entityObject.setSub_no(entityObject.getSub_no());
 
-                Log.d("Module Name", entityObject.getModule_name());
+//                        Log.d("moduleName", entityObject.getModule_name());
+//                        Log.d("subjectId",entityObject.getSubject_id());
+//                        Log.d("semNo",entityObject.getSem_no());
+//                        Log.d("subjectNo",entityObject.getSub_no());
 
-                for(int i = 0; i<entityObject.getTopic_details().size(); i++){
+                        for (int i = 0; i < entityObject.getTopic_details().size(); i++) {
 
-                    topicItems.setSubject_id(entityObject.getTopic_details().get(i).getSubject_id());
-                    topicItems.setSem_no(entityObject.getTopic_details().get(i).getSem_no());
-                    topicItems.setSub_no(entityObject.getTopic_details().get(i).getSub_no());
-                    topicItems.setModule_no(entityObject.getTopic_details().get(i).getModule_no());
-                    topicItems.setTopic_no(entityObject.getTopic_details().get(i).getTopic_no());
-                    topicItems.setTopic_name(entityObject.getTopic_details().get(i).getTopic_name());
-                    topicItems.setTopic_duration(entityObject.getTopic_details().get(i).getTopic_duration());
+                            topicItems.setModule_no(entityObject.getTopic_details().get(i).getModule_no());
+                            topicItems.setTopic_no(entityObject.getTopic_details().get(i).getTopic_no());
+                            topicItems.setTopic_name(entityObject.getTopic_details().get(i).getTopic_name());
+                            topicItems.setTopic_duration(entityObject.getTopic_details().get(i).getTopic_duration());
 
-                    Log.d("subjectId ", entityObject.getTopic_details().get(i).getSubject_id());
-                    Log.d("Sem_no", entityObject.getTopic_details().get(i).getSem_no());
-                    Log.d("sub_no ", entityObject.getTopic_details().get(i).getSub_no());
-                    Log.d("module_no ", entityObject.getTopic_details().get(i).getModule_no());
-                    Log.d("topic_no ", entityObject.getTopic_details().get(i).getTopic_no());
-                    Log.d("TopicName ", entityObject.getTopic_details().get(i).getTopic_name());
-                    Log.d("TopicDuration ", String.valueOf(entityObject.getTopic_details().get(i).getTopic_duration()));
-                    topicItemsList.add(topicItems);
+//                            Log.d("moduleNo",entityObject.getTopic_details().get(i).getModule_no());
+//                            Log.d("topicNo",entityObject.getTopic_details().get(i).getTopic_no());
+//                            Log.d("topicName",entityObject.getTopic_details().get(i).getTopic_name());
+//                            Log.d("topicDuration",entityObject.getTopic_details().get(i).getTopic_duration());
+
+                            topicItemsList.add(topicItems);
+                        }
+
+                        moduleItems.setTopic_details(topicItemsList);
+                        moduleItemsList.add(entityObject);
+
+                    }
+
+                    handler.post(new Runnable() {
+                        public void run() {
+
+                            //        Initialize views
+                            moduleAdapter = new ModuleAdapter(ModuleList.this, moduleItemsList);
+                            moduleListView.setAdapter(moduleAdapter);
+                            moduleListView.deferNotifyDataSetChanged();
+
+                        }
+                    });
                 }
-
-                moduleItems.setTopic_details(topicItemsList);
-
-                moduleItemsList.add(entityObject);
-
             }
-//        Initialize views
-            moduleAdapter = new ModuleAdapter(this,moduleItemsList);
-            moduleListView.setAdapter(moduleAdapter);
-            moduleListView.deferNotifyDataSetChanged();
 
-        }
+        };
+        new Thread(runnable).start();
     }
 
     @Override
@@ -462,7 +429,7 @@ public class ModuleList extends AppCompatActivity {
 
                 break;
 
-            case R.id.action_search : {
+            case R.id.action_search: {
 
                 String onlineSubject = getIntent().getStringExtra("Key_subjectName");
                 String offlineSubject = getIntent().getStringExtra("Key_video");
@@ -557,319 +524,298 @@ public class ModuleList extends AppCompatActivity {
         });
     }
 
-    public void filterView(){
+    public void filterView() {
 
-        String onlineSubject = getIntent().getStringExtra("Key_subjectName");
-        String offlineSubject = getIntent().getStringExtra("Key_video");
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
 
-        if (offlineSubject != null){
+            public void run() {
 
-            JSONArray mainArray = new JSONArray();
-            txtRibbon.setVisibility(View.GONE);
-            String MainDir = "Chathamkulam"+"/"+currentSubjectName;
-            File mainPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), MainDir);
+                String onlineSubject = getIntent().getStringExtra("Key_subjectName");
+                String offlineSubject = getIntent().getStringExtra("Key_video");
 
-            if (mainPath.exists()){
+                if (offlineSubject != null) {
 
-                File moduleList[] = mainPath.listFiles();
+                    JSONArray mainArray = new JSONArray();
+                    txtRibbon.setVisibility(View.GONE);
+                    File mydir = getApplicationContext().getDir("Chathamkulam", Context.MODE_PRIVATE);
+                    File mainPath = new File(mydir, currentSubjectName);
+
+                    if (mainPath.exists()) {
+
+                        File[] moduleList = mainPath.listFiles();
+                        Arrays.sort(moduleList);
 
 //        Get Values frm SDCard
-                try {
+                        try {
 
-                    if (moduleList != null && moduleList.length > 0) {
-                        for (File aModuleList : moduleList) {
+                            if (moduleList != null && moduleList.length > 0) {
+                                for (File aModuleList : moduleList) {
 
-                            if (aModuleList.isDirectory()) {
+                                    if (aModuleList.isDirectory()) {
 
-                                String moduleConvert = aModuleList.getName();
-                                String moduleName = moduleConvert.replaceAll("%20","  ");
+                                        String moduleName = aModuleList.getName();
 
-                                String SubDir = "Chathamkulam"+"/"+currentSubjectName+"/"+moduleName;
-                                File subPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), SubDir);
+                                        File mydirr = getApplicationContext().getDir("Chathamkulam", Context.MODE_PRIVATE);
+                                        File mainPathh = new File(mydirr, currentSubjectName);
+                                        File subPath = new File(mainPathh, moduleName);
 
-                                File topicList[] = subPath.listFiles();
+                                        File[] topicList = subPath.listFiles();
+                                        Arrays.sort(topicList);
 
-                                if (topicList != null && topicList.length > 0){
+                                        if (topicList != null && topicList.length > 0) {
 
-                                    for (File aTopicList : topicList){
+                                            for (File aTopicList : topicList) {
 
-                                        if (aTopicList.isFile()){
+                                                if (aTopicList.isFile()) {
 
-                                            String topicConvert = aTopicList.getName();
-                                            String checkTopic = aTopicList.getAbsolutePath();
-                                            String topicName = topicConvert.replaceAll("%20","  ");
-                                            String[] sep = topicConvert.split("\\.");
-                                            Log.d("###Topic",topicName);
-                                            String Topic = sep[0];
+                                                    String topicConvert = aTopicList.getName();
+                                                    String checkTopic = aTopicList.getAbsolutePath();
 
-                                            String[] sepLength = Topic.split("-");
-                                            String topicLength = sepLength[0];
-                                            String finalTopicName = sepLength[1];
+                                                    String[] sep = topicConvert.split("-", 4);
+                                                    String topicDuration = sep[0] + ":" + sep[1] + ":" + sep[2];
+                                                    String fileName = sep[3];
 
-                                            StringBuilder finalTopicLength = new StringBuilder(topicLength);
-                                            // insert character value at offset 8
-                                            finalTopicLength.insert(2, ':');
-                                            finalTopicLength.insert(5, ':');
+//                                                    Log.d("#check",fileName+" ");
+                                                    String[] sepp = fileName.split("\\.");
+                                                    String topicName = sepp[0];
+                                                    String type = sepp[1];
 
-                                            Cursor mainCursor = videoHandler.getAllData();
+                                                    Cursor mainCursor = videoHandler.getAllData();
 
-                                            if (mainCursor.getCount() != 0){
+                                                    if (mainCursor.getCount() != 0) {
 
-                                                while (mainCursor.moveToNext()) {
+                                                        while (mainCursor.moveToNext()) {
 
-                                                    String topic = mainCursor.getString(1);
-                                                    Log.d("check",topic);
+                                                            String topic = mainCursor.getString(1);
 
-                                                    if (topic.equals(checkTopic)){
+                                                            if (topic.equals(checkTopic)) {
+
+                                                                JSONObject mainJsonObject = new JSONObject();
+                                                                mainJsonObject.put("module_name", moduleName);
+                                                                mainJsonObject.put("topic_name", topicName);
+                                                                mainJsonObject.put("topic_duration", topicDuration);
+                                                                mainJsonObject.put("totalDuration", mainCursor.getString(2));
+                                                                mainJsonObject.put("count", mainCursor.getString(3));
+                                                                mainArray.put(mainJsonObject);
+                                                            }
+                                                        }
+                                                        mainCursor.close();
+
+                                                        if (!videoHandler.ifExists(checkTopic)) {
+
+                                                            JSONObject mainJsonObject = new JSONObject();
+                                                            mainJsonObject.put("module_name", moduleName);
+                                                            mainJsonObject.put("topic_name", topicName);
+                                                            mainJsonObject.put("topic_duration", topicDuration);
+                                                            mainJsonObject.put("totalDuration", 0);
+                                                            mainJsonObject.put("count", 0);
+                                                            mainArray.put(mainJsonObject);
+
+                                                        }
+
+                                                    } else {
 
                                                         JSONObject mainJsonObject = new JSONObject();
-                                                        mainJsonObject.put("module_name",moduleName);
-                                                        mainJsonObject.put("topic_name",finalTopicName);
-                                                        mainJsonObject.put("topic_duration",finalTopicLength);
-                                                        mainJsonObject.put("totalDuration",mainCursor.getString(2));
-                                                        mainJsonObject.put("count", mainCursor.getString(3));
-                                                        mainArray.put(mainJsonObject);
-                                                    }
-                                                }
-                                                mainCursor.close();
-
-                                                if (!videoHandler.ifExists(checkTopic)){
-
-                                                    JSONObject mainJsonObject = new JSONObject();
-                                                    mainJsonObject.put("module_name",moduleName);
-                                                    mainJsonObject.put("topic_name",finalTopicName);
-                                                    mainJsonObject.put("topic_duration",finalTopicLength);
-                                                    mainJsonObject.put("totalDuration",0);
-                                                    mainJsonObject.put("count",0);
-                                                    mainArray.put(mainJsonObject);
-
-                                                }
-
-                                            } else {
-
-                                                JSONObject mainJsonObject = new JSONObject();
-                                                mainJsonObject.put("module_name",moduleName);
-                                                mainJsonObject.put("topic_name",finalTopicName);
-                                                mainJsonObject.put("topic_duration",finalTopicLength);
-                                                mainJsonObject.put("totalDuration",0);
-                                                mainJsonObject.put("count",0);
+                                                        mainJsonObject.put("module_name", moduleName);
+                                                        mainJsonObject.put("topic_name", topicName);
+                                                        mainJsonObject.put("topic_duration", topicDuration);
+                                                        mainJsonObject.put("totalDuration", 0);
+                                                        mainJsonObject.put("count", 0);
 
 //                                            Add SubObject To SubArray
-                                                mainArray.put(mainJsonObject);
-
-                                                Log.d("Topic Name Converted",finalTopicName);
-                                                Log.d("Topic Length Converted", String.valueOf(finalTopicLength));
-                                            }
-                                        }
-                                    }
-
-                                }else {
-                                    Log.d("Topic List","Empty Content");
-                                }
-                            }
-                        }
-                    } else {
-
-                        Log.d("ModuleList","Empty Content");
-                    }
-
-                    Log.d("ModuleJson", String.valueOf(mainArray));
-                }catch (JSONException e){
-
-                    Log.d("JSONException",e.getMessage());
-
-                }
-
-            } else {
-
-                Log.d("FolderInfo","Not found");
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Restoration Process");
-                builder.setMessage("Your file contents are missing do you want restore it, By free downloading?")
-                        .setCancelable(false)
-                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-                                StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getApplicationContext());
-                                Cursor cursor = storeEntireDetails.getSubjectRow(currentSubjectName);
-                                Log.d("cursorInfo", String.valueOf(cursor.getCount()));
-
-                                if (cursor.getCount() != 0){
-
-                                    if (cursor.moveToFirst()){
-
-                                        do {
-
-                                            Log.d("#country",cursor.getString(1)+"  ");
-                                            Log.d("#university", cursor.getString(2)+"  ");
-                                            Log.d("#course", cursor.getString(3)+"  ");
-                                            Log.d("#sem", cursor.getString(4)+"  ");
-                                            Log.d("#subject", cursor.getString(5)+"  ");
-//                            subject = cursor.getString(5);
-                                            Log.d("#sub_no", cursor.getString(6)+"  ");
-                                            Log.d("#subject_id", cursor.getString(7)+"  ");
-                                            Log.d("#free_validity", cursor.getString(8)+"  ");
-//                            freeValidity = cursor.getString(8);
-                                            Log.d("#paid_validity", cursor.getString(9)+"  ");
-                                            Log.d("#duration", cursor.getString(10)+"  ");
-
-                                            final String country = cursor.getString(1);
-                                            final String university = cursor.getString(2);
-                                            final String course = cursor.getString(3);
-                                            final String semester = cursor.getString(4);
-                                            final String subject = cursor.getString(5);
-                                            final String subjectId = cursor.getString(6);
-                                            final String subjectNumber = cursor.getString(7);
-                                            final String freeValidity = cursor.getString(8);
-                                            final String paidValidity = cursor.getString(9);
-                                            final String duration = cursor.getString(10);
-                                            final String videoCount = cursor.getString(11);
-                                            final String notesCount = cursor.getString(12);
-                                            final String qbankCount = cursor.getString(13);
-
-//                            put values for download
-                                            HashMap<String,String> params = new HashMap<String, String>();
-                                            params.put("sem_no",semester);
-                                            params.put("id",subjectId);
-                                            params.put("sub_no",subjectNumber);
-                                            params.put("type","url");
-
-                                            Log.v("Hash Values",params.toString());
-
-                                            url_arrayList = new ArrayList<String>();
-                                            name_arrayList = new ArrayList<String>();
-
-                                            AsyncUrl asyncUrl = new AsyncUrl(ModuleList.this,params,UrlResult,URL_JSON_ARRAY,
-                                                    current_url,current_name,url_arrayList,name_arrayList,progressDialog);
-                                            asyncUrl.execute(GET_URLS);
-
-                                            final Handler handler = new Handler();
-                                            handler.postDelayed(new Runnable() {
-                                                @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                                                @Override
-                                                public void run() {
-//                                    Do something after 100ms
-                                                    Log.v("Check UrlArraylist", String.valueOf(AsyncUrl.url_arrayList.size()));
-                                                    Log.v("Check NameArraylist", String.valueOf(AsyncUrl.name_arrayList.size()));
-
-                                                    if (AsyncUrl.url_arrayList != null){
-
-                                                        Log.v("Check Entry", String.valueOf(url_arrayList.size()));
-                                                        final StoreCardAdapter adapter = new StoreCardAdapter(ModuleList.this);
-                                                        adapter.DownloadFile(ModuleList.this,country,university,course,semester,subject,subjectId,
-                                                                subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
+                                                        mainArray.put(mainJsonObject);
 
                                                     }
                                                 }
-                                            }, 10000);
+                                            }
 
-                                        }while (cursor.moveToNext());
-
-                                    } cursor.close();
+                                        } else {
+                                            Log.d("Topic List", "Empty Content");
+                                        }
+                                    }
                                 }
+                            } else {
 
+                                Log.d("ModuleList", "Empty Content");
                             }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
 
-                                dialog.cancel();
-                                Intent intent = new Intent(ModuleList.this,Drawer.class);
-                                startActivity(intent);
+                            Log.d("ModuleJson", String.valueOf(mainArray));
+                        } catch (JSONException e) {
+
+                            Log.d("JSONException", e.getMessage());
+
+                        }
+
+                    } else {
+
+                        Log.d("FolderInfo", "Not found");
+
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(ModuleList.this);
+                        builder.setTitle("Restoration Process");
+                        builder.setMessage("Your file contents are missing do you want restore it, By free downloading?")
+                                .setCancelable(false)
+                                .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                        StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getApplicationContext());
+                                        Cursor cursor = storeEntireDetails.getSubjectRow(currentSubjectName);
+                                        Log.d("cursorInfo", String.valueOf(cursor.getCount()));
+
+                                        if (cursor.getCount() != 0) {
+
+                                            if (cursor.moveToFirst()) {
+
+                                                do {
+
+                                                    String country = cursor.getString(1);
+                                                    String university = cursor.getString(2);
+                                                    String course = cursor.getString(3);
+                                                    String semester = cursor.getString(4);
+                                                    String subjectId = cursor.getString(5);
+                                                    String subjectNumber = cursor.getString(6);
+                                                    String subject = cursor.getString(7);
+                                                    String subjectCost = cursor.getString(8);
+                                                    String trial = cursor.getString(9);
+                                                    String duration = cursor.getString(10);
+                                                    String notes_count = cursor.getString(11);
+                                                    String qbank_count = cursor.getString(12);
+                                                    String video_count = cursor.getString(13);
+                                                    String zip_url = cursor.getString(14);
+                                                    String validityTill = cursor.getString(15);
+                                                    String progress = cursor.getString(16);
+                                                    String status = cursor.getString(17);
+
+                                                    new Thread(new FetchDownloadManager(zip_url, country, university, course, semester, subjectId, subjectNumber, subject,
+                                                            subjectCost, trial, duration, notes_count, qbank_count, video_count, getApplicationContext(), "restore")).start();
+
+                                                    startActivity(new Intent(getApplicationContext(), Drawer.class));
+
+                                                } while (cursor.moveToNext());
+
+                                            }
+                                            cursor.close();
+                                        }
+                                    }
+                                })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                        dialog.cancel();
+                                        Intent intent = new Intent(ModuleList.this, Drawer.class);
+                                        startActivity(intent);
+                                    }
+                                });
+
+                        handler.post(new Runnable() {
+                            public void run() {
+
+                                AlertDialog alert = builder.create();
+                                alert.show();
+
                             }
                         });
-
-                AlertDialog alert = builder.create();
-                alert.show();
-
-            }
+                    }
 
 //        ListOUt the SDCard Values
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<ModuleItems> moduleItemses = new ArrayList<>();
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<ModuleItems> moduleItemses = new ArrayList<>();
 
-            ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
+                    final ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
 
-            try {
-                moduleItemses =  mapper.readValue(String.valueOf(mainArray), new TypeReference<List<ModuleItems>>(){});
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                    try {
+                        moduleItemses = mapper.readValue(String.valueOf(mainArray), new TypeReference<List<ModuleItems>>() {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-            for (ModuleItems entityObject : moduleItemses){
+                    for (ModuleItems entityObject : moduleItemses) {
 
-                entityObject.setModule_name(entityObject.getModule_name());
-                entityObject.setTopic_name(entityObject.getTopic_name());
-                entityObject.setTopic_duration(entityObject.getTopic_duration());
-                entityObject.setTotalDuration(entityObject.getTotalDuration());
-                entityObject.setCount(entityObject.getCount());
+                        entityObject.setModule_name(entityObject.getModule_name());
+                        entityObject.setTopic_name(entityObject.getTopic_name());
+                        entityObject.setTopic_duration(entityObject.getTopic_duration());
+                        entityObject.setTotalDuration(entityObject.getTotalDuration());
+                        entityObject.setCount(entityObject.getCount());
 
-//                Log.d("Module Name", entityObject.getModule_name());
-                Log.d("TopicName ", entityObject.getTopic_name());
-                Log.d("TopicDuration ", String.valueOf(entityObject.getTopic_duration()));
-                Log.d("count ", String.valueOf(entityObject.getCount()));
+//                        Log.d("moduleName", entityObject.getModule_name());
+//                        Log.d("topicName",entityObject.getTopic_name());
+//                        Log.d("topicDuration",entityObject.getTopic_duration());
+//                        Log.d("totalDuration",entityObject.getTotalDuration());
+//                        Log.d("count",entityObject.getCount());
 
-                moduleItemsList.add(entityObject);
+                        moduleItemsList.add(entityObject);
 
-            }
-//        Initialize views
-            cardFilterAdapter = new ModuleCardFilterAdapter(this,moduleItemsList);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            moduleFilterView.setHasFixedSize(true);
-            moduleFilterView.setLayoutManager(layoutManager);
-            moduleFilterView.setAdapter(cardFilterAdapter);
+                    }
 
-        }
+                    handler.post(new Runnable() {
+                        public void run() {
 
-        if (onlineSubject != null) {
+                            //        Initialize views
+                            cardFilterAdapter = new ModuleCardFilterAdapter(ModuleList.this, moduleItemsList);
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+                            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                            moduleFilterView.setHasFixedSize(true);
+                            moduleFilterView.setLayoutManager(layoutManager);
+                            moduleFilterView.setAdapter(cardFilterAdapter);
 
-            txtRibbon.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+                if (onlineSubject != null) {
+
+                    txtRibbon.setVisibility(View.VISIBLE);
 
 //            ListOUt the Online values
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<ModuleItems> moduleItemses = new ArrayList<>();
+                    ObjectMapper mapper = new ObjectMapper();
+                    List<ModuleItems> moduleItemses = new ArrayList<>();
 
-            ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
-            List<TopicItems> topicItemsList = new ArrayList<TopicItems>();
+                    final ArrayList<ModuleItems> moduleItemsList = new ArrayList<ModuleItems>();
+                    List<TopicItems> topicItemsList = new ArrayList<TopicItems>();
 
-            try {
-                String onlineJsonArray = getIntent().getStringExtra("Key_OnlineSearchJson");
-                moduleItemses =  mapper.readValue(String.valueOf(onlineJsonArray), new TypeReference<List<ModuleItems>>(){});
-            } catch (IOException e) {
-                e.printStackTrace();
+                    try {
+                        String onlineJsonArray = getIntent().getStringExtra("Key_OnlineSearchJson");
+                        moduleItemses = mapper.readValue(String.valueOf(onlineJsonArray), new TypeReference<List<ModuleItems>>() {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    ModuleItems moduleItems = new ModuleItems();
+                    TopicItems topicItems = new TopicItems();
+
+                    for (ModuleItems entityObject : moduleItemses) {
+
+                        entityObject.setModule_name(entityObject.getModule_name());
+                        entityObject.setTopic_name(entityObject.getTopic_name());
+                        entityObject.setTopic_duration(entityObject.getTopic_duration());
+                        entityObject.setPauseDuration(entityObject.getPauseDuration());
+                        entityObject.setTotalDuration(entityObject.getTotalDuration());
+
+                        moduleItemsList.add(entityObject);
+
+                    }
+
+                    handler.post(new Runnable() {
+                        public void run() {
+
+                            //        Initialize views
+                            cardFilterAdapter = new ModuleCardFilterAdapter(ModuleList.this, moduleItemsList);
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+                            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+                            moduleFilterView.setHasFixedSize(true);
+                            moduleFilterView.setLayoutManager(layoutManager);
+                            moduleFilterView.setAdapter(cardFilterAdapter);
+
+                        }
+                    });
+                }
             }
-
-            ModuleItems moduleItems = new ModuleItems();
-            TopicItems topicItems = new TopicItems();
-
-            for (ModuleItems entityObject : moduleItemses){
-
-                entityObject.setModule_name(entityObject.getModule_name());
-                entityObject.setTopic_name(entityObject.getTopic_name());
-                entityObject.setTopic_duration(entityObject.getTopic_duration());
-                entityObject.setPauseDuration(entityObject.getPauseDuration());
-                entityObject.setTotalDuration(entityObject.getTotalDuration());
-
-//                Log.d("Module Name", entityObject.getModule_name());
-                Log.d("TopicName ", entityObject.getTopic_name());
-                Log.d("TopicDuration ", String.valueOf(entityObject.getTopic_duration()));
-                Log.d("PauseDuration ", String.valueOf(entityObject.getPauseDuration()));
-
-                moduleItemsList.add(entityObject);
-
-            }
-
-//        Initialize views
-            cardFilterAdapter = new ModuleCardFilterAdapter(this,moduleItemsList);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            moduleFilterView.setHasFixedSize(true);
-            moduleFilterView.setLayoutManager(layoutManager);
-            moduleFilterView.setAdapter(cardFilterAdapter);
-        }
+        };
+        new Thread(runnable).start();
     }
 }

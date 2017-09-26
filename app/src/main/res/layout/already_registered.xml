@@ -2,43 +2,44 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <VideoView
         android:id="@+id/bg_video_already_reg"
         android:layout_width="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
-        android:layout_height="fill_parent">
-    </VideoView>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="15dp"
-            android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical"
+            android:padding="15dp"
             tools:ignore="ObsoleteLayoutParam">
+
             <TextView
                 android:id="@+id/txtNotify"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="15dp"
                 android:text="Verify your mobile number"
                 android:textColor="#FFFFFF"
-                android:padding="15dp"
-                android:textSize="18sp"/>
+                android:textSize="18sp" />
 
             <LinearLayout
                 android:id="@+id/numberLay"
@@ -50,20 +51,20 @@
                     android:id="@+id/already_ccp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:textSize="16sp"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/rounded_edittxt"/>
+                    android:background="@drawable/rounded_edittxt"
+                    app:textSize="16sp" />
 
                 <EditText
                     android:id="@+id/NumberEdt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Mobile Number"
-                    android:padding="8dp"
                     android:layout_marginLeft="5dp"
-                    android:inputType="phone"
                     android:layout_marginTop="5dp"
-                    android:background="@drawable/rounded_edittxt"/>
+                    android:background="@drawable/rounded_edittxt"
+                    android:hint="Mobile Number"
+                    android:inputType="phone"
+                    android:padding="8dp" />
 
             </LinearLayout>
 
@@ -71,11 +72,11 @@
                 android:id="@+id/edtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter your email"
-                android:padding="5dp"
                 android:layout_marginLeft="5dp"
                 android:background="@drawable/rounded_edittxt"
-                android:inputType="textEmailAddress"/>
+                android:hint="Enter your email"
+                android:inputType="textEmailAddress"
+                android:padding="5dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -84,31 +85,31 @@
                 <Button
                     android:id="@+id/proceed_Btn"
                     android:layout_width="wrap_content"
-                    android:layout_height="45dp"
-                    android:text="Proceed"
-                    android:padding="10dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:background="@drawable/rounded_edittxt"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
+                    android:layout_height="40dp"
                     android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
                     android:layout_marginTop="24dp"
-                    android:textSize="18sp"
-                    android:drawableRight="@drawable/ic_forward"/>
+                    android:background="@drawable/rounded_edittxt"
+                    android:drawableRight="@drawable/ic_forrr"
+                    android:padding="5dp"
+                    android:text="Proceed"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/btnMoreOptions"
-                    android:text="More Options"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textColor="#FFFFFF"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     android:layout_alignBaseline="@+id/proceed_Btn"
                     android:layout_alignBottom="@+id/proceed_Btn"
                     android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
+                    android:layout_alignParentStart="true"
+                    android:text="More Options"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp" />
 
 
             </RelativeLayout>

@@ -30,18 +30,18 @@ public class EncryptService extends Service {
 
                 try {
                     File myFinalDir = (File) intent.getExtras().get("Key_fileName");
-                    FileCrypto.encrypt(getApplicationContext(),myFinalDir, myFinalDir);
-                    Log.d("fileCrypto","Encrypted");
+                    FileCrypto.encrypt(getApplicationContext(), myFinalDir, myFinalDir);
+                    Log.d("fileCrypto", "Encrypted");
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.d("fileCryptoException",e.getMessage());
+                    Log.d("fileCryptoException", e.getMessage());
                 }
             }
 
         });
 
-        Log.d("serviceResult","serviceStarted");
+        Log.d("serviceResult", "serviceStarted");
 
         return START_STICKY;
 
@@ -51,7 +51,7 @@ public class EncryptService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d("serviceResult","serviceStopped");
+        Log.d("serviceResult", "serviceStopped");
 
     }
 }

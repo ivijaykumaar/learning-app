@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_marginTop="3dp"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:orientation="vertical"
         tools:ignore="UselessParent">
 
         <TextView
@@ -19,8 +19,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:text="Country"
-            android:textSize="12dp"
             android:textColor="#000"
+            android:textSize="12dp"
             tools:ignore="RtlHardcoded" />
 
         <LinearLayout
@@ -28,13 +28,12 @@
             android:layout_height="wrap_content"
             tools:ignore="UseCompoundDrawables">
 
-
             <ImageView
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginLeft="15dp"
-                android:src="@drawable/ic_down_arrow"
                 android:contentDescription=""
+                android:src="@drawable/ic_down_arrow"
                 android:tint="#FFFFFF"
                 tools:ignore="ContentDescription" />
 
@@ -42,11 +41,11 @@
                 android:id="@+id/txtUniversity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="University"
                 android:layout_marginLeft="2dp"
+                android:text="University"
+                android:textColor="#000"
                 android:textSize="12dp"
-                tools:ignore="RtlHardcoded"
-                android:textColor="#000"/>
+                tools:ignore="RtlHardcoded" />
 
         </LinearLayout>
 
@@ -59,8 +58,8 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginLeft="30dp"
-                android:tint="#FFFFFF"
                 android:src="@drawable/ic_down_arrow"
+                android:tint="#FFFFFF"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -69,14 +68,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="2dp"
                 android:text="Course"
+                android:textColor="#000"
                 android:textSize="12dp"
-                tools:ignore="RtlHardcoded"
-                android:textColor="#000"/>
+                tools:ignore="RtlHardcoded" />
         </LinearLayout>
 
-
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="UseCompoundDrawables">
 
@@ -84,21 +82,32 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginLeft="50dp"
-                android:tint="#FFFFFF"
                 android:src="@drawable/ic_down_arrow"
-                tools:ignore="ContentDescription" />
+                android:tint="#FFFFFF"
+                tools:ignore="ContentDescription"
+                android:id="@+id/imageView" />
 
             <TextView
                 android:id="@+id/txtSemester"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Semester"
-                android:layout_marginLeft="2dp"
-                android:textSize="12dp"
+                android:textColor="#000"
+                android:textSize="12sp"
                 tools:ignore="RtlHardcoded"
-                android:textColor="#000"/>
-        </LinearLayout>
+                android:layout_toRightOf="@+id/imageView"
+                android:layout_toEndOf="@+id/imageView" />
 
+            <TextView
+                android:id="@+id/countTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12/12"
+                android:textColor="#000"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"/>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -110,9 +119,9 @@
                 android:id="@+id/dash_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginLeft="5dp"
-                app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+                android:orientation="horizontal"
+                app:layoutManager="android.support.v7.widget.LinearLayoutManager" />
 
         </LinearLayout>
 

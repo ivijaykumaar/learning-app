@@ -3,7 +3,9 @@ package com.learning_app.user.chathamkulam.Adapters;
 import android.app.Activity;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +23,14 @@ import java.util.ArrayList;
 
 public class StoreMainListAdapter extends BaseAdapter {
 
+    public static ArrayList<StoreEntityObjects> REStoreList;
     private Activity context;
     private LayoutInflater inflater;
     private ArrayList<StoreEntityObjects> mainArrayList = new ArrayList();
 
-    public static ArrayList<StoreEntityObjects> REStoreList;
+    private boolean loading = true;
+//    int pastVisiblesItems, visibleItemCount, totalItemCount;
+    LinearLayoutManager mLayoutManager;
 
     public StoreMainListAdapter(Activity context, ArrayList<StoreEntityObjects> mainArrayList) {
         this.context = context;
@@ -67,39 +72,40 @@ public class StoreMainListAdapter extends BaseAdapter {
         mViewHolder.txtUniversity.setText(storeEntityObjects.getUniversity());
         mViewHolder.txtCourse.setText(storeEntityObjects.getCourse());
 
-        if (storeEntityObjects.getSem_no().equals("0")){
+        if (storeEntityObjects.getSem_no().equals("0")) {
             mViewHolder.txtSemester.setText("Semester  N/A");
         } else {
-
-            mViewHolder.txtSemester.setText("Semester  "+storeEntityObjects.getSem_no());
+            mViewHolder.txtSemester.setText("Semester  "+ storeEntityObjects.getSem_no());
         }
 
 //        Finally initializing our adapter
         REStoreList = new ArrayList<>();
 
-        for(int i = 0; i< storeEntityObjects.getSubject_details().size(); i++){
+        for (int i = 0; i < storeEntityObjects.getSubject_details().size(); i++) {
             REStoreList.add(storeEntityObjects);
         }
 
-        StoreCardAdapter adapter = new StoreCardAdapter(context,REStoreList);
+        StoreCardAdapter adapter = new StoreCardAdapter(context, REStoreList);
         mViewHolder.recyclerView.setAdapter(adapter);
+
+        mViewHolder.countTxt.setText("<"+adapter.getItemCount()+">");
 
         return convertView;
     }
 
     private class MyViewHolder {
-        TextView txtCountry,txtUniversity,txtCourse,txtSemester;
+        TextView txtCountry, txtUniversity, txtCourse, txtSemester,countTxt;
         RecyclerView recyclerView;
 
         MyViewHolder(View view) {
 
             //Initializing Views
-            txtCountry = (TextView)view.findViewById(R.id.txtCountry);
-            txtUniversity = (TextView)view.findViewById(R.id.txtUniversity);
-            txtCourse = (TextView)view.findViewById(R.id.txtCourse);
-            txtSemester = (TextView)view.findViewById(R.id.txtSemester);
-            recyclerView = (RecyclerView)view.findViewById(R.id.store_recycler_view);
-
+            txtCountry = (TextView) view.findViewById(R.id.txtCountry);
+            txtUniversity = (TextView) view.findViewById(R.id.txtUniversity);
+            txtCourse = (TextView) view.findViewById(R.id.txtCourse);
+            txtSemester = (TextView) view.findViewById(R.id.txtSemester);
+            recyclerView = (RecyclerView) view.findViewById(R.id.store_recycler_view);
+            countTxt = (TextView)view.findViewById(R.id.countTxt);
         }
     }
 }

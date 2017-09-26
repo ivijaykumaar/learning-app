@@ -24,7 +24,7 @@ public class InternetDetector {
             NetworkInfo wifiInfo = connectivity.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
             if (mobInfo != null || wifiInfo != null) {
-                if (mobInfo.isConnected() || wifiInfo.isConnected() ) {
+                if (mobInfo.isConnected() || wifiInfo.isConnected()) {
                     return true;
                 }
             }

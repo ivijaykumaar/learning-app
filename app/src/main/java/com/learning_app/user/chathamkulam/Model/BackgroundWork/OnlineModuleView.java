@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,15 +32,13 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class OnlineModuleView extends AsyncTask<String, String, String> {
 
+    private String moduleItems;
+    private String searchModuleItems;
     private String requestURL;
     private HashMap postDataParams;
     private Activity context;
     private Class intentClass;
     private String subjectName;
-
-    String moduleItems;
-    String searchModuleItems;
-
     private PowerManager.WakeLock mWakeLock;
     private ProgressDialog loading;
 
@@ -60,7 +59,7 @@ public class OnlineModuleView extends AsyncTask<String, String, String> {
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 getClass().getName());
         mWakeLock.acquire();
-        loading = ProgressDialog.show(context, "Processing.....","Please wait while we take you online page!!", false, false);
+        loading = ProgressDialog.show(context, "Processing.....", "Please wait while we take you online page!!", false, false);
         loading.show();
     }
 
@@ -82,23 +81,23 @@ public class OnlineModuleView extends AsyncTask<String, String, String> {
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(os, "UTF-8"));
+            Log.d("mappingValues", String.valueOf(postDataParams));
             writer.write(getPostDataString(postDataParams));
-            Log.d("Mapping values", String.valueOf(postDataParams));
+            Log.d("mappingValues", String.valueOf(postDataParams));
 
             writer.flush();
             writer.close();
             os.close();
-            int responseCode=conn.getResponseCode();
+            int responseCode = conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
-                BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line=br.readLine()) != null) {
-                    response+=line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+                    response += line;
                 }
-            }
-            else {
-                response="";
+            } else {
+                response = "";
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,29 +116,32 @@ public class OnlineModuleView extends AsyncTask<String, String, String> {
         mWakeLock.release();
         loading.dismiss();
 
-        try {
-            JSONObject json = new JSONObject(result);
+        String firstWord = result.substring(0, 1);
+        if (firstWord.equals("{")){
 
-            if (json.has("result1") || json.has("result2")){
+            try {
+                JSONObject json = new JSONObject(result);
 
-                moduleItems = json.getString("result1");
-                searchModuleItems = json.getString("result2");
+                if (json.has("result1") || json.has("result2")) {
 
-                Log.d("moduleItems",moduleItems);
-                Log.d("searchModuleItems",searchModuleItems);
+                    moduleItems = json.getString("result1");
+                    searchModuleItems = json.getString("result2");
 
+                    Log.d("moduleItems", moduleItems);
+                    Log.d("searchModuleItems", searchModuleItems);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
-        if (result != null){
-            Intent intent = new Intent(context,intentClass);
-            intent.putExtra("Key_OnlineJson",moduleItems);
-            intent.putExtra("Key_OnlineSearchJson",searchModuleItems);
-            intent.putExtra("Key_OnlineJsonVideo",result);
-            intent.putExtra("Key_subjectName",subjectName);
+        if (result != null) {
+            Intent intent = new Intent(context, intentClass);
+            intent.putExtra("Key_OnlineJson", moduleItems);
+            intent.putExtra("Key_OnlineSearchJson", searchModuleItems);
+            intent.putExtra("Key_OnlineJsonVideo", result);
+            intent.putExtra("Key_subjectName", subjectName);
             context.startActivity(intent);
         }
     }
@@ -147,7 +149,7 @@ public class OnlineModuleView extends AsyncTask<String, String, String> {
     private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
-        for(Map.Entry<String, String> entry : params.entrySet()){
+        for (Map.Entry<String, String> entry : params.entrySet()) {
             if (first)
                 first = false;
             else

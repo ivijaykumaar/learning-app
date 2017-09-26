@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:orientation="vertical">
 
-    <VideoView android:id="@+id/bg_video_home"
+    <VideoView
+        android:id="@+id/bg_video_home"
         android:layout_width="fill_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
-        android:layout_height="fill_parent">
-    </VideoView>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,30 +29,31 @@
             android:padding="15dp">
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Welcome To"
-                android:textColor="#05B121"
-                android:textSize="15dp"
-                android:paddingBottom="@dimen/activity_horizontal_margin" />
-
-
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Chathamkulam Learning App"
-                android:textColor="#05B121"
-                android:gravity="center"
-                android:textSize="20sp"/>
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/activity_horizontal_margin"
+                    android:text="Welcome To"
+                    android:textColor="#05B121"
+                    android:textSize="15dp"
+                    tools:ignore="SpUsage" />
 
 
-        </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Chathamkulam Learning App"
+                    android:textColor="#05B121"
+                    android:textSize="20sp" />
+
+
+            </LinearLayout>
 
 
         </LinearLayout>
@@ -67,48 +69,61 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
 
-            <CheckBox
-
-                android:id="@+id/AgreecheckBox"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="I Agree Terms And Conditions"
-                android:padding="10dp"
-                android:textSize="15dp"
-                android:textColor="#05B121"
-                android:buttonTint="#05B121"
-                tools:ignore="UnusedAttribute" />
+                android:layout_height="wrap_content">
 
+                <CheckBox
+
+                    android:id="@+id/AgreecheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="#05B121"
+                    android:padding="10dp"
+                    android:text="I Agree Terms And Conditions"
+                    android:textColor="#05B121"
+                    android:textSize="15dp"
+                    tools:ignore="SpUsage,UnusedAttribute" />
+
+                <TextView
+                    android:id="@+id/txtLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="(Show)"
+                    android:textColor="#0080FF" />
+
+            </LinearLayout>
 
             <Button
-            android:id="@+id/NewUserBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="New User"
-            android:textColor="#FFFFFF"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:background="@drawable/rounded_button_hm"
-            android:layout_marginTop="20dp"
-            android:textSize="18sp"/>
+                android:id="@+id/NewUserBtn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/rounded_button_hm"
+                android:text="New User"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
 
-        <Button
-            android:id="@+id/ExistingUserBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Existing User"
-            android:textColor="#FFFFFF"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:background="@drawable/rounded_button_hm"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:textSize="18sp"/>
+            <Button
+                android:id="@+id/ExistingUserBtn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/rounded_button_hm"
+                android:text="Existing User"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
 
         </LinearLayout>
 

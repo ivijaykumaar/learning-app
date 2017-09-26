@@ -1,65 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="5dp">
 
     <RelativeLayout
         android:id="@+id/topicList"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/iocVideo"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_videoo"
-            android:contentDescription=""
-            tools:ignore="ContentDescription,UnknownId"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginEnd="10dp" />
+            android:contentDescription=""
+            android:src="@drawable/ic_videoo"
+            tools:ignore="ContentDescription,UnknownId" />
 
         <TextView
             android:id="@+id/txtTopic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/iocVideo"
+            android:layout_toRightOf="@+id/iocVideo"
+            android:ellipsize="end"
+            android:maxEms="10"
+            android:maxLines="1"
             android:text="Topic"
             android:textColor="#000"
-            android:textSize="14dp"
-            tools:ignore="ObsoleteLayoutParam"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/iocVideo"
-            android:layout_toEndOf="@+id/iocVideo" />
+            android:textSize="14sp"
+            tools:ignore="ObsoleteLayoutParam" />
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_marginTop="2dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignBaseline="@+id/iocVideo"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="2dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtTopicDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="5dp"
                 android:text="00.00.00"
-                android:textSize="10dp"
                 android:textColor="#000"
-                android:padding="5dp" />
+                android:textSize="10sp" />
 
             <ProgressBar
                 android:id="@+id/videoProgress"
+                style="@android:style/Widget.ProgressBar.Horizontal"
                 android:layout_width="40dp"
                 android:layout_height="3dp"
-                android:layout_marginLeft="5dp"
-                style="@android:style/Widget.ProgressBar.Horizontal" />
+                android:layout_marginLeft="5dp" />
 
         </LinearLayout>
 

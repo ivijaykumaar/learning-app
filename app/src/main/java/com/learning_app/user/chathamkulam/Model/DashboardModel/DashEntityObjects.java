@@ -8,8 +8,13 @@ import java.util.List;
 
 public class DashEntityObjects {
 
-    private String  country, university, course, semester;
+    //    Normal Items
+    private String country, university, course, semester;
     private List<DashSubjectEntity> subject_details;
+
+    //    Filter Items
+    private String subject_id, subject_no, subject_name, subject_cost, trial, duration,
+            notes_count, qbank_count, video_count, zip_url, validityTill, progress, status,download_id;
 
     public String getCountry() {
         return country;
@@ -51,16 +56,6 @@ public class DashEntityObjects {
         this.subject_details = subject_details;
     }
 
-    private String subject_name, subject_id,subject_no,free_validity,paid_validity,duration,video_count,notes_count,qbank_count;
-
-    public String getSubject_name() {
-        return subject_name;
-    }
-
-    public void setSubject_name(String subject_name) {
-        this.subject_name = subject_name;
-    }
-
     public String getSubject_id() {
         return subject_id;
     }
@@ -77,20 +72,28 @@ public class DashEntityObjects {
         this.subject_no = subject_no;
     }
 
-    public String getFree_validity() {
-        return free_validity;
+    public String getSubject_name() {
+        return subject_name;
     }
 
-    public void setFree_validity(String free_validity) {
-        this.free_validity = free_validity;
+    public void setSubject_name(String subject_name) {
+        this.subject_name = subject_name;
     }
 
-    public String getPaid_validity() {
-        return paid_validity;
+    public String getSubject_cost() {
+        return subject_cost;
     }
 
-    public void setPaid_validity(String paid_validity) {
-        this.paid_validity = paid_validity;
+    public void setSubject_cost(String subject_cost) {
+        this.subject_cost = subject_cost;
+    }
+
+    public String getTrial() {
+        return trial;
+    }
+
+    public void setTrial(String trial) {
+        this.trial = trial;
     }
 
     public String getDuration() {
@@ -99,14 +102,6 @@ public class DashEntityObjects {
 
     public void setDuration(String duration) {
         this.duration = duration;
-    }
-
-    public String getVideo_count() {
-        return video_count;
-    }
-
-    public void setVideo_count(String video_count) {
-        this.video_count = video_count;
     }
 
     public String getNotes_count() {
@@ -123,5 +118,53 @@ public class DashEntityObjects {
 
     public void setQbank_count(String qbank_count) {
         this.qbank_count = qbank_count;
+    }
+
+    public String getVideo_count() {
+        return video_count;
+    }
+
+    public void setVideo_count(String video_count) {
+        this.video_count = video_count;
+    }
+
+    public String getZip_url() {
+        return zip_url;
+    }
+
+    public void setZip_url(String zip_url) {
+        this.zip_url = zip_url;
+    }
+
+    public String getValidityTill() {
+        return validityTill;
+    }
+
+    public void setValidityTill(String validityTill) {
+        this.validityTill = validityTill;
+    }
+
+    public String getProgress() {
+        return progress;
+    }
+
+    public void setProgress(String progress) {
+        this.progress = progress;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDownload_id() {
+        return download_id;
+    }
+
+    public void setDownload_id(String download_id) {
+        this.download_id = download_id;
     }
 }

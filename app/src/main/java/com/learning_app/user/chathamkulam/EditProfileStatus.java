@@ -39,10 +39,10 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.learning_app.user.chathamkulam.Apis.API_PROFILE_UPDATE;
 import static com.learning_app.user.chathamkulam.Model.Constants.EMAIL;
 import static com.learning_app.user.chathamkulam.Model.Constants.NAME;
 import static com.learning_app.user.chathamkulam.Model.Constants.PHONENUMBER;
-import static com.learning_app.user.chathamkulam.Model.Constants.PROFILE_UPDATE_URL;
 
 /**
  * Created by User on 7/15/2017.
@@ -50,14 +50,12 @@ import static com.learning_app.user.chathamkulam.Model.Constants.PROFILE_UPDATE_
 
 public class EditProfileStatus extends AppCompatActivity {
 
-    EditText edtUserName,edtEmail,edtNumber;
+    private static final int SELECT_PHOTO = 100;
+    EditText edtUserName, edtEmail, edtNumber;
     Button btnUpdate;
     Validation validation;
     ImageView ic_edtPic;
     CountryCodePicker ccp;
-
-    private static final int SELECT_PHOTO = 100;
-
     CircleImageView circleImageView;
     DbBitmapUtility dbBitmapUtility;
     RegisterMember registerMember;
@@ -78,13 +76,13 @@ public class EditProfileStatus extends AppCompatActivity {
 
         validation = new Validation();
 
-        edtUserName = (EditText)findViewById(R.id.EdtUserName);
-        edtEmail = (EditText)findViewById(R.id.EdtEmailId);
-        edtNumber = (EditText)findViewById(R.id.EdtMobileNumber);
+        edtUserName = (EditText) findViewById(R.id.EdtUserName);
+        edtEmail = (EditText) findViewById(R.id.EdtEmailId);
+        edtNumber = (EditText) findViewById(R.id.EdtMobileNumber);
         btnUpdate = (Button) findViewById(R.id.btnUpdate);
-        ic_edtPic = (ImageView)findViewById(R.id.ic_edtPic);
+        ic_edtPic = (ImageView) findViewById(R.id.ic_edtPic);
         circleImageView = (CircleImageView) findViewById(R.id.circle_imageView);
-        ccp = (CountryCodePicker)findViewById(R.id.ccp);
+        ccp = (CountryCodePicker) findViewById(R.id.ccp);
 
         cursorResult = registerMember.getDetails();
 
@@ -95,7 +93,7 @@ public class EditProfileStatus extends AppCompatActivity {
             currentNumber = cursorResult.getString(3);
             byte[] profile = cursorResult.getBlob(4);
 
-            Log.d("profileStatus",cursorResult.getCount()+" "+userName+"  "+emailId+" "+currentNumber+"  "+Arrays.toString(profile));
+            Log.d("profileStatus", cursorResult.getCount() + " " + userName + "  " + emailId + " " + currentNumber + "  " + Arrays.toString(profile));
 
             edtUserName.setHint(userName);
             edtEmail.setHint(emailId);
@@ -124,14 +122,14 @@ public class EditProfileStatus extends AppCompatActivity {
                 String email = edtEmail.getText().toString();
                 String number = edtNumber.getText().toString();
 
-                if (name.length() == 0){
+                if (name.length() == 0) {
                     edtUserName.setError("Must put Name");
-                } else if(!validation.isValidEmail(email)) {
+                } else if (!validation.isValidEmail(email)) {
                     edtEmail.setError("Invalid Email");
-                } else if (number.length() != 10){
+                } else if (number.length() != 10) {
                     edtNumber.setError("Invalid Number");
                 } else {
-                    updateProfile(currentNumber,name,email,number);
+                    updateProfile(currentNumber, name, email, number);
                 }
             }
         });
@@ -184,7 +182,7 @@ public class EditProfileStatus extends AppCompatActivity {
 
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = "Select your option";
+                String shareBody = "https://play.google.com/store/apps/details?id=com.learning_app.user.chathamkulam&hl=en";
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                 startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -207,37 +205,38 @@ public class EditProfileStatus extends AppCompatActivity {
         return true;
     }
 
-    public boolean updateProfile(final String oldNumber,final String name,
-                                 final String email,final String mobile){
+    public boolean updateProfile(final String oldNumber, final String name,
+                                 final String email, final String mobile) {
 
         CountryCode = ccp.getSelectedCountryCodeWithPlus();
         final String mobileNumber = CountryCode + mobile.trim();
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        final ProgressDialog loading = ProgressDialog.show(EditProfileStatus.this, "Updating!!","Please wait while we update your profile!!!", false,false);
+        final ProgressDialog loading = ProgressDialog.show(EditProfileStatus.this, "Updating!!", "Please wait while we update your profile!!!", false, false);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, PROFILE_UPDATE_URL, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_PROFILE_UPDATE, new Response.Listener<String>() {
             @Override
 
             public void onResponse(String response) {
 
-                Log.d("updateStatus",response);
-                String res = "Successfully Updated";
+                loading.dismiss();
+                Log.d("Response", response);
+                String res = "Profile Updated Successfully";
 
-                if (response.equals(res)){
-                    loading.dismiss();
+                if (response.equals(res)) {
 
-                    if (yourSelectedImage != null){
+                    if (yourSelectedImage != null) {
 
-                        boolean status = registerMember.updatePic(name,email,mobileNumber,dbBitmapUtility.getBytes(yourSelectedImage));
-                        if (status){
+                        boolean status = registerMember.updateProfile(name, email, mobileNumber, dbBitmapUtility.getBytes(yourSelectedImage));
+                        if (status) {
 
-                            Log.d("updateStatus","updatedSuccessfully");
-                            Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
+                            Log.d("updateStatus", "updatedSuccessfully");
+                            startActivity(new Intent(getApplicationContext(), Drawer.class));
+                            Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
 
                         } else {
-                            Log.d("updateStatus","fail");
+                            Log.d("updateStatus", "fail");
                         }
 
                     } else {
@@ -245,20 +244,19 @@ public class EditProfileStatus extends AppCompatActivity {
                         BitmapDrawable drawable = (BitmapDrawable) circleImageView.getDrawable();
                         yourSelectedImage = drawable.getBitmap();
 
-                        boolean status = registerMember.updatePic(name,email,mobileNumber,dbBitmapUtility.getBytes(yourSelectedImage));
-                        if (status){
+                        boolean status = registerMember.updateProfile(name, email, mobileNumber, dbBitmapUtility.getBytes(yourSelectedImage));
+                        if (status) {
 
-                            Log.d("updateStatus","updatedSuccessfully");
-                            Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
+                            Log.d("updateStatus", "updatedSuccessfully");
+                            Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
 
                         } else {
-                            Log.d("updateStatus","fail");
+                            Log.d("updateStatus", "fail");
                         }
                     }
-                }
-                else {
+                } else {
 
-                    Log.d("updateStatus",response);
+                    Log.d("Response", response);
 
                 }
             }
@@ -266,21 +264,21 @@ public class EditProfileStatus extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-                Log.d("updateStatus",error.toString());
-                Toast.makeText(getApplicationContext(),error.toString(),Toast.LENGTH_LONG).show();
+                Log.d("Response", error.toString());
+                Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
                 loading.dismiss();
 
             }
         }) {
 
             @Override
-            protected Map<String,String> getParams(){
+            protected Map<String, String> getParams() {
 
-                Map<String,String> Hashmap = new HashMap<String, String>();
-                Hashmap.put("old_number",oldNumber);
-                Hashmap.put(NAME,name);
-                Hashmap.put(EMAIL,email);
-                Hashmap.put(PHONENUMBER,mobileNumber);
+                Map<String, String> Hashmap = new HashMap<String, String>();
+                Hashmap.put("old_mobile", oldNumber);
+                Hashmap.put(NAME, name);
+                Hashmap.put(EMAIL, email);
+                Hashmap.put(PHONENUMBER, mobileNumber);
 
                 return Hashmap;
             }

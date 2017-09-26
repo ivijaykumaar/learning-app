@@ -6,7 +6,7 @@ package com.learning_app.user.chathamkulam.Model.ModuleModel;
 
 public class TopicItems {
 
-    private String sem_no,subject_id,sub_no,module_no,topic_no,topic_name,topic_duration,totalDuration,count;
+    private String sem_no, subject_id, sub_no, module_no, topic_no, topic_name, topic_duration, totalDuration, count;
 
     public String getSem_no() {
         return sem_no;

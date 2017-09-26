@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/video_viewer_lay"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/video_viewer_lay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#C6A1FF">
@@ -11,17 +10,17 @@
         android:id="@+id/txtRibbon"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#000"
+        android:gravity="center"
         android:padding="3dp"
         android:text="Online page Data charges may apply!!"
-        android:gravity="center"
-        android:background="#000"
         android:textColor="@color/colorAccent" />
 
     <VideoView
         android:id="@+id/video_player_view"
-        android:layout_below="@+id/txtRibbon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/txtRibbon"
         android:layout_centerInParent="true" />
 
     <com.wang.avi.AVLoadingIndicatorView
@@ -31,6 +30,5 @@
         style="@style/AVLoadingIndicatorView.Large"
         app:indicatorName="BallSpinFadeLoaderIndicator"
         android:layout_centerInParent="true"/>
-
 
 </RelativeLayout>

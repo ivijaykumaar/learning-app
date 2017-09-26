@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,8 +17,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.learning_app.user.chathamkulam.FetchDownloadManager;
+import com.learning_app.user.chathamkulam.Fragments.Drawer;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
+import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
+import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,111 +30,159 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.R.attr.type;
+import static com.learning_app.user.chathamkulam.Apis.API_SUBSCRIPTION;
+import static com.learning_app.user.chathamkulam.Apis.PROJECT_CODE;
+import static com.learning_app.user.chathamkulam.Apis.SEM_NO;
+import static com.learning_app.user.chathamkulam.Apis.SUB_NAME;
+import static com.learning_app.user.chathamkulam.Apis.SUB_NO;
+import static com.learning_app.user.chathamkulam.Apis.TYPE;
+import static com.learning_app.user.chathamkulam.Model.Constants.PHONENUMBER;
 import static com.learning_app.user.chathamkulam.Model.TestUrls.TEST_PAYMENT;
 
 public class StatusActivity extends Activity {
 
-	CheckingCards checkingCards;
-	StringBuilder stringSemester;
-	StringBuilder stringSubject;
-	StringBuilder stringSubjectNumber;
-	StringBuilder stringSubjectId;
+    CheckingCards checkingCards;
+    StoreEntireDetails storeEntireDetails;
 
-	@Override
-	public void onCreate(Bundle bundle) {
-		super.onCreate(bundle);
-		setContentView(R.layout.activity_status);
+    String country, university, course, semester, subjectId, subjectNumber, subject,
+            sub_cost, trial, duration, notesCount, qbankCount, videoCount, zipUrl;
 
-		checkingCards = new CheckingCards(this);
+    String status;
 
-		Intent mainIntent = getIntent();
-		TextView txtStatus = (TextView) findViewById(R.id.txtStatus);
-		final String status = mainIntent.getStringExtra("transStatus");
-		txtStatus.setText(status);
+    RequestQueue requestQueue;
+    ProgressDialog loading;
 
-		if (status.equals("Transaction Successful!")){
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    @Override
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        setContentView(R.layout.activity_status);
 
-			Cursor cursor = checkingCards.getCheckData();
-			if (cursor.getCount() != 0){
+        checkingCards = CheckingCards.getInstance(this);
+        storeEntireDetails = StoreEntireDetails.getInstance(this);
 
-				stringSemester = new StringBuilder();
-				stringSubject = new StringBuilder();
-				stringSubjectNumber = new StringBuilder();
-				stringSubjectId = new StringBuilder();
+        Intent mainIntent = getIntent();
+        TextView txtStatus = (TextView) findViewById(R.id.txtStatus);
+        status = mainIntent.getStringExtra("transStatus");
+        txtStatus.setText(status);
 
-				ArrayList<String> amountList = new ArrayList<String>();
+        if (status.equals("Transaction Successful!")) {
 
-				while (cursor.moveToNext()) {
+            Cursor cursor = checkingCards.getCheckData();
+            if (cursor.getCount() != 0) {
 
-					String semester = cursor.getString(5);
-					String subject = cursor.getString(6);
-					String subjectId = cursor.getString(7);
-					String subjectNumber = cursor.getString(8);
-					String amount = cursor.getString(9);
+                while (cursor.moveToNext()) {
 
-					Log.d("statusData",semester+" "+subject+" "+subjectId+" "+subjectNumber+" "+amount);
+                    country = cursor.getString(2);
+                    university = cursor.getString(3);
+                    course = cursor.getString(4);
+                    semester = cursor.getString(5);
+                    subjectId = cursor.getString(6);
+                    subjectNumber = cursor.getString(7);
+                    subject = cursor.getString(8);
+                    sub_cost = cursor.getString(9);
+                    trial = cursor.getString(10);
+                    duration = cursor.getString(11);
+                    notesCount = cursor.getString(12);
+                    qbankCount = cursor.getString(13);
+                    videoCount = cursor.getString(14);
+                    zipUrl = cursor.getString(15);
 
-					stringSemester.append(semester).append(", ");
-					stringSubject.append(subject).append(", ");
-					stringSubjectId.append(subjectId).append(", ");
-					stringSubjectNumber.append(subjectNumber).append(", ");
+//                    requestQueue = Volley.newRequestQueue(this);
+//
+//                    loading = ProgressDialog.show(StatusActivity.this,
+//                            "Checking", "Please wait your detail will be check", false, false);
+//                    StringRequest stringRequest = new StringRequest(Request.Method.POST, API_SUBSCRIPTION, new Response.Listener<String>() {
+//                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+//                        @Override
+//                        public void onResponse(String response) {
+//
+//                            loading.dismiss();
+//                            Log.d("Response", response);
+//
+//                            if (response != null){
+//
+                                if (storeEntireDetails.ifExists(subject)){
 
-					amountList.add(amount+1);
-				}
-				cursor.close();
+//                                    Update validity date
+                                    FetchDownloadManager fetch = new FetchDownloadManager();
+                                    fetch.subscription(String.valueOf(0),zipUrl,getApplicationContext(),subjectId,semester,subjectNumber,subject,"buy");
 
-				int totalAmount = 0;
-				for (int i = 0; i < amountList.size(); i++) {
-					totalAmount += Integer.parseInt(amountList.get(i));
-				}
+//                                    storeEntireDetails.updateValidityDate(subject,response);
 
-				String subjectName = stringSubject.substring(0, stringSubject.length() - 2);
-				Log.d("concatValue",subjectName+"   "+totalAmount);
+                                } else {
 
-				RequestQueue requestQueue = Volley.newRequestQueue(this);
+//                                    boolean IsEntry = storeEntireDetails.addData(country, university, course, semester, subjectId, subjectNumber, subject, sub_cost,
+//                                            trial, duration, notesCount, qbankCount, videoCount, "0", response, "0","null");
+//                                    if (IsEntry) {
+//                                        Log.d("##status", "Successfully Added");
+//
+//                                    } else {
+//                                        Log.d("##status", "Add failed");
+//                                    }
+////
+                                    new Thread(new FetchDownloadManager(zipUrl, country, university, course, semester, subjectId, subjectNumber, subject,
+                                            sub_cost, trial, duration, notesCount, qbankCount, videoCount,getApplicationContext(),"buy")).start();
+//
+                                }
+//                            }
+//                        }
+//                    }, new Response.ErrorListener() {
+//                        @Override
+//                        public void onErrorResponse(VolleyError error) {
+//
+//                            loading.dismiss();
+//                            Log.d("Response", error.getMessage());
+//
+//                        }
+//                    }) {
+//
+//                        @Override
+//                        protected Map<String, String> getParams() {
+//                            Map<String, String> Hashmap = new HashMap<>();
+//
+//                            RegisterMember registerMember = RegisterMember.getInstance(getApplicationContext());
+//                            Cursor cursorResult = registerMember.getDetails();
+//
+//                            while (cursorResult.moveToNext()) {
+//                                String MobileNumber = cursorResult.getString(3);
+//
+//                                if (MobileNumber != null) {
+//
+//                                    Hashmap.put(PHONENUMBER, MobileNumber);
+//                                    Hashmap.put(PROJECT_CODE, subjectId);
+//                                    Hashmap.put(SEM_NO, semester);
+//                                    Hashmap.put(SUB_NO, subjectNumber);
+//                                    Hashmap.put(SUB_NAME, subject);
+//                                    Hashmap.put(TYPE, "buy");
+//
+//                                    Log.v("HashValues", Hashmap.toString());
+//
+//                                } else {
+//
+//                                    Log.v("Number Filed", null);
+//                                }
+//                            }
+//
+//                            Log.d("mappingValue", Hashmap.toString());
+//
+//                            return Hashmap;
+//                        }
+//                    };
+//                    requestQueue.add(stringRequest);
+//
+                }
 
-				final ProgressDialog loading = ProgressDialog.show(StatusActivity.this,
-						"Checking", "Please wait your detail will be check", false,false);
-				StringRequest stringRequest = new StringRequest(Request.Method.POST,TEST_PAYMENT,new Response.Listener<String>() {
-					@Override
-					public void onResponse(String response) {
+            }
+            cursor.close();
+        }
 
-						loading.dismiss();
-						Log.d("Response",response);
-					}
-				}, new Response.ErrorListener() {
-					@Override
-					public void onErrorResponse(VolleyError error) {
+        startActivity(new Intent(this, Drawer.class));
+        showToast(status);
+    }
 
-						loading.dismiss();
-						Log.d("Response",error.getMessage());
-
-					}
-				}){
-
-					@Override
-					protected Map<String,String> getParams(){
-
-						Map<String,String> Hashmap = new HashMap<String, String>();
-						String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-						Hashmap.put("date",date);
-						Hashmap.put("sem_no", String.valueOf(stringSemester));
-						Hashmap.put("subject_id",String.valueOf(stringSubjectId));
-						Hashmap.put("sub_no",String.valueOf(stringSubjectNumber));
-						Hashmap.put("status",status);
-
-						Log.d("mappingValue",Hashmap.toString());
-
-						return Hashmap;
-					}
-				};
-				requestQueue.add(stringRequest);
-
-			}
-		}
-	}
-
-	public void showToast(String msg) {
-		Toast.makeText(this, "Toast: " + msg, Toast.LENGTH_LONG).show();
-	}
+    public void showToast(String msg) {
+        Toast.makeText(this,msg, Toast.LENGTH_LONG).show();
+    }
 } 

@@ -11,20 +11,21 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 
-
 public class RegisterMember extends SQLiteOpenHelper {
 
-    private static RegisterMember mInstance = null;
-
     public static final String DATABASE_NAME = "MemberRegister.db";
-
     private static final String TABLE_NAME = "MemberRegister";
     private static final String Col_UserId = "ID";
     private static final String Col_UserName = "USERNAME";
     private static final String Col_EmailId = "EMAIL_ID";
     private static final String Col_MobileNo = "MOBILE_NUMBER";
     private static final String Col_ProfilePic = "PROFILE_PIC";
+    private static RegisterMember mInstance = null;
 
+
+    private RegisterMember(Context context) {
+        super(context, DATABASE_NAME, null, 1);
+    }
 
     public static RegisterMember getInstance(Context ctx) {
 
@@ -33,12 +34,6 @@ public class RegisterMember extends SQLiteOpenHelper {
         }
         return mInstance;
     }
-
-
-    private RegisterMember(Context context) {
-        super(context, DATABASE_NAME,null,1);
-    }
-
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -56,25 +51,25 @@ public class RegisterMember extends SQLiteOpenHelper {
 
     }
 
-    public boolean addMember(String userName,String emailId,String mobileNo,byte[] image){
+    public boolean addMember(String userName, String emailId, String mobileNo, byte[] image) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(Col_UserName,userName);
-        contentValues.put(Col_EmailId,emailId);
-        contentValues.put(Col_MobileNo,mobileNo);
-        contentValues.put(Col_ProfilePic,image);
+        contentValues.put(Col_UserName, userName);
+        contentValues.put(Col_EmailId, emailId);
+        contentValues.put(Col_MobileNo, mobileNo);
+        contentValues.put(Col_ProfilePic, image);
 
-        long result = db.insert(TABLE_NAME,null,contentValues);
+        long result = db.insert(TABLE_NAME, null, contentValues);
 
-        if (result == -1){
+        if (result == -1) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }
 
-    public boolean updatePic(String name,String email,String number,byte[] image){
+    public boolean updateProfile(String name, String email, String number, byte[] image) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -83,14 +78,24 @@ public class RegisterMember extends SQLiteOpenHelper {
         contentValues.put(Col_MobileNo, number);
         contentValues.put(Col_ProfilePic, image);
 
-        db.update(TABLE_NAME,contentValues,null,null);
+        db.update(TABLE_NAME, contentValues, null, null);
         return true;
 
     }
 
-    public Cursor getDetails(){
+    public boolean updateDp(byte[] image) {
+
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor data = db.rawQuery("SELECT * FROM " + TABLE_NAME,null);
+        ContentValues cv = new ContentValues();
+        cv.put(Col_ProfilePic, image);
+
+        db.update(TABLE_NAME, cv, null, null);
+        return true;
+    }
+
+    public Cursor getDetails() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor data = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
         return data;
     }
 
@@ -98,8 +103,8 @@ public class RegisterMember extends SQLiteOpenHelper {
 
         Cursor cursor = null;
         SQLiteDatabase db = this.getWritableDatabase();
-        String checkQuery = "SELECT " + Col_EmailId + " FROM " + TABLE_NAME + " WHERE " + Col_EmailId + "= '"+ member + "'";
-        cursor= db.rawQuery(checkQuery,null);
+        String checkQuery = "SELECT " + Col_EmailId + " FROM " + TABLE_NAME + " WHERE " + Col_EmailId + "= '" + member + "'";
+        cursor = db.rawQuery(checkQuery, null);
         boolean exists = (cursor.getCount() > 0);
         cursor.close();
         return exists;

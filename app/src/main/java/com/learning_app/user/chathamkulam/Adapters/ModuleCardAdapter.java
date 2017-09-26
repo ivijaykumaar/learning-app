@@ -16,9 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.ModuleModel.ModuleItems;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
-import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.Viewer.NormalVideoView;
@@ -26,8 +26,8 @@ import com.learning_app.user.chathamkulam.Viewer.NormalVideoView;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.learning_app.user.chathamkulam.Apis.API_ONLINE_VIEW;
 import static com.learning_app.user.chathamkulam.Fragments.ModuleList.currentSubjectName;
-import static com.learning_app.user.chathamkulam.Model.Constants.ONLINE_VIEW;
 
 /**
  * Created by User on 5/14/2017.
@@ -44,24 +44,6 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
         this.myList = myList;
     }
 
-
-    class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView txtTopic,txtTopicDuration;
-        RelativeLayout topicLay;
-        ImageView iocVideo;
-        ProgressBar videoProgress;
-
-        MyViewHolder(View view) {
-            super(view);
-            txtTopic = (TextView) view.findViewById(R.id.txtTopic);
-            topicLay = (RelativeLayout)view.findViewById(R.id.topicList);
-            txtTopicDuration = (TextView) view.findViewById(R.id.txtTopicDuration);
-            iocVideo = (ImageView) view.findViewById(R.id.iocVideo);
-            videoProgress = (ProgressBar)view.findViewById(R.id.videoProgress);
-
-        }
-    }
-
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -75,7 +57,7 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
 
         final ModuleItems moduleItems = myList.get(position);
 
-        if (moduleItems.getTopic_details().get(position).getTotalDuration() != null){
+        if (moduleItems.getTopic_details().get(position).getTotalDuration() != null) {
 
             holder.txtTopic.setText(moduleItems.getTopic_details().get(position).getTopic_name());
             holder.txtTopicDuration.setText(moduleItems.getTopic_details().get(position).getTopic_duration());
@@ -83,25 +65,25 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
             int totalDuration = Integer.parseInt(moduleItems.getTopic_details().get(position).getTotalDuration());
             int count = Integer.parseInt(moduleItems.getTopic_details().get(position).getCount());
 
-            Log.d("values",totalDuration+" "+count);
+            Log.d("values", totalDuration +" "+ count);
 
-            if (totalDuration != 0){
+            if (totalDuration != 0) {
 
-                if (count == 1){
+                if (count == 1) {
 
                     holder.videoProgress.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
                     holder.videoProgress.setProgress(100);
 
                 }
 
-                if (count == 2){
+                if (count == 2) {
 
                     holder.videoProgress.getProgressDrawable().setColorFilter(Color.YELLOW, PorterDuff.Mode.MULTIPLY);
                     holder.videoProgress.setProgress(100);
 
                 }
 
-                if (count >= 3){
+                if (count >= 3) {
 
                     holder.videoProgress.getProgressDrawable().setColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY);
                     holder.videoProgress.setProgress(100);
@@ -127,17 +109,19 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
                     String moduleName = moduleItems.getModule_name();
                     String topicName = moduleItems.getTopic_details().get(position).getTopic_name();
                     String topicDuration = moduleItems.getTopic_details().get(position).getTopic_duration();
-                    String currentTopicName = topicDuration.replaceAll(":","")+"-"+topicName;
+//                    String currentTopicName = topicDuration+"."+topicName+".mp4";
 
-                    Intent sendValue = new Intent(mContext,NormalVideoView.class);
-                    sendValue.putExtra("Key_position",position);
-                    sendValue.putExtra("Key_subName",currentSubjectName);
-                    sendValue.putExtra("Key_moduleName",moduleName);
-                    sendValue.putExtra("Key_fileName",currentTopicName);
+                    String currentTopicName = topicDuration.replaceAll(":", "-") + "-" + topicName + ".mp4";
+
+                    Intent sendValue = new Intent(mContext, NormalVideoView.class);
+                    sendValue.putExtra("Key_position", position);
+                    sendValue.putExtra("Key_subName", currentSubjectName);
+                    sendValue.putExtra("Key_moduleName", moduleName);
+                    sendValue.putExtra("Key_fileName", currentTopicName);
                     sendValue.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     mContext.startActivity(sendValue);
 
-                    Log.v("sendValue",position +"   "+moduleName+"  "+currentTopicName);
+                    Log.v("sendValue", topicDuration + "  " + topicName + "   " + position + "   " + moduleName + "  " + currentTopicName);
 
                 }
             });
@@ -161,25 +145,25 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
 
                     Registration.deleteCache(mContext);
 
-                    String subjectId = moduleItems.getTopic_details().get(position).getSubject_id();
-                    String semester = moduleItems.getTopic_details().get(position).getSem_no();
-                    String subjectNumber = moduleItems.getTopic_details().get(position).getSub_no();
+                    String subjectId = moduleItems.getSubject_id();
+                    String semester = moduleItems.getSem_no();
+                    String subjectNumber = moduleItems.getSub_no();
                     String module_no = moduleItems.getTopic_details().get(position).getModule_no();
                     String topic_no = moduleItems.getTopic_details().get(position).getTopic_no();
 
                     HashMap<String, String> params = new HashMap<String, String>();
-                    params.put("subject_id",subjectId);
-                    params.put("sem_no",semester);
-                    params.put("sub_no",subjectNumber);
-                    params.put("module_no",module_no);
-                    params.put("topic_no",topic_no);
-                    params.put("type","video");
+                    params.put("subject_id", subjectId);
+                    params.put("sem_no", semester);
+                    params.put("sub_no", subjectNumber);
+                    params.put("module_no", module_no);
+                    params.put("topic_no", topic_no);
+                    params.put("type", "video");
 
                     OnlineModuleView async = new OnlineModuleView
-                            (ONLINE_VIEW,params,mContext,NormalVideoView.class,currentSubjectName);
+                            (API_ONLINE_VIEW, params, mContext, NormalVideoView.class, currentSubjectName);
                     async.execute();
 
-                    Log.v("sendValue",position +"   "+currentSubjectName);
+                    Log.v("sendValue", params + "   " + currentSubjectName);
 
                 }
             });
@@ -188,6 +172,25 @@ public class ModuleCardAdapter extends RecyclerView.Adapter<ModuleCardAdapter.My
 
     @Override
     public int getItemCount() {
-        return myList.size();
+
+        return null != myList ? myList.size() : 0;
+//        return myList.size();
+    }
+
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        TextView txtTopic, txtTopicDuration;
+        RelativeLayout topicLay;
+        ImageView iocVideo;
+        ProgressBar videoProgress;
+
+        MyViewHolder(View view) {
+            super(view);
+            txtTopic = (TextView) view.findViewById(R.id.txtTopic);
+            topicLay = (RelativeLayout) view.findViewById(R.id.topicList);
+            txtTopicDuration = (TextView) view.findViewById(R.id.txtTopicDuration);
+            iocVideo = (ImageView) view.findViewById(R.id.iocVideo);
+            videoProgress = (ProgressBar) view.findViewById(R.id.videoProgress);
+
+        }
     }
 }

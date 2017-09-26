@@ -7,10 +7,6 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -32,29 +28,18 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class AsyncUrl extends AsyncTask<String, String, String> {
 
+    public static ArrayList url_arrayList = new ArrayList<String>();
     private Context context;
     private HashMap<String, String> params;
-    private JSONArray jsonArray;
-    private String Current_JsonArray;
-    private String file_url;
-    private String file_name;
-    public static ArrayList  url_arrayList = new ArrayList<String>();
-    public static ArrayList  name_arrayList = new ArrayList<String>();
-
+    private ArrayList<String> arrayList;
     private ProgressDialog loading;
     private PowerManager.WakeLock mWakeLock;
 
-    public AsyncUrl(Context context, HashMap<String, String> params, JSONArray jsonArray,
-                    String current_JsonArray,String fileUrl,String fileName,
-                    ArrayList urlArrayList,ArrayList nameArrayList,ProgressDialog loading) {
+    public AsyncUrl(Context context, HashMap<String, String> params, ArrayList urlArrayList, ProgressDialog loading) {
+
         this.context = context;
         this.params = params;
-        this.jsonArray = jsonArray;
-        this.Current_JsonArray = current_JsonArray;
-        this.file_url = fileUrl;
-        this.file_name = fileName;
-        url_arrayList = urlArrayList;
-        name_arrayList = nameArrayList;
+        arrayList = urlArrayList;
         this.loading = loading;
     }
 
@@ -90,42 +75,18 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
                 result = new StringBuilder();
                 while ((line = br.readLine()) != null) {
                     result.append(line);
-                    Log.v("Start", String.valueOf(result));
                 }
-                JSONObject j = null;
-                try {
-                    j = new JSONObject(String.valueOf(result));
-                    jsonArray = j.getJSONArray(Current_JsonArray);
 
-                    if (jsonArray != null){
+                if (result != null) {
 
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                    url_arrayList.add(result);
+                    arrayList.add(String.valueOf(result));
+                    Log.v("FileUrl Result", url_arrayList.toString());
 
-                            try {
-                                JSONObject json = jsonArray.getJSONObject(i);
-
-                                url_arrayList.add(json.getString(file_url));
-                                name_arrayList.add(json.getString(file_name));
-
-                                Log.v("FileUrl Result",url_arrayList.toString());
-                                Log.v("FileName Result",name_arrayList.toString());
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-
-                                Log.v("AsyncUrl Error",e.getMessage());
-                            }
-                        }
-                        Log.v("FileUrl Size", String.valueOf(url_arrayList.size()));
-                        Log.v("FileName Size", String.valueOf(name_arrayList.size()));
-
-                    } else {
-                        Toast.makeText(context,"Bad internet connection",Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Log.v("JSONException", e.toString());
+                } else {
+                    Toast.makeText(context, "Bad internet connection", Toast.LENGTH_LONG).show();
                 }
+
                 Log.v("Response", String.valueOf(result));
 
             } else {
@@ -148,7 +109,7 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 getClass().getName());
         mWakeLock.acquire();
-        loading = ProgressDialog.show(context, "Processing.....","Loading please wait.....", false, false);
+        loading = ProgressDialog.show(context, "Processing....", "Loading please wait....", false, false);
         loading.show();
     }
 
@@ -158,7 +119,7 @@ public class AsyncUrl extends AsyncTask<String, String, String> {
         mWakeLock.release();
         loading.dismiss();
 
-        Log.v("PostExecute","Success");
+        Log.v("PostExecute", "Success");
 
     }
 

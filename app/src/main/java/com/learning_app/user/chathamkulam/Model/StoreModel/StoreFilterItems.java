@@ -6,7 +6,7 @@ package com.learning_app.user.chathamkulam.Model.StoreModel;
 
 public class StoreFilterItems {
 
-    private String subject_name,amount,price_type,free_validity,paid_validity,file,subject_number,subject_id,semester;
+    private String subject_name, amount, price_type, free_validity, paid_validity, file, subject_number, subject_id, semester;
 
     public String getSubject_name() {
         return subject_name;

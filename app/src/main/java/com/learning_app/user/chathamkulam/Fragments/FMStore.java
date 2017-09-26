@@ -3,14 +3,15 @@ package com.learning_app.user.chathamkulam.Fragments;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -31,8 +32,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -43,9 +46,8 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.learning_app.user.chathamkulam.Adapters.StoreCardAdapter;
 import com.learning_app.user.chathamkulam.Adapters.StoreMainListAdapter;
-import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
+import com.learning_app.user.chathamkulam.FetchDownloadManager;
 import com.learning_app.user.chathamkulam.Model.BackgroundWork.OnlineModuleView;
 import com.learning_app.user.chathamkulam.Model.MyBounceInterpolator;
 import com.learning_app.user.chathamkulam.Model.StoreModel.StoreEntityObjects;
@@ -56,12 +58,13 @@ import com.learning_app.user.chathamkulam.Registration.Registration;
 import com.learning_app.user.chathamkulam.SearchFilters.StoreCardFilterAdapter;
 import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
+import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 import com.learning_app.user.chathamkulam.Viewer.NSPDFViewer;
 import com.learning_app.user.chathamkulam.Viewer.QBPDFViewer;
+import com.tonyodev.fetch.Fetch;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,10 +72,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.learning_app.user.chathamkulam.Apis.API_ONLINE_MODULE_DATA;
+import static com.learning_app.user.chathamkulam.Apis.API_ONLINE_VIEW;
+import static com.learning_app.user.chathamkulam.Apis.API_STORE;
+import static com.learning_app.user.chathamkulam.Apis.API_STORE_SEARCH;
 import static com.learning_app.user.chathamkulam.Model.BackgroundWork.AlarmReceiver.deleteRecursive;
-import static com.learning_app.user.chathamkulam.Model.Constants.GET_URLS;
-import static com.learning_app.user.chathamkulam.Model.Constants.ONLINE_MODULE_DATA;
-import static com.learning_app.user.chathamkulam.Model.Constants.STORE_DATA;
+import static com.learning_app.user.chathamkulam.Registration.Registration.deleteCache;
 
 /**
  * Created by User on 5/18/2017.
@@ -80,31 +85,21 @@ import static com.learning_app.user.chathamkulam.Model.Constants.STORE_DATA;
 
 public class FMStore extends Fragment {
 
-    //    MainList items
-    private ListView mainListView;
-    private StoreMainListAdapter storeMainListAdapter;
-
+    private static final int REQUEST_WRITE_STORAGE = 112;
     Button btnOnlineView, btnTrial, btnBuy;
     View view;
 
-    //   Download AsyncUrl variables
-    private JSONArray UrlResult = null;
-    private String URL_JSON_ARRAY = "result";
-    private String current_url = "file";
-    private String current_name = "name";
-    private ArrayList<String> url_arrayList;
-    private ArrayList<String> name_arrayList;
-    private ProgressDialog progressDialog;
-
     CheckingCards checkingCards;
-
-    private static final int REQUEST_WRITE_STORAGE = 112;
-
     RecyclerView storeFilterView;
     StoreCardFilterAdapter storeCardFilterAdapter;
-
     String viewResponse;
     String searchResponse;
+    String country, university, course, semester, subjectId, subjectNumber, subject,
+            sub_cost, trial, duration, notesCount, qbankCount, videoCount, zipUrl;
+    //    MainList items
+    private ListView mainListView;
+
+    TextView txtCount;
 
     public FMStore() {
 
@@ -121,18 +116,54 @@ public class FMStore extends Fragment {
         btnOnlineView = (Button) view.findViewById(R.id.btnOnline);
         btnTrial = (Button) view.findViewById(R.id.btnTrial);
         btnBuy = (Button) view.findViewById(R.id.btnBuy);
+        txtCount = (TextView)view.findViewById(R.id.countTxttt);
+        txtCount.setVisibility(View.GONE);
 
-        storeFilterView = (RecyclerView)view.findViewById(R.id.storeFilterView);
+        storeFilterView = (RecyclerView) view.findViewById(R.id.storeFilterView);
         storeFilterView.setVisibility(View.GONE);
 
         btnTrial.setEnabled(true);
         btnBuy.setEnabled(true);
         btnOnlineView.setEnabled(true);
 
+        String unique_id = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
+        Log.d("DeviceId",unique_id);
+
         GetJsonResponse();
 
-        checkingCards = new CheckingCards(getActivity());
+        Fetch.startService(getActivity());
+
+        checkingCards = CheckingCards.getInstance(getActivity());
         checkingCards.DeleteAll();
+        // checkingCards.list();
+
+        mainListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            private int mLastFirstVisibleItem;
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                txtCount.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onScroll(AbsListView v, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if(mLastFirstVisibleItem<firstVisibleItem) {
+
+                    int visibleChildCount = mainListView.getFirstVisiblePosition()+2;
+                    txtCount.setVisibility(View.VISIBLE);
+                    txtCount.setText("<"+visibleChildCount+"/"+totalItemCount+">");
+                }
+
+                if(mLastFirstVisibleItem>firstVisibleItem) {
+
+                    int visibleChildCount = mainListView.getFirstVisiblePosition()+2;
+                    txtCount.setVisibility(View.VISIBLE);
+                    txtCount.setText("<"+visibleChildCount+"/"+totalItemCount+">");
+                }
+
+                mLastFirstVisibleItem=firstVisibleItem;
+            }
+        });
 
         btnOnlineView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,12 +175,12 @@ public class FMStore extends Fragment {
                 myAnim.setInterpolator(interpolator);
                 btnOnlineView.startAnimation(myAnim);
 
-                RegisterMember registerMember = RegisterMember.getInstance(getActivity());;
+                RegisterMember registerMember = RegisterMember.getInstance(getActivity());
                 final Cursor cursorResult = registerMember.getDetails();
 
                 Cursor cursor = checkingCards.getCheckData();
 
-                if (cursor != null && cursor.getCount() == 1){
+                if (cursor != null && cursor.getCount() == 1) {
 
                     if (cursor.moveToFirst()) {
                         while (!cursor.isAfterLast()) {
@@ -159,9 +190,9 @@ public class FMStore extends Fragment {
                             final String university = cursor.getString(3);
                             final String course = cursor.getString(4);
                             final String semester = cursor.getString(5);
-                            final String subject = cursor.getString(6);
-                            final String subjectId = cursor.getString(7);
-                            final String subjectNumber = cursor.getString(8);
+                            final String subjectId = cursor.getString(6);
+                            final String subjectNumber = cursor.getString(7);
+                            final String subject = cursor.getString(8);
 
                             Log.d("final data", position + semester + subject + subjectId + subjectNumber);
 
@@ -191,7 +222,15 @@ public class FMStore extends Fragment {
                                                         new DialogInterface.OnClickListener() {
                                                             public void onClick(DialogInterface dialog, int which) {
 
-                                                                startActivity(new Intent(getActivity(), NSPDFViewer.class));
+                                                                HashMap<String, String> params = new HashMap<String, String>();
+                                                                params.put("subject_id", subjectId);
+                                                                params.put("sem_no", semester);
+                                                                params.put("sub_no", subjectNumber);
+                                                                params.put("type", "notes");
+
+                                                                OnlineModuleView async = new OnlineModuleView(API_ONLINE_VIEW, params,
+                                                                        getActivity(), NSPDFViewer.class, subject);
+                                                                async.execute();
 
                                                             }
                                                         });
@@ -202,7 +241,6 @@ public class FMStore extends Fragment {
 
                                                                 dialog.cancel();
                                                                 btnOnlineView.setEnabled(true);
-
                                                             }
                                                         });
                                                 alertNotes.show();
@@ -225,12 +263,12 @@ public class FMStore extends Fragment {
 
                                                                 HashMap<String, String> params = new HashMap<String, String>();
 
-                                                                params.put("subject_id",subjectId);
-                                                                params.put("sem_no",semester);
-                                                                params.put("sub_no",subjectNumber);
+                                                                params.put("subject_id", subjectId);
+                                                                params.put("sem_no", semester);
+                                                                params.put("sub_no", subjectNumber);
 
                                                                 OnlineModuleView async = new OnlineModuleView
-                                                                        (ONLINE_MODULE_DATA,params,getActivity(),ModuleList.class,subject);
+                                                                        (API_ONLINE_MODULE_DATA, params, getActivity(), ModuleList.class, subject);
                                                                 async.execute();
 
                                                             }
@@ -263,7 +301,15 @@ public class FMStore extends Fragment {
                                                         new DialogInterface.OnClickListener() {
                                                             public void onClick(DialogInterface dialog, int which) {
 
-                                                                startActivity(new Intent(getActivity(), QBPDFViewer.class));
+                                                                HashMap<String, String> params = new HashMap<String, String>();
+                                                                params.put("subject_id", subjectId);
+                                                                params.put("sem_no", semester);
+                                                                params.put("sub_no", subjectNumber);
+                                                                params.put("type", "qa");
+
+                                                                OnlineModuleView async = new OnlineModuleView(API_ONLINE_VIEW, params,
+                                                                        getActivity(), QBPDFViewer.class, subject);
+                                                                async.execute();
 
                                                             }
                                                         });
@@ -297,20 +343,23 @@ public class FMStore extends Fragment {
                             optionsMenu.show();
 
                             cursor.moveToNext();
+                            cursor.close();
                         }
                     }
                 } else {
 
-                    Toast.makeText(getActivity()," Please select any one of this subjects below!! ",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), " Please select any one of this subjects below!! ", Toast.LENGTH_SHORT).show();
                     btnOnlineView.setEnabled(true);
                 }
             }
         });
 
         btnTrial.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onClick(View view) {
 
+                deleteCache(getActivity());
 //                Use bounce interpolator with amplitude 0.2 and frequency 20
                 Animation myAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.bounce);
                 MyBounceInterpolator interpolator = new MyBounceInterpolator(0.2, 20);
@@ -321,99 +370,109 @@ public class FMStore extends Fragment {
 
                 Cursor cursor = checkingCards.getCheckData();
 
-                if (cursor.getCount() != 0){
+                if (cursor.getCount() != 0) {
 
                     while (cursor.moveToNext()) {
 
-                        String position = cursor.getString(1);
-                        final String country = cursor.getString(2);
-                        final String university = cursor.getString(3);
-                        final String course = cursor.getString(4);
-                        final String semester = cursor.getString(5);
-                        final String subject = cursor.getString(6);
-                        final String subjectId = cursor.getString(7);
-                        final String subjectNumber = cursor.getString(8);
-                        final String amount = cursor.getString(9);
-                        final String freeValidity = cursor.getString(10);
-                        final String paidValidity = cursor.getString(11);
-                        final String duration = cursor.getString(12);
-                        final String videoCount = cursor.getString(13);
-                        final String notesCount = cursor.getString(14);
-                        final String qbankCount = cursor.getString(15);
+                        country = cursor.getString(2);
+                        university = cursor.getString(3);
+                        course = cursor.getString(4);
+                        semester = cursor.getString(5);
+                        subjectId = cursor.getString(6);
+                        subjectNumber = cursor.getString(7);
+                        subject = cursor.getString(8);
+                        sub_cost = cursor.getString(9);
+                        trial = cursor.getString(10);
+                        duration = cursor.getString(11);
+                        notesCount = cursor.getString(12);
+                        qbankCount = cursor.getString(13);
+                        videoCount = cursor.getString(14);
+                        zipUrl = cursor.getString(15);
 
-                        Log.d("Check data",position+semester+subject+subjectId+subjectNumber+"   "+amount+
-                                "  "+freeValidity+"  "+paidValidity+"  "+duration);
+                        File mydir = getActivity().getDir("Chathamkulam", Context.MODE_PRIVATE);
+                        final File rootPath = new File(mydir, subject); //Getting a file within the dir.
 
-//                            put values for download
-                        HashMap<String,String> params = new HashMap<String, String>();
-                        params.put("sem_no",semester);
-                        params.put("id",subjectId);
-                        params.put("sub_no",subjectNumber);
-                        params.put("type","url");
+                        if (!rootPath.exists()) {
 
-                        Log.v("Subject Values",subject+subjectId+subjectNumber+semester);
-                        Log.v("Hash Values",params.toString());
-                        url_arrayList = new ArrayList<String>();
-                        name_arrayList = new ArrayList<String>();
+                            StoreEntireDetails databaseHelperStore = StoreEntireDetails.getInstance(getActivity());
+                            if (databaseHelperStore.ifExists(subject)) {
 
-                        AsyncUrl asyncUrl = new AsyncUrl(getActivity(),params,UrlResult,URL_JSON_ARRAY,
-                                current_url,current_name,url_arrayList,name_arrayList,progressDialog);
-                        asyncUrl.execute(GET_URLS);
+                                Cursor InCursor = databaseHelperStore.getSubjectRow(subject);
+                                if (InCursor.getCount() != 0) {
+                                    if (InCursor.moveToFirst()) {
+                                        do {
 
-//                        progressDialog = ProgressDialog.show(getActivity(), "Please wait...", "While checking......", true);
-//                        progressDialog.show();
+                                            String id = InCursor.getString(18);
+                                            String statuss = InCursor.getString(17);
 
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                            @Override
-                            public void run() {
-//                                    Do something after 100ms
-                                Log.v("Check UrlArraylist", String.valueOf(AsyncUrl.url_arrayList.size()));
-                                Log.v("Check NameArraylist", String.valueOf(AsyncUrl.name_arrayList.size()));
+                                            Log.d("getId", id +"   "+statuss);
 
-                                if (AsyncUrl.url_arrayList != null){
-//                                    progressDialog.dismiss();
+                                            if (!statuss.equals("onCompleted")){
 
-                                    String DNAME = "Chathamkulam"+"/"+subject;
-                                    final File rootPath = new File(Environment.getExternalStorageDirectory().toString(), DNAME);
+                                                Fetch fetch = Fetch.newInstance(getActivity());
+                                                Log.d("getId", id);
+                                                int status = fetch.get(Long.parseLong(id)).getStatus();
 
-                                    final StoreCardAdapter adapter = new StoreCardAdapter(getActivity());
-                                    if (!rootPath.exists()){
+                                                if (status == Fetch.STATUS_DOWNLOADING
+                                                        || status == Fetch.STATUS_QUEUED || status == Fetch.STATUS_ERROR) {
 
-                                        adapter.DownloadFile(getActivity(),country,university,course,semester,subject,subjectId,
-                                                subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
+                                                    Toast.makeText(getActivity(), "Downloading process not complete", Toast.LENGTH_SHORT).show();
+                                                    btnTrial.setEnabled(true);
 
-                                    } else {
+                                                } else if (status == Fetch.STATUS_PAUSED){
 
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                                        builder.setTitle("This file already downloaded!!!");
-                                        builder.setMessage("If you want overwrite this file?")
-                                                .setCancelable(false)
-                                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
+                                                    fetch.resume(Long.parseLong(id));
+                                                    Toast.makeText(getActivity(), "File resumed on background", Toast.LENGTH_LONG).show();
 
-                                                        deleteRecursive(rootPath);
-                                                        adapter.DownloadFile(getActivity(),country,university,course,semester,subject,
-                                                                subjectId,subjectNumber,freeValidity,paidValidity,duration,
-                                                                videoCount,notesCount,qbankCount);
+                                                } else {
 
-                                                    }
-                                                })
-                                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                                    public void onClick(DialogInterface dialog, int id) {
+                                                    new Thread(new FetchDownloadManager(zipUrl, country, university, course, semester, subjectId, subjectNumber, subject,
+                                                            sub_cost, trial, duration, notesCount, qbankCount, videoCount, getActivity(), "trial")).start();
 
-                                                        btnTrial.setEnabled(true);
-                                                        dialog.cancel();
-                                                    }
-                                                });
+                                                }
+                                            } else {
 
-                                        AlertDialog alert = builder.create();
-                                        alert.show();
+                                                Toast.makeText(getActivity(), "This subject already downloaded!!", Toast.LENGTH_SHORT).show();
+                                                btnTrial.setEnabled(true);
+                                            }
+
+                                        } while (InCursor.moveToNext());
+                                        InCursor.close();
                                     }
                                 }
+                            } else {
+
+                                new Thread(new FetchDownloadManager(zipUrl, country, university, course, semester, subjectId, subjectNumber, subject,
+                                        sub_cost, trial, duration, notesCount, qbankCount, videoCount, getActivity(), "trial")).start();
                             }
-                        }, 5000);
+
+                        } else {
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("This file already downloaded!!!");
+                            builder.setMessage("If you want overwrite this file?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                                        public void onClick(DialogInterface dialog, int id) {
+
+                                            deleteRecursive(rootPath);
+                                            new Thread(new FetchDownloadManager(zipUrl, country, university, course, semester, subjectId, subjectNumber, subject,
+                                                    sub_cost, trial, duration, notesCount, qbankCount, videoCount, getActivity(), "trial")).start();
+
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+
+                                            dialog.cancel();
+                                            btnTrial.setEnabled(true);
+                                        }
+                                    });
+
+                            AlertDialog alert = builder.create();
+                            alert.show();
+                        }
                     }
 
                     cursor.close();
@@ -421,7 +480,7 @@ public class FMStore extends Fragment {
 
                 } else {
 
-                    Toast.makeText(getActivity()," Please select subjects below!! ",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please select subjects below!! ", Toast.LENGTH_SHORT).show();
                     btnTrial.setEnabled(true);
 
                 }
@@ -438,53 +497,58 @@ public class FMStore extends Fragment {
                 myAnim.setInterpolator(interpolator);
                 btnBuy.startAnimation(myAnim);
 
-                btnBuy.setEnabled(false);
+                btnBuy.setEnabled(true);
 
                 Cursor cursor = checkingCards.getCheckData();
-                if (cursor.getCount() != 0){
+                if (cursor.getCount() != 0) {
 
                     StringBuilder stringSubject = new StringBuilder();
                     ArrayList<String> amountList = new ArrayList<String>();
 
                     while (cursor.moveToNext()) {
 
-                        String position = cursor.getString(1);
                         String country = cursor.getString(2);
                         String university = cursor.getString(3);
                         String course = cursor.getString(4);
                         String semester = cursor.getString(5);
-                        String subject = cursor.getString(6);
-                        String subjectId = cursor.getString(7);
-                        String subjectNumber = cursor.getString(8);
-                        String amount = cursor.getString(9);
-                        String freeValidity = cursor.getString(10);
-                        String paidValidity = cursor.getString(11);
-                        String duration = cursor.getString(12);
-                        String videoCount = cursor.getString(13);
-                        String notesCount = cursor.getString(14);
-                        String qbankCount = cursor.getString(15);
+                        String subjectId = cursor.getString(6);
+                        String subjectNumber = cursor.getString(7);
+                        String subject = cursor.getString(8);
+                        String sub_cost = cursor.getString(9);
+                        String trial = cursor.getString(10);
+                        String duration = cursor.getString(11);
+                        String notesCount = cursor.getString(12);
+                        String qbankCount = cursor.getString(13);
+                        String videoCount = cursor.getString(14);
+                        String zipUrl = cursor.getString(15);
 
-                        Log.d("checkData",position+semester+subject+subjectId+subjectNumber+"   "+amount+
-                                "  "+freeValidity+"  "+paidValidity+"  "+duration);
+//                        Log.d("checkData",position+semester+subject+subjectId+subjectNumber+"   "+amount+
+//                                "  "+freeValidity+"  "+paidValidity+"  "+duration);
+
+                        String[] cost = sub_cost.split("\\s+");
+                        Log.d("SubCost", cost[0].substring(3));
 
                         stringSubject.append(subject).append(", ");
-                        amountList.add(amount);
+                        amountList.add(cost[0].substring(3));
+//                        amountList.add("1.00");
                     }
 
-                    int totalAmount = 0;
+                    Double totalAmount = 0.00;
                     for (int i = 0; i < amountList.size(); i++) {
-                        totalAmount += Integer.parseInt(amountList.get(i));
+                        totalAmount += Double.parseDouble(amountList.get(i));
                     }
 
                     String subjectName = stringSubject.substring(0, stringSubject.length() - 2);
-                    Log.d("concatValue",subjectName+"   "+totalAmount);
+                    Log.d("concatValue", subjectName + "   " + totalAmount);
 
-                    if (!subjectName.equals(null)){
+                    if (!subjectName.equals(null) && totalAmount != 0) {
 
                         Intent intent = new Intent(getActivity(), PaymentGateActivity.class);
-                        intent.putExtra("key_subjectName",subjectName);
-                        intent.putExtra("key_amount",totalAmount);
+                        intent.putExtra("key_subjectName", subjectName);
+                        intent.putExtra("key_amount", totalAmount);
                         startActivity(intent);
+
+                        //   Toast.makeText(getActivity(),"PAYMENT integration working process, We activate will be soon!! ",Toast.LENGTH_LONG).show();
 
                     }
 
@@ -493,20 +557,20 @@ public class FMStore extends Fragment {
 
                 } else {
 
-                    Toast.makeText(getActivity()," Please select subjects below!! ",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), " Please select subjects below!! ", Toast.LENGTH_SHORT).show();
                     btnBuy.setEnabled(true);
                 }
             }
         });
 
 
-            boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-            if (!hasPermission) {
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_WRITE_STORAGE);
-            }
+        boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+        }
 
         return view;
     }
@@ -522,23 +586,6 @@ public class FMStore extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
-
-//    @Override
-//    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-//
-//        inflater.inflate(R.menu.subject_menu, menu);
-//
-//        btnTrial.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                menu.findItem(R.id.cardTrial).setEnabled(true);
-//            }
-//        });
-//
-//
-//        super.onCreateOptionsMenu(menu, inflater);
-//    }
 
     @Override
     public void onPrepareOptionsMenu(final Menu menu) {
@@ -573,19 +620,14 @@ public class FMStore extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_search : {
+            case R.id.action_search: {
 
                 SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
                 mainListView.setVisibility(View.GONE);
                 storeFilterView.setVisibility(View.VISIBLE);
 
                 item.expandActionView();
-
-                try {
-                    parseFilterData(searchResponse);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                getFilterValue();
 
                 MenuItemCompat.setOnActionExpandListener(item, new MenuItemCompat.OnActionExpandListener() {
                     @Override
@@ -595,9 +637,6 @@ public class FMStore extends Fragment {
 
                     @Override
                     public boolean onMenuItemActionCollapse(MenuItem item) {
-
-//                        Toast.makeText(getActivity(),"clicked",Toast.LENGTH_LONG).show();
-//                        Write your code here
                         storeFilterView.setVisibility(View.GONE);
                         mainListView.setVisibility(View.VISIBLE);
 
@@ -606,8 +645,8 @@ public class FMStore extends Fragment {
                 });
 
                 search(searchView);
-
                 return true;
+
             }
         }
         return super.onOptionsItemSelected(item);
@@ -623,29 +662,16 @@ public class FMStore extends Fragment {
         final ProgressDialog loading = ProgressDialog.show(getActivity(), "Loading Data", "Please wait...", false, false);
 
 //        Creating a json array request
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(STORE_DATA, new Response.Listener<JSONArray>() {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(API_STORE, new Response.Listener<JSONArray>() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onResponse(JSONArray response) {
                 //Dismissing progress dialog
                 loading.dismiss();
-
                 //calling method to parse json array
-
                 try {
 
-                    for(int i=0; i < response.length(); i++) {
-
-                        JSONObject jsonobject = response.getJSONObject(i);
-                        viewResponse = jsonobject.getString("result1");
-                        searchResponse = jsonobject.getString("result2");
-
-                        Log.d("viewResponse",viewResponse);
-                        Log.d("searchResponse",searchResponse);
-
-                    }
-
-                    parseData(viewResponse);
+                    parseData(response);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -660,13 +686,13 @@ public class FMStore extends Fragment {
                 //Dismissing progress dialog
                 loading.dismiss();
 
-                Toast.makeText(getActivity(),"Check Your Network Connection !! ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Check Your Network Connection !! ", Toast.LENGTH_SHORT).show();
                 Log.d("VolleyError", error.toString());
 
             }
         });
 
-        jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+        jsonArrayRequest.setRetryPolicy(new DefaultRetryPolicy(15000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
@@ -680,169 +706,181 @@ public class FMStore extends Fragment {
 
     //This method will parse json data
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void parseData(String mainArray) throws JSONException {
+    private void parseData(final JSONArray mainArray) throws JSONException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<StoreEntityObjects> storeEntityObjects = new ArrayList<>();
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            public void run() {
 
-        try {
-            storeEntityObjects =  mapper.readValue(String.valueOf(mainArray), new TypeReference<List<StoreEntityObjects>>(){});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                ObjectMapper mapper = new ObjectMapper();
+                List<StoreEntityObjects> storeEntityObjects = new ArrayList<>();
 
-        StoreEntityObjects objects = new StoreEntityObjects();
-        StoreSubjectEntity storeSubjectEntity = new StoreSubjectEntity();
+                try {
+                    storeEntityObjects = mapper.readValue(String.valueOf(mainArray), new TypeReference<List<StoreEntityObjects>>() {
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-        ArrayList<StoreEntityObjects> mainList = new ArrayList<StoreEntityObjects>();
-        List<StoreSubjectEntity> subList = new ArrayList<StoreSubjectEntity>();
+                StoreEntityObjects objects = new StoreEntityObjects();
+                StoreSubjectEntity storeSubjectEntity = new StoreSubjectEntity();
 
-        for (StoreEntityObjects entityObject : storeEntityObjects){
+                final ArrayList<StoreEntityObjects> mainList = new ArrayList<StoreEntityObjects>();
+                List<StoreSubjectEntity> subList = new ArrayList<StoreSubjectEntity>();
 
-            entityObject.setCountry(entityObject.getCountry());
-            entityObject.setUniversity(entityObject.getUniversity());
-            entityObject.setCourse(entityObject.getCourse());
-            entityObject.setSem_no(entityObject.getSem_no());
+                for (StoreEntityObjects entityObject : storeEntityObjects) {
 
-            Log.d("CountryName: ", entityObject.getCountry());
-            Log.d("University: ", entityObject.getUniversity());
-            Log.d("Course: ", entityObject.getCourse());
-            Log.d("Semester: ",entityObject.getSem_no());
+                    entityObject.setCountry(entityObject.getCountry());
+                    entityObject.setUniversity(entityObject.getUniversity());
+                    entityObject.setCourse(entityObject.getCourse());
+                    entityObject.setSem_no(entityObject.getSem_no());
 
-            for(int i=0;i<entityObject.getSubject_details().size();i++){
+                    for (int i = 0; i < entityObject.getSubject_details().size(); i++) {
 
-                storeSubjectEntity.setSubject_name(entityObject.getSubject_details().get(i).getSubject_name());
-                storeSubjectEntity.setAmount(entityObject.getSubject_details().get(i).getAmount());
-                storeSubjectEntity.setPrice_type(entityObject.getSubject_details().get(i).getPrice_type());
-                storeSubjectEntity.setFile(entityObject.getSubject_details().get(i).getFile());
-                storeSubjectEntity.setFree_validity(entityObject.getSubject_details().get(i).getFree_validity());
-                storeSubjectEntity.setFree_validity_date(entityObject.getSubject_details().get(i).getFree_validity_date());
-                storeSubjectEntity.setPaid_validity(entityObject.getSubject_details().get(i).getPaid_validity());
-                storeSubjectEntity.setPaid_validity_date(entityObject.getSubject_details().get(i).getPaid_validity_date());
-                storeSubjectEntity.setSize(entityObject.getSubject_details().get(i).getSize());
-                storeSubjectEntity.setSub_no(entityObject.getSubject_details().get(i).getSub_no());
-                storeSubjectEntity.setVideo_count(entityObject.getSubject_details().get(i).getVideo_count());
-                storeSubjectEntity.setFile_count(entityObject.getSubject_details().get(i).getFile_count());
-                storeSubjectEntity.setQa_count(entityObject.getSubject_details().get(i).getQa_count());
+                        storeSubjectEntity.setSubject_name(entityObject.getSubject_details().get(i).getSubject_name());
+                        storeSubjectEntity.setSub_no(entityObject.getSubject_details().get(i).getSub_no());
+                        storeSubjectEntity.setSub_cost(entityObject.getSubject_details().get(i).getSub_cost());
+                        storeSubjectEntity.setTrial(entityObject.getSubject_details().get(i).getTrial());
+                        storeSubjectEntity.setFile(entityObject.getSubject_details().get(i).getFile());
+                        storeSubjectEntity.setSize(entityObject.getSubject_details().get(i).getSize());
+                        storeSubjectEntity.setFile_count(entityObject.getSubject_details().get(i).getFile_count());
+                        storeSubjectEntity.setQa_count(entityObject.getSubject_details().get(i).getQa_count());
+                        storeSubjectEntity.setVideo_count(entityObject.getSubject_details().get(i).getVideo_count());
+                        storeSubjectEntity.setUrl(entityObject.getSubject_details().get(i).getUrl());
 
-                Log.d("subjectName: ", String.valueOf(entityObject.getSubject_details().get(i).getSubject_name()));
-                subList.add(storeSubjectEntity);
+                        subList.add(storeSubjectEntity);
+
+                    }
+
+                    objects.setSubject_details(subList);
+
+                    mainList.add(entityObject);
+
+                }
+
+
+                handler.post(new Runnable() {
+                    public void run() {
+
+//                        Initializing MainList Items
+                        StoreMainListAdapter storeMainListAdapter = new StoreMainListAdapter(getActivity(), mainList);
+                        mainListView.setAdapter(storeMainListAdapter);
+                    }
+                });
+            }
+        };
+        new Thread(runnable).start();
+    }
+
+    public void getFilterValue() {
+
+//        Clear cache files
+        Registration.deleteCache(getActivity());
+//        Showing progress
+        final ProgressDialog loading = ProgressDialog.show(getActivity(), "Loading Data", "Please wait...", false, false);
+
+//        Creating a json array request
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(API_STORE_SEARCH, new Response.Listener<JSONArray>() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onResponse(JSONArray response) {
+                //Dismissing progress dialog
+                loading.dismiss();
+
+                //calling method to parse json array
+                try {
+                    parseFilterData(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Log.d("Store Response", response.toString());
 
             }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Dismissing progress dialog
+                loading.dismiss();
 
-            objects.setSubject_details(subList);
+                Toast.makeText(getActivity(), "Check Your Network Connection !! ", Toast.LENGTH_SHORT).show();
+                Log.d("VolleyError", error.toString());
 
-            mainList.add(entityObject);
+            }
+        });
 
-        }
-//        Initializing MainList Items
-        storeMainListAdapter = new StoreMainListAdapter(getActivity(), mainList);
-        mainListView.setAdapter(storeMainListAdapter);
+        //Creating request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+        //Adding request to the queue
+        requestQueue.add(jsonArrayRequest);
 
     }
 
-
-//    public void getFilterValue() {
-
-////        Clear cache files
-//        Registration.deleteCache(getActivity());
-////        Showing progress
-//        final ProgressDialog loading = ProgressDialog.show(getActivity(), "Loading Data", "Please wait...", false, false);
-//
-////        Creating a json array request
-//        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(STORE_DATA_FILTER, new Response.Listener<JSONArray>() {
-//            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-//            @Override
-//            public void onResponse(JSONArray response) {
-//                //Dismissing progress dialog
-//                loading.dismiss();
-//
-//                //calling method to parse json array
-//                try {
-//                    parseFilterData(response);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                Log.d("Store Response", response.toString());
-//
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                //Dismissing progress dialog
-//                loading.dismiss();
-//
-//                Toast.makeText(getActivity(),"Check Your Network Connection !! ", Toast.LENGTH_SHORT).show();
-//                Log.d("VolleyError", error.toString());
-//
-//            }
-//        });
-//
-//        //Creating request queue
-//        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-//
-//        //Adding request to the queue
-//        requestQueue.add(jsonArrayRequest);
-//
-//    }
-
     //This method will parse json data
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void parseFilterData(String mainArray) throws JSONException {
+    private void parseFilterData(final JSONArray mainArray) throws JSONException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<StoreEntityObjects> storeEntityObjects = new ArrayList<>();
-
-        try {
-            storeEntityObjects =  mapper.readValue(String.valueOf(mainArray), new TypeReference<List<StoreEntityObjects>>(){});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<StoreEntityObjects> mainList = new ArrayList<StoreEntityObjects>();
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            public void run() {
 
 
-        for (StoreEntityObjects entityObject : storeEntityObjects){
+                ObjectMapper mapper = new ObjectMapper();
+                List<StoreEntityObjects> storeEntityObjects = new ArrayList<>();
 
-            entityObject.setCountry(entityObject.getCountry());
-            entityObject.setUniversity(entityObject.getUniversity());
-            entityObject.setCourse(entityObject.getCourse());
-            entityObject.setSem_no(entityObject.getSem_no());
-            entityObject.setSubject_name(entityObject.getSubject_name());
-            entityObject.setAmount(entityObject.getAmount());
-            entityObject.setPrice_type(entityObject.getPrice_type());
-            entityObject.setFile(entityObject.getFile());
-            entityObject.setFree_validity(entityObject.getFree_validity());
-            entityObject.setFree_validity_date(entityObject.getFree_validity_date());
-            entityObject.setPaid_validity(entityObject.getPaid_validity());
-            entityObject.setPaid_validity_date(entityObject.getPaid_validity_date());
-            entityObject.setSize(entityObject.getSize());
-            entityObject.setSub_no(entityObject.getSub_no());
-            entityObject.setVideo_count(entityObject.getVideo_count());
-            entityObject.setFile_count(entityObject.getFile_count());
-            entityObject.setQa_count(entityObject.getQa_count());
+                try {
+                    storeEntityObjects = mapper.readValue(String.valueOf(mainArray), new TypeReference<List<StoreEntityObjects>>() {
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-            Log.d("CountryName: ", entityObject.getCountry());
-            Log.d("University: ", entityObject.getUniversity());
-            Log.d("Course: ", entityObject.getCourse());
-            Log.d("Semester: ",entityObject.getSem_no());
-            Log.d("subjectName: ", String.valueOf(entityObject.getSubject_name()));
+                final ArrayList<StoreEntityObjects> mainList = new ArrayList<StoreEntityObjects>();
 
-            mainList.add(entityObject);
 
-        }
-//        Initializing MainList Items
-        if (getActivity()!= null){
+                for (StoreEntityObjects entityObject : storeEntityObjects) {
 
-            storeCardFilterAdapter = new StoreCardFilterAdapter(getActivity(),mainList);
-            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
-            storeFilterView = (RecyclerView)view.findViewById(R.id.storeFilterView);
-            storeFilterView.setLayoutManager(mLayoutManager);
-            storeFilterView.setHasFixedSize(true);
-            storeFilterView.setAdapter(storeCardFilterAdapter);
-            storeCardFilterAdapter.notifyDataSetChanged();
-        }
+                    entityObject.setCountry(entityObject.getCountry());
+                    entityObject.setUniversity(entityObject.getUniversity());
+                    entityObject.setCourse(entityObject.getCourse());
+                    entityObject.setSem_no(entityObject.getSem_no());
+                    entityObject.setSubject_name(entityObject.getSubject_name());
+                    entityObject.setSub_no(entityObject.getSub_no());
+                    entityObject.setSub_cost(entityObject.getSub_cost());
+                    entityObject.setTrial(entityObject.getTrial());
+                    entityObject.setFile(entityObject.getFile());
+                    entityObject.setSize(entityObject.getSize());
+                    entityObject.setFile_count(entityObject.getFile_count());
+                    entityObject.setQa_count(entityObject.getQa_count());
+                    entityObject.setVideo_count(entityObject.getVideo_count());
+                    entityObject.setUrl(entityObject.getUrl());
+
+                    mainList.add(entityObject);
+
+                }
+
+                handler.post(new Runnable() {
+                    public void run() {
+
+//                        Initializing MainList Items
+                        if (getActivity() != null) {
+
+                            storeCardFilterAdapter = new StoreCardFilterAdapter(getActivity(), mainList);
+                            RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 2);
+                            storeFilterView = (RecyclerView) view.findViewById(R.id.storeFilterView);
+                            storeFilterView.setLayoutManager(mLayoutManager);
+                            storeFilterView.setHasFixedSize(true);
+                            storeFilterView.setAdapter(storeCardFilterAdapter);
+                            storeCardFilterAdapter.notifyDataSetChanged();
+                        }
+
+                    }
+                });
+            }
+
+        };
+        new Thread(runnable).start();
     }
 
     private void search(SearchView searchView) {
@@ -867,8 +905,7 @@ public class FMStore extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case REQUEST_WRITE_STORAGE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 

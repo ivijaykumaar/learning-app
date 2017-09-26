@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -18,10 +19,12 @@ import com.learning_app.user.chathamkulam.R;
 public class MainActivity extends AppCompatActivity {
 
     CheckBox AgreeChb;
-    Button NewUserBtn,ExistingUserBtn;
+    Button NewUserBtn, ExistingUserBtn;
 
     VideoView bg_video_view;
     String bg_video_path;
+
+    TextView txtLink;
 
     InternetDetector internetDetector;
     Boolean isConnectionExist = false;
@@ -31,21 +34,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_screen);
 
-        AgreeChb = (CheckBox)findViewById(R.id.AgreecheckBox);
-        ExistingUserBtn = (Button)findViewById(R.id.ExistingUserBtn);
-        NewUserBtn = (Button)findViewById(R.id.NewUserBtn);
+        AgreeChb = (CheckBox) findViewById(R.id.AgreecheckBox);
+        ExistingUserBtn = (Button) findViewById(R.id.ExistingUserBtn);
+        NewUserBtn = (Button) findViewById(R.id.NewUserBtn);
+        txtLink = (TextView) findViewById(R.id.txtLink);
 
         bg_video_view = (VideoView) findViewById(R.id.bg_video_home);
-        bg_video_path = "android.resource://"+getPackageName()+"/"+R.raw.bg_video_home;
-        bg_video(bg_video_view,bg_video_path);
+        bg_video_path = "android.resource://" + getPackageName() + "/" + R.raw.bg_video_home;
+        bg_video(bg_video_view, bg_video_path);
 
         NewUserBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (AgreeChb.isChecked()){
+                if (AgreeChb.isChecked()) {
 
-                    startActivity(new Intent(MainActivity.this,Registration.class));
-                }else{
+                    startActivity(new Intent(MainActivity.this, Registration.class));
+                } else {
                     Toast.makeText(MainActivity.this, "please accept our Condition", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -55,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                    startActivity(new Intent(MainActivity.this,AlreadyRegistered.class));
+                startActivity(new Intent(MainActivity.this, AlreadyRegistered.class));
 
             }
         });
@@ -65,22 +69,33 @@ public class MainActivity extends AppCompatActivity {
         isConnectionExist = internetDetector.checkMobileInternetConn();
         if (isConnectionExist) {
 
-            Log.v("Internet Connection","Yeah ! Internet Found !!");
+            Log.v("Internet Connection", "Yeah ! Internet Found !!");
         } else {
 
-            Log.v( "No Internet Connection", "Your device doesn't have mobile internet");
+            Log.v("No Internet Connection", "Your device doesn't have mobile internet");
         }
+
+        txtLink = (TextView) findViewById(R.id.txtLink);
+        txtLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://chathamkulam.org/termsandconditions.php"));
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        bg_video(bg_video_view,bg_video_path);
+        bg_video(bg_video_view, bg_video_path);
 
     }
 
-    public void bg_video(VideoView videoView,String filename){
+    public void bg_video(VideoView videoView, String filename) {
 
         Uri uri = Uri.parse(filename);
         videoView.setVideoURI(uri);

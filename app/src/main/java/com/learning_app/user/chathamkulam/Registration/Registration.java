@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -20,20 +21,20 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.hbb20.CountryCodePicker;
 import com.learning_app.user.chathamkulam.Model.Validation;
 import com.learning_app.user.chathamkulam.R;
-import com.hbb20.CountryCodePicker;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.learning_app.user.chathamkulam.Apis.API_REGISTRATION;
 import static com.learning_app.user.chathamkulam.Model.Constants.DOB;
 import static com.learning_app.user.chathamkulam.Model.Constants.EMAIL;
 import static com.learning_app.user.chathamkulam.Model.Constants.NAME;
 import static com.learning_app.user.chathamkulam.Model.Constants.PHONENUMBER;
 import static com.learning_app.user.chathamkulam.Model.Constants.PINCODE;
-import static com.learning_app.user.chathamkulam.Model.Constants.REGSITRATOINURL;
 import static com.learning_app.user.chathamkulam.Model.DateOfBirth.NewDay;
 import static com.learning_app.user.chathamkulam.Model.DateOfBirth.NewMonth;
 import static com.learning_app.user.chathamkulam.Model.DateOfBirth.NewYear;
@@ -41,11 +42,11 @@ import static com.learning_app.user.chathamkulam.Model.DateOfBirth.NewYear;
 
 public class Registration extends AppCompatActivity {
 
-    EditText NameEdt,EmailEdt,NumberEdt,PincodeEdt;
-    AutoCompleteTextView dateEdt,monthEdt,yearEdt;
+    public static String mobile;
+    EditText NameEdt, EmailEdt, NumberEdt, PincodeEdt;
+    AutoCompleteTextView dateEdt, monthEdt, yearEdt;
     Button submitBtn;
     Validation validation;
-    public static String mobile;
     CountryCodePicker ccp;
     String CountryCode;
 
@@ -54,6 +55,31 @@ public class Registration extends AppCompatActivity {
     VideoView bg_video_view;
     String bg_video_path;
 
+    public static void deleteCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            deleteDir(dir);
+        } catch (Exception e) {
+        }
+    }
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+            return dir.delete();
+        } else if (dir != null && dir.isFile()) {
+            return dir.delete();
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,20 +87,19 @@ public class Registration extends AppCompatActivity {
 
         validation = new Validation();
 
-
-        NameEdt = (EditText)findViewById(R.id.editText_firstName);
-        EmailEdt = (EditText)findViewById(R.id.editText_email);
-        NumberEdt = (EditText)findViewById(R.id.editText_PhoneNumber);
-        PincodeEdt  = (EditText)findViewById(R.id.editText_Pincode);
+        NameEdt = (EditText) findViewById(R.id.editText_firstName);
+        EmailEdt = (EditText) findViewById(R.id.editText_email);
+        NumberEdt = (EditText) findViewById(R.id.editText_PhoneNumber);
+        PincodeEdt = (EditText) findViewById(R.id.editText_Pincode);
         dateEdt = (AutoCompleteTextView) findViewById(R.id.editText_day);
         monthEdt = (AutoCompleteTextView) findViewById(R.id.editText_month);
         yearEdt = (AutoCompleteTextView) findViewById(R.id.editText_year);
-        ccp = (CountryCodePicker)findViewById(R.id.ccp);
+        ccp = (CountryCodePicker) findViewById(R.id.ccp);
 
         mainActivity = new MainActivity();
         bg_video_view = (VideoView) findViewById(R.id.bg_video_registration);
-        bg_video_path = "android.resource://"+getPackageName()+"/"+R.raw.bg_video_reg;
-        mainActivity.bg_video(bg_video_view,bg_video_path);
+        bg_video_path = "android.resource://" + getPackageName() + "/" + R.raw.bg_video_reg;
+        mainActivity.bg_video(bg_video_view, bg_video_path);
 
 
         mobile = null;
@@ -88,7 +113,7 @@ public class Registration extends AppCompatActivity {
             }
         });
 
-        submitBtn = (Button)findViewById(R.id.Btn_submit);
+        submitBtn = (Button) findViewById(R.id.Btn_submit);
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,31 +134,31 @@ public class Registration extends AppCompatActivity {
 
                 if (name.length() == 0) {
                     NameEdt.setError("Must put Name");
-                }else if (!validation.isValidEmail(EmailId)) {
+                } else if (!validation.isValidEmail(EmailId)) {
                     EmailEdt.setError("Invalid Email");
-                }else if (number.length() != 10) {
+                } else if (number.length() != 10) {
                     NumberEdt.setError("Invalid Number");
                 } else if (date.length() == 0) {
                     dateEdt.setError("Invalid Date Format");
-                }else if (date != null){
+                } else if (date != null) {
 
                     int dateParseInt = Integer.parseInt(date);
-                    if (32 < dateParseInt){
+                    if (32 < dateParseInt) {
                         dateEdt.setError("Invalid Date");
-                    }else if (month.length() == 0){
+                    } else if (month.length() == 0) {
                         monthEdt.setError("Invalid Month Format");
-                    }else if (month != null){
+                    } else if (month != null) {
 
-                        int  monthParseInt = Integer.parseInt(month);
-                        if (12 < monthParseInt){
+                        int monthParseInt = Integer.parseInt(month);
+                        if (12 < monthParseInt) {
                             monthEdt.setError("Invalid Month");
-                        }else if (year.length() == 0){
+                        } else if (year.length() == 0) {
                             yearEdt.setError("Invalid Year");
-                        }else if (year != null){
-                            int  yearParseInt = Integer.parseInt(year);
-                            if (yearParseInt < 1950 || yearParseInt > 2050 ){
+                        } else if (year != null) {
+                            int yearParseInt = Integer.parseInt(year);
+                            if (yearParseInt < 1950 || yearParseInt > 2050) {
                                 yearEdt.setError("Invalid Year");
-                            }else if (pincode.length() != 6){
+                            } else if (pincode.length() != 6) {
                                 PincodeEdt.setError("Invalid Pincode");
                             } else {
                                 deleteCache(getApplicationContext());
@@ -152,11 +177,11 @@ public class Registration extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
 
-        mainActivity.bg_video(bg_video_view,bg_video_path);
+        mainActivity.bg_video(bg_video_view, bg_video_path);
 
     }
 
-    public boolean newUserRegistration(){
+    public boolean newUserRegistration() {
 
 
         String Date = dateEdt.getText().toString().trim();
@@ -166,33 +191,48 @@ public class Registration extends AppCompatActivity {
         final String name = NameEdt.getText().toString().trim();
         final String email = EmailEdt.getText().toString().trim();
         mobile = CountryCode + NumberEdt.getText().toString().trim();
-        final String dateOfBirth = Date+"/"+Month+"/"+Year;
+        final String dateOfBirth = Date + "/" + Month + "/" + Year;
         final String pincode = PincodeEdt.getText().toString().trim();
 
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        final ProgressDialog loading = ProgressDialog.show(Registration.this, "Registering!!", "Please wait while we check the entered details!!!", false,false);
+        final ProgressDialog loading = ProgressDialog.show(Registration.this, "Registering!!", "Please wait while we check the entered details!!!", false, false);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, REGSITRATOINURL, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_REGISTRATION, new Response.Listener<String>() {
             @Override
 
             public void onResponse(String response) {
-                String res = "Successfully Registered";
 
-                if (response.equals(res)){
+                Log.d("registration", response);
 
-                    loading.dismiss();
-                    Intent i = new Intent(Registration.this,OtpConformation.class);
-                    i.putExtra("Key_NewNumber",mobile);
-                    startActivity(i);
-                    Toast.makeText(Registration.this,res, Toast.LENGTH_LONG).show();
-                    Toast.makeText(Registration.this,"Your otp will send via sms", Toast.LENGTH_LONG).show();
+                switch (response) {
 
-                }
-                else{
-                    Toast.makeText(Registration.this,response, Toast.LENGTH_LONG).show();
-                    loading.dismiss();
+                    case "Successfully Registered":
+
+                        loading.dismiss();
+                        Intent intent = new Intent(Registration.this, OtpConformation.class);
+                        intent.putExtra("Key_NewNumber", mobile);
+                        startActivity(intent);
+                        Toast.makeText(Registration.this, response, Toast.LENGTH_LONG).show();
+                        Toast.makeText(Registration.this, "Your otp will send via sms", Toast.LENGTH_LONG).show();
+
+                        break;
+
+                    case "User Already Exists!!":
+
+                        loading.dismiss();
+                        Intent i = new Intent(Registration.this, AlreadyRegistered.class);
+                        i.putExtra("Key_NewNumber", mobile);
+                        startActivity(i);
+                        Toast.makeText(Registration.this, "Already registered this number", Toast.LENGTH_LONG).show();
+
+                        break;
+
+                    default:
+
+                        Toast.makeText(Registration.this, response, Toast.LENGTH_LONG).show();
+                        break;
                 }
 
             }
@@ -200,21 +240,21 @@ public class Registration extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-                Toast.makeText(Registration.this,error.toString(),Toast.LENGTH_LONG).show();
+                Toast.makeText(Registration.this, error.toString(), Toast.LENGTH_LONG).show();
                 loading.dismiss();
 
             }
         }) {
 
             @Override
-            protected Map<String,String> getParams(){
+            protected Map<String, String> getParams() {
 
-                Map<String,String> Hashmap = new HashMap<String, String>();
-                Hashmap.put(NAME,name);
-                Hashmap.put(EMAIL,email);
-                Hashmap.put(PHONENUMBER,mobile);
-                Hashmap.put(DOB,dateOfBirth);
-                Hashmap.put(PINCODE,pincode);
+                Map<String, String> Hashmap = new HashMap<String, String>();
+                Hashmap.put(NAME, name);
+                Hashmap.put(EMAIL, email);
+                Hashmap.put(PHONENUMBER, mobile);
+                Hashmap.put(DOB, dateOfBirth);
+                Hashmap.put(PINCODE, pincode);
 
                 return Hashmap;
             }
@@ -228,43 +268,19 @@ public class Registration extends AppCompatActivity {
 
 
         ArrayAdapter<String> dateAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line,NewDay);
+                android.R.layout.simple_dropdown_item_1line, NewDay);
         dateEdt.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
         dateEdt.setAdapter(dateAdapter);
 
         ArrayAdapter<String> monthAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line,NewMonth);
+                android.R.layout.simple_dropdown_item_1line, NewMonth);
         monthEdt.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
         monthEdt.setAdapter(monthAdapter);
 
         ArrayAdapter<String> yearAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line,NewYear);
+                android.R.layout.simple_dropdown_item_1line, NewYear);
         yearEdt.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
         yearEdt.setAdapter(yearAdapter);
 
-    }
-
-    public static void deleteCache(Context context) {
-        try {
-            File dir = context.getCacheDir();
-            deleteDir(dir);
-        } catch (Exception e) {}
-    }
-
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-            return dir.delete();
-        } else if(dir!= null && dir.isFile()) {
-            return dir.delete();
-        } else {
-            return false;
-        }
     }
 }

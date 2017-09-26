@@ -23,10 +23,11 @@ public class TestUrls {
     public static final String DOWNLOAD_URL = "url";
 
     //   Url of Store to get data
-    public static final String TEST_STORE_DATA = "http://chathamkulam.org/backend_demo/backend/appStore/subjectDetails.php";
+    public static final String TEST_STORE_DATA = "http://chathamkulam.org/backend/appStore/subjectdetails_demo.php";
+    public static final String TEST_STORE_SEARCH = "http://chathamkulam.org/backend/appStore/all_search_test.php";
 
     //    Get Downloading details
-    public static final String TEST_GET_URLS = "http://chathamkulam.org/backend_demo/backend/appStore/download.php";
+    public static final String TEST_GET_URLS = "http://chathamkulam.org/backend/appStore/download_test.php";
 
     public static final String TEST_ONLINE_MODULE_DATA = "http://chathamkulam.org/backend_demo/backend/appStore/video_view.php";
     public static final String TEST_ONLINE_VIEW = "http://chathamkulam.org/backend_demo/backend/appStore/online_view.php";

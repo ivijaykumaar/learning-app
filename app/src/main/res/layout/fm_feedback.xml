@@ -1,26 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="UselessParent">
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_reg_home"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="35dp"
+                android:padding="5dp"
+                android:text="powered by" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="10dp">
 
             <TextView
-                android:padding="5dp"
-                android:textSize="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="What would you like to share with us?"/>
+                android:padding="5dp"
+                android:text="What would you like to share with us?"
+                android:textSize="15dp"
+                tools:ignore="SpUsage" />
 
             <View
                 android:layout_width="match_parent"
@@ -31,27 +69,27 @@
 
             <RelativeLayout
                 android:id="@+id/lay_required"
-                android:padding="5dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:padding="5dp">
 
                 <ImageView
-                    android:src="@drawable/em_starr"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    tools:ignore="ContentDescription"
-                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/em_starr"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
-                    android:padding="5dp"
-                    android:layout_alignParentRight="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:padding="5dp"
                     android:text="Required"
-                    android:textColor="#FF4D4D"
-                    android:layout_marginRight="20dp"/>
+                    android:textColor="#FF4D4D" />
 
 
             </RelativeLayout>
@@ -61,34 +99,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:background="@drawable/boreded_edittxt"
-                android:lines="10"
                 android:gravity="top"
-                android:maxEms="250"
-                android:hint="  your thoughts"/>
+                android:hint="  your thoughts"
+                android:lines="10"
+                android:maxEms="250" />
 
             <RelativeLayout
                 android:id="@+id/lay_letters_rq"
-                android:padding="5dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:padding="5dp">
 
                 <ImageView
-                    android:src="@drawable/em_starr"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    tools:ignore="ContentDescription"
-                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true" />
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/em_starr"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
-                    android:padding="5dp"
-                    android:layout_alignParentRight="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:padding="5dp"
                     android:text="200 letters only"
-                    android:textColor="#FF4D4D"
-                    android:layout_marginRight="20dp"/>
+                    android:textColor="#FF4D4D" />
 
 
             </RelativeLayout>
@@ -100,41 +138,66 @@
 
             </View>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:contentDescription=""
+                    android:src="@drawable/ic_phone"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="23dp"
+                    android:layout_marginStart="23dp"
+                    android:text="+91 7907091110"
+                    android:textSize="15sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:contentDescription=""
+                    android:src="@drawable/ic_website"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/txtLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="23dp"
+                    android:layout_marginStart="23dp"
+                    android:text="enquiry@chathamkulam.org"
+                    android:textColor="#0080FF"
+                    android:textSize="15sp" />
+
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#BEB4FF" />
+
         </LinearLayout>
 
     </ScrollView>
-
-    <LinearLayout
-        android:layout_width="200dp"
-        android:layout_height="70dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:src="@drawable/ic_reg_home"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                tools:ignore="ContentDescription"
-                android:layout_alignParentRight="true"/>
-
-            <TextView
-                android:padding="5dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="powered by"
-                android:layout_marginTop="35dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-        </RelativeLayout>
-
-
-    </LinearLayout>
 
 </RelativeLayout>

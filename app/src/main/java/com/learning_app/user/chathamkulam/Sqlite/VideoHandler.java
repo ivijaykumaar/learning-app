@@ -11,18 +11,19 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 
-
 public class VideoHandler extends SQLiteOpenHelper {
 
-    private static VideoHandler mInstance = null;
-
     public static final String DATABASE_NAME = "VideoHandler.db";
-
     private static final String TABLE_VIDEO_HANDLER = "VideoHandler";
     private static final String Col_Id = "ID";
     private static final String Col_TopicName = "TOPIC_NAME";
     private static final String Col_Total_Time = "TOTAL_TIME";
     private static final String Col_Count = "COUNT";
+    private static VideoHandler mInstance = null;
+
+    public VideoHandler(Context context) {
+        super(context, DATABASE_NAME, null, 1);
+    }
 
     public static VideoHandler getInstance(Context ctx) {
 
@@ -31,12 +32,6 @@ public class VideoHandler extends SQLiteOpenHelper {
         }
         return mInstance;
     }
-
-
-    public VideoHandler(Context context) {
-        super(context, DATABASE_NAME,null,1);
-    }
-
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -54,32 +49,32 @@ public class VideoHandler extends SQLiteOpenHelper {
 
     }
 
-    public boolean AddTopicDetails(String topicName, int totalTime,int count){
+    public boolean AddTopicDetails(String topicName, int totalTime, int count) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(Col_TopicName,topicName);
-        contentValues.put(Col_Total_Time,totalTime);
-        contentValues.put(Col_Count,count);
+        contentValues.put(Col_TopicName, topicName);
+        contentValues.put(Col_Total_Time, totalTime);
+        contentValues.put(Col_Count, count);
 
-        long result = db.insert(TABLE_VIDEO_HANDLER,null,contentValues);
+        long result = db.insert(TABLE_VIDEO_HANDLER, null, contentValues);
 
-        if (result == -1){
+        if (result == -1) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }
 
-    public boolean UpdateData(String topicName, int totalTime,int count){
+    public boolean UpdateData(String topicName, int totalTime, int count) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(Col_TopicName,topicName);
-        contentValues.put(Col_Total_Time,totalTime);
-        contentValues.put(Col_Count,count);
+        contentValues.put(Col_TopicName, topicName);
+        contentValues.put(Col_Total_Time, totalTime);
+        contentValues.put(Col_Count, count);
 
-        db.update(TABLE_VIDEO_HANDLER,contentValues," TOPIC_NAME = ? ",new String[] {topicName});
+        db.update(TABLE_VIDEO_HANDLER, contentValues, " TOPIC_NAME = ? ", new String[]{topicName});
         return true;
     }
 
@@ -87,8 +82,8 @@ public class VideoHandler extends SQLiteOpenHelper {
 
         Cursor cursor = null;
         SQLiteDatabase db = this.getWritableDatabase();
-        String checkQuery = "SELECT " + Col_TopicName + " FROM " + TABLE_VIDEO_HANDLER + " WHERE " + Col_TopicName + "= '"+ topicName + "'";
-        cursor= db.rawQuery(checkQuery,null);
+        String checkQuery = "SELECT " + Col_TopicName + " FROM " + TABLE_VIDEO_HANDLER + " WHERE " + Col_TopicName + "= '" + topicName + "'";
+        cursor = db.rawQuery(checkQuery, null);
         boolean exists = (cursor.getCount() > 0);
         cursor.close();
         return exists;
@@ -96,19 +91,19 @@ public class VideoHandler extends SQLiteOpenHelper {
 
     public Cursor getRow(String topicName) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery("SELECT * FROM "+ TABLE_VIDEO_HANDLER +" WHERE TOPIC_NAME = ?", new String[]{topicName});
+        return db.rawQuery("SELECT * FROM " + TABLE_VIDEO_HANDLER + " WHERE TOPIC_NAME = ?", new String[]{topicName});
 
     }
 
 
-    public Cursor getAllData(){
+    public Cursor getAllData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_VIDEO_HANDLER ,null);
+        return db.rawQuery("SELECT * FROM " + TABLE_VIDEO_HANDLER, null);
     }
 
-    public void DeleteAll(){
+    public void DeleteAll() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM "+ TABLE_VIDEO_HANDLER);
+        db.execSQL("DELETE FROM " + TABLE_VIDEO_HANDLER);
         db.close();
     }
 }

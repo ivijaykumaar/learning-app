@@ -1,14 +1,13 @@
 package com.learning_app.user.chathamkulam.Viewer;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -20,20 +19,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnRenderListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
-import com.learning_app.user.chathamkulam.Adapters.StoreCardAdapter;
-import com.learning_app.user.chathamkulam.Model.EncryptDecrypt.FileCrypto;
+import com.learning_app.user.chathamkulam.FetchDownloadManager;
 import com.learning_app.user.chathamkulam.Fragments.Drawer;
-import com.learning_app.user.chathamkulam.Model.BackgroundWork.AsyncUrl;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Registration.Registration;
-import com.learning_app.user.chathamkulam.Sqlite.CheckingCards;
 import com.learning_app.user.chathamkulam.Sqlite.StoreEntireDetails;
 
 import org.json.JSONArray;
@@ -41,10 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import static com.learning_app.user.chathamkulam.Model.Constants.GET_URLS;
+import java.lang.reflect.Method;
 
 /**
  * Created by User on 3/22/2017.
@@ -54,362 +46,211 @@ public class NSPDFViewer extends AppCompatActivity {
 
     String fileName;
 
-    //   Download AsyncUrl variables
-    private JSONArray UrlResult = null;
-    private String URL_JSON_ARRAY = "result";
-    private String current_url = "file";
-    private String current_name = "name";
-    private ArrayList<String> url_arrayList;
-    private ArrayList<String> name_arrayList;
-    private ProgressDialog progressDialog;
-
     PDFView notesPdfView;
     WebView notesWebView;
     TextView txtRibbon;
 
-    ProgressBar notesProgressBar;
-    File mainPath;
+    ProgressDialog notesProgress;
+
+    String firstWord;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.viewer_notes);
 
-        notesPdfView  = (PDFView)findViewById(R.id.notesPdfView);
+        notesPdfView = (PDFView) findViewById(R.id.notesPdfView);
         notesWebView = (WebView) findViewById(R.id.notesWebView);
-        txtRibbon = (TextView)findViewById(R.id.txtRibbon);
-        notesProgressBar = (ProgressBar)findViewById(R.id.notesProgressBar);
+        txtRibbon = (TextView) findViewById(R.id.txtRibbon);
 
         notesWebView.setBackgroundColor(0x00000000);
         txtRibbon.setVisibility(View.GONE);
         notesPdfView.setVisibility(View.GONE);
         notesWebView.setVisibility(View.GONE);
 
+        notesProgress = new ProgressDialog(this);
+        notesProgress.setMessage("Loading...");
+        notesProgress.setIndeterminate(false);
+        notesProgress.setCancelable(false);
+
         final String currentSubjectName = getIntent().getStringExtra("Key_pdf");
-        final CheckingCards checkingCards = new CheckingCards(this);
-        Cursor cursor = checkingCards.getCheckData();
 
-        if (currentSubjectName != null){
+        final Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
 
-            notesPdfView.setVisibility(View.VISIBLE);
+            public void run() {
 
-            try {
-                getSupportActionBar().setTitle(currentSubjectName);
-                String DNAME = "Chathamkulam"+"/"+currentSubjectName;
-                File rootPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), DNAME);
+                if (currentSubjectName != null) {
 
-                if (rootPath.exists()){
+                    notesPdfView.setVisibility(View.VISIBLE);
 
-                    File listFile[] = rootPath.listFiles();
-                    if (listFile != null && listFile.length > 0) {
+                    try {
+                        getSupportActionBar().setTitle(currentSubjectName);
+                        File mydir = getApplicationContext().getDir("Chathamkulam", Context.MODE_PRIVATE); //Creating an internal dir;
+                        final File rootPath = new File(mydir, currentSubjectName);
 
-                        for (File aListFile : listFile) {
+                        if (rootPath.exists()) {
 
-                            if (aListFile.isFile()) {
-                                if (aListFile.getName().endsWith(".pdf")) {
+                            File listFile[] = rootPath.listFiles();
+                            if (listFile != null && listFile.length > 0) {
 
-                                    fileName = aListFile.getName();
-                                    String firstWord = fileName.substring(0, 1);
-                                    Log.d("Vijay ", firstWord);
+                                for (File aListFile : listFile) {
 
-                                    if (!firstWord.equals("#")) {
+                                    if (aListFile.isFile()) {
+                                        if (aListFile.getName().endsWith(".pdf")) {
 
-                                        String mainRoot = "Chathamkulam" + "/" + currentSubjectName + "/" + fileName;
-                                        mainPath = new File(Environment.getExternalStorageDirectory().getAbsoluteFile(), mainRoot);
+                                            fileName = aListFile.getName();
+                                            firstWord = fileName.substring(0, 1);
 
-                                        final ProgressDialog loading = ProgressDialog.show(NSPDFViewer.this, "Processing",
-                                                "Please wait process your file", false, false);
+                                            Log.d("##NSPDFViewer : ", firstWord+"   "+fileName);
 
-                                        try {
-                                            File outputDir = getApplicationContext().getCacheDir();
-                                            final File outputFile = File.createTempFile("Temp", ".pdf", outputDir);
+                                            handler.post(new Runnable() {
+                                                public void run() {
 
-                                            FileCrypto.decrypt(mainPath, outputFile);
-                                            Log.v("File", "Decrypted Success");
-                                            loading.dismiss();
-                                            notesPdfView.fromFile(outputFile).scrollHandle(new DefaultScrollHandle(this))
-                                                    .onRender(new OnRenderListener() {
-                                                        @Override
-                                                        public void onInitiallyRendered(int nbPages, float pageWidth, float pageHeight) {
-                                                            notesPdfView.fitToWidth();
-                                                        }
-                                                    }).load();
+                                                    if (!firstWord.equals("#")) {
 
-                                        } catch (Exception e) {
-                                            loading.dismiss();
-                                            e.printStackTrace();
+                                                        File rootPathh = new File(rootPath, fileName);
+                                                        notesPdfView.fromFile(rootPathh).scrollHandle(new DefaultScrollHandle(getApplicationContext()))
+                                                                .onRender(new OnRenderListener() {
+                                                                    @Override
+                                                                    public void onInitiallyRendered(int nbPages, float pageWidth, float pageHeight) {
+                                                                        notesPdfView.fitToWidth();
+                                                                    }
+                                                                }).load();
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 }
                             }
-                        }
-                    }
 
-                } else {
+                        } else {
 
-                    Log.d("FolderInfo","Not found");
+                            Log.d("FolderInfo", "Not found");
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Restoration Process");
-                    builder.setMessage("Your file contents are missing do you want restore it, By free downloading?")
-                            .setCancelable(false)
-                            .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(NSPDFViewer.this);
+                            builder.setTitle("Restoration Process");
+                            builder.setMessage("Your file contents are missing do you want restore it, By free downloading?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+                                        public void onClick(DialogInterface dialog, int id) {
 
-                                    StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getApplicationContext());
-                                    Cursor cursor = storeEntireDetails.getSubjectRow(currentSubjectName);
-                                    Log.d("cursorInfo", String.valueOf(cursor.getCount()));
+                                            StoreEntireDetails storeEntireDetails = new StoreEntireDetails(getApplicationContext());
+                                            Cursor cursor = storeEntireDetails.getSubjectRow(currentSubjectName);
+                                            Log.d("cursorInfo", String.valueOf(cursor.getCount()));
 
-                                    if (cursor.getCount() != 0){
+                                            if (cursor.getCount() != 0) {
 
-                                        if (cursor.moveToFirst()){
+                                                if (cursor.moveToFirst()) {
 
-                                            do {
+                                                    do {
 
-                                                Log.d("#country",cursor.getString(1)+"  ");
-                                                Log.d("#university", cursor.getString(2)+"  ");
-                                                Log.d("#course", cursor.getString(3)+"  ");
-                                                Log.d("#sem", cursor.getString(4)+"  ");
-                                                Log.d("#subject", cursor.getString(5)+"  ");
-//                            subject = cursor.getString(5);
-                                                Log.d("#sub_no", cursor.getString(6)+"  ");
-                                                Log.d("#subject_id", cursor.getString(7)+"  ");
-                                                Log.d("#free_validity", cursor.getString(8)+"  ");
-//                            freeValidity = cursor.getString(8);
-                                                Log.d("#paid_validity", cursor.getString(9)+"  ");
-                                                Log.d("#duration", cursor.getString(10)+"  ");
+                                                        String country = cursor.getString(1);
+                                                        String university = cursor.getString(2);
+                                                        String course = cursor.getString(3);
+                                                        String semester = cursor.getString(4);
+                                                        String subjectId = cursor.getString(5);
+                                                        String subjectNumber = cursor.getString(6);
+                                                        String subject = cursor.getString(7);
+                                                        String subjectCost = cursor.getString(8);
+                                                        String trial = cursor.getString(9);
+                                                        String duration = cursor.getString(10);
+                                                        String notes_count = cursor.getString(11);
+                                                        String qbank_count = cursor.getString(12);
+                                                        String video_count = cursor.getString(13);
+                                                        String zip_url = cursor.getString(14);
+                                                        String validityTill = cursor.getString(15);
+                                                        String progress = cursor.getString(16);
+                                                        String status = cursor.getString(17);
 
-                                                final String country = cursor.getString(1);
-                                                final String university = cursor.getString(2);
-                                                final String course = cursor.getString(3);
-                                                final String semester = cursor.getString(4);
-                                                final String subject = cursor.getString(5);
-                                                final String subjectId = cursor.getString(6);
-                                                final String subjectNumber = cursor.getString(7);
-                                                final String freeValidity = cursor.getString(8);
-                                                final String paidValidity = cursor.getString(9);
-                                                final String duration = cursor.getString(10);
-                                                final String videoCount = cursor.getString(11);
-                                                final String notesCount = cursor.getString(12);
-                                                final String qbankCount = cursor.getString(13);
+                                                        new Thread(new FetchDownloadManager(zip_url, country, university, course, semester, subjectId, subjectNumber, subject,
+                                                                subjectCost, trial, duration, notes_count, qbank_count, video_count, getApplicationContext(), "restore")).start();
 
-//                            put values for download
-                                                HashMap<String,String> params = new HashMap<String, String>();
-                                                params.put("sem_no",semester);
-                                                params.put("id",subjectId);
-                                                params.put("sub_no",subjectNumber);
-                                                params.put("type","url");
+                                                        startActivity(new Intent(getApplicationContext(), Drawer.class));
 
-                                                Log.v("Hash Values",params.toString());
+                                                    } while (cursor.moveToNext());
 
-                                                url_arrayList = new ArrayList<String>();
-                                                name_arrayList = new ArrayList<String>();
+                                                }
+                                                cursor.close();
+                                            }
 
-                                                AsyncUrl asyncUrl = new AsyncUrl(NSPDFViewer.this,params,UrlResult,URL_JSON_ARRAY,
-                                                        current_url,current_name,url_arrayList,name_arrayList,progressDialog);
-                                                asyncUrl.execute(GET_URLS);
+                                        }
+                                    })
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
 
-                                                final Handler handler = new Handler();
-                                                handler.postDelayed(new Runnable() {
-                                                    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-                                                    @Override
-                                                    public void run() {
-//                                    Do something after 100ms
-                                                        Log.v("Check UrlArraylist", String.valueOf(AsyncUrl.url_arrayList.size()));
-                                                        Log.v("Check NameArraylist", String.valueOf(AsyncUrl.name_arrayList.size()));
+                                            dialog.cancel();
+                                            Intent intent = new Intent(NSPDFViewer.this, Drawer.class);
+                                            startActivity(intent);
+                                        }
+                                    });
 
-                                                        if (AsyncUrl.url_arrayList != null){
+                            handler.post(new Runnable() {
+                                public void run() {
 
-                                                            Log.v("Check Entry", String.valueOf(url_arrayList.size()));
-                                                            final StoreCardAdapter adapter = new StoreCardAdapter(NSPDFViewer.this);
-                                                            adapter.DownloadFile(NSPDFViewer.this,country,university,course,semester,subject,subjectId,
-                                                                    subjectNumber,freeValidity,paidValidity,duration,videoCount,notesCount,qbankCount);
+                                    AlertDialog alert = builder.create();
+                                    alert.show();
 
-                                                        }
-                                                    }
-                                                }, 10000);
-
-                                            }while (cursor.moveToNext());
-
-                                        } cursor.close();
-                                    }
-
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-
-                                    dialog.cancel();
-                                    Intent intent = new Intent(NSPDFViewer.this,Drawer.class);
-                                    startActivity(intent);
                                 }
                             });
-
-                    AlertDialog alert = builder.create();
-                    alert.show();
-
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        } else {
 
-            if (cursor != null && cursor.getCount() == 1){
+                final String subjectName = getIntent().getStringExtra("Key_subjectName");
+                String resultUrl = getIntent().getStringExtra("Key_OnlineJsonVideo");
 
-                notesWebView.setVisibility(View.VISIBLE);
-                txtRibbon.setVisibility(View.VISIBLE);
+                Log.v("Online Values", subjectName + resultUrl);
 
-                if (cursor.moveToFirst()) {
-                    while (!cursor.isAfterLast()) {
+                if (subjectName != null) {
 
-                        String position = cursor.getString(1);
-                        final String country = cursor.getString(2);
-                        final String university = cursor.getString(3);
-                        final String course = cursor.getString(4);
-                        final String semester = cursor.getString(5);
-                        final String subject = cursor.getString(6);
-                        final String subjectId = cursor.getString(7);
-                        final String subjectNumber = cursor.getString(8);
-
-                        getSupportActionBar().setTitle(subject);
-                        Log.d("final data",position+semester+subject+subjectId+subjectNumber);
-
-//                            put values for download
-                        HashMap<String,String> params = new HashMap<String, String>();
-                        params.put("sem_no",semester);
-                        params.put("id",subjectId);
-                        params.put("sub_no",subjectNumber);
-                        params.put("type","url");
-
-                        Log.v("Subject Values",subject+subjectId+subjectNumber+semester);
-                        Log.v("Hash Values",params.toString());
-                        url_arrayList = new ArrayList<String>();
-                        name_arrayList = new ArrayList<String>();
-
-                        AsyncUrl asyncUrl = new AsyncUrl(this,params,UrlResult,URL_JSON_ARRAY,
-                                current_url,current_name,url_arrayList,name_arrayList,progressDialog);
-                        asyncUrl.execute(GET_URLS);
-
-                        progressDialog = ProgressDialog.show(this, "Please wait...", "While checking......", true);
-                        progressDialog.show();
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @SuppressLint("SetJavaScriptEnabled")
-                            @Override
+                    try {
+                        handler.post(new Runnable() {
                             public void run() {
-                                //Do something after 100ms
-
-                                if (progressDialog.isShowing()){
-
-                                    progressDialog.dismiss();
-
-                                    Log.v("Check UrlArraylist", String.valueOf(AsyncUrl.url_arrayList.size()));
-                                    Log.v("Check NameArraylist", String.valueOf(AsyncUrl.name_arrayList.size()));
-
-                                    for (int i = 0;i<AsyncUrl.url_arrayList.size();i++){
-
-                                        String file_Url = String.valueOf(AsyncUrl.url_arrayList.get(i));
-                                        final String fileType = file_Url.substring(file_Url.lastIndexOf(".") + 1);
-                                        String file_Name = String.valueOf(AsyncUrl.name_arrayList.get(i));
-
-                                        if (fileType.equals("pdf")){
-
-                                            String firstWord = file_Name.substring(0,1);
-                                            Log.d("Notes ",firstWord);
-
-                                            if (!firstWord.equals("#")){
-
-                                                notesWebView.setWebViewClient(new MyWebViewClient());
-                                                notesWebView.getSettings().setJavaScriptEnabled(true);
-                                                notesWebView.loadUrl("http://docs.google.com/gview?embedded=true&url="+file_Url);
-                                                notesWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-                                                Log.v("Check NameArraylist",file_Url);
-
-                                            }
-                                        }
-                                    }
-                                }
+                                getSupportActionBar().setTitle(subjectName);
+                                notesWebView.setVisibility(View.VISIBLE);
+                                txtRibbon.setVisibility(View.VISIBLE);
                             }
-                        }, 7000);
+                        });
 
-                        cursor.moveToNext();
+                        JSONArray jArray = null;
+
+                        jArray = new JSONArray(resultUrl);
+
+                        String url = "";
+                        for (int i = 0; i < jArray.length(); i++) {
+                            JSONObject json_obj = jArray.getJSONObject(i);
+                            url = json_obj.getString("url");
+                        }
+
+                        final String finalUrl = url;
+                        handler.post(new Runnable() {
+                            public void run() {
+                                notesWebView.setWebViewClient(new MyWebViewClient());
+                                notesWebView.getSettings().setJavaScriptEnabled(true);
+                                notesWebView.loadUrl("http://docs.google.com/gview?embedded=true&url=" + finalUrl);
+                                notesWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+
+                                try {
+                                    Method m = WebView.class.getMethod("setFindIsUp", Boolean.TYPE);
+                                    m.invoke(notesWebView, true);
+                                } catch (Throwable ignored) {
+                                }
+
+                            }
+                        });
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        }
-
-        String subjectName = getIntent().getStringExtra("Key_subjectName");
-        String resultUrl = getIntent().getStringExtra("Key_OnlineJsonVideo");
-
-        Log.v("Online Values",subjectName + resultUrl);
-
-        if (subjectName!=null){
-
-            try {
-                notesWebView.setVisibility(View.VISIBLE);
-                txtRibbon.setVisibility(View.VISIBLE);
-
-                JSONArray jArray = null;
-
-                jArray = new JSONArray(resultUrl);
-
-                String url = "";
-                for(int i=0;i<jArray.length();i++){
-                    JSONObject json_obj = jArray.getJSONObject(i);
-                    url = json_obj.getString("url");
-                }
-                notesWebView.setWebViewClient(new MyWebViewClient());
-                notesWebView.getSettings().setJavaScriptEnabled(true);
-                notesWebView.loadUrl("http://docs.google.com/gview?embedded=true&url="+url);
-                notesWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private class MyWebViewClient extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
-            notesProgressBar.setVisibility(View.VISIBLE);
-            view.loadUrl(url);
-            return true;
-        }
-
-        @Override
-        public void onLoadResource(WebView view, String url) {
-
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-
-            // TODO Auto-generated method stub
-            notesProgressBar.setVisibility(View.GONE);
-            super.onPageFinished(view, url);
-        }
-
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-
-            // TODO Auto-generated method stub
-            notesProgressBar.setVisibility(View.GONE);
-            super.onPageStarted(view, url, favicon);
-
-        }
-
-        @Override
-        public void onReceivedError(final WebView view, int errorCode, String description,
-                                    final String failingUrl) {
-            //control you layout, show something like a retry button, and
-            //call view.loadUrl(failingUrl) to reload.
-            notesProgressBar.setVisibility(View.GONE);
-            Toast.makeText(getApplicationContext(), "Your Internet Connection May not be active", Toast.LENGTH_LONG).show();
-            super.onReceivedError(view, errorCode, description, failingUrl);
-        }
+        };
+        new Thread(runnable).start();
     }
 
     @Override
@@ -430,7 +271,7 @@ public class NSPDFViewer extends AppCompatActivity {
 
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = "Select your option";
+                String shareBody = "https://play.google.com/store/apps/details?id=com.learning_app.user.chathamkulam&hl=en";
                 sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Subject Here");
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                 startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -447,5 +288,47 @@ public class NSPDFViewer extends AppCompatActivity {
         super.onBackPressed();
 
         Registration.deleteCache(getApplicationContext());
+    }
+
+    private class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
+            notesProgress.show();
+            view.loadUrl(url);
+            return true;
+        }
+
+        @Override
+        public void onLoadResource(WebView view, String url) {
+
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+
+            // TODO Auto-generated method stub
+            notesProgress.dismiss();
+            super.onPageFinished(view, url);
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+
+            // TODO Auto-generated method stub
+            notesProgress.show();
+            super.onPageStarted(view, url, favicon);
+
+        }
+
+        @Override
+        public void onReceivedError(final WebView view, int errorCode, String description,
+                                    final String failingUrl) {
+            //control you layout, show something like a retry button, and
+            //call view.loadUrl(failingUrl) to reload.
+            notesProgress.dismiss();
+            Toast.makeText(getApplicationContext(), "Your Internet Connection May not be active", Toast.LENGTH_LONG).show();
+            super.onReceivedError(view, errorCode, description, failingUrl);
+        }
     }
 }

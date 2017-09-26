@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.learning_app.user.chathamkulam.Fragments.Drawer;
 import com.learning_app.user.chathamkulam.R;
 import com.learning_app.user.chathamkulam.Sqlite.RegisterMember;
+import com.tonyodev.fetch.Fetch;
 
 import java.io.File;
 
@@ -21,15 +22,21 @@ public class SplashScreen extends Activity {
     String stringYear;
     String stringSubject;
 
+    private static boolean doesDatabaseExist(Context context, String dbName) {
+        File dbFile = context.getDatabasePath(dbName);
+        return dbFile.exists();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_screen);
 
-        Thread thread = new Thread(){
+        Fetch.startService(this);
+        Thread thread = new Thread() {
 
             @Override
-            public void run(){
+            public void run() {
 
                 try {
 
@@ -37,7 +44,7 @@ public class SplashScreen extends Activity {
 
                     RegisterMember registerMember = RegisterMember.getInstance(getApplicationContext());
 
-                    if (doesDatabaseExist(getApplicationContext(),DATABASE_NAME)){
+                    if (doesDatabaseExist(getApplicationContext(), DATABASE_NAME)) {
 
                         Cursor cursorResultEmail = registerMember.getDetails();
 
@@ -45,19 +52,19 @@ public class SplashScreen extends Activity {
 
                             String userEmail = cursorResultEmail.getString(2);
 
-                            if (registerMember.ifExists(userEmail)){
+                            if (registerMember.ifExists(userEmail)) {
 
-                                startActivity(new Intent(getApplicationContext(),Drawer.class));
+                                startActivity(new Intent(getApplicationContext(), Drawer.class));
 //                                deleteRecord(getApplicationContext());
 
                             } else {
 
-                                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
                             }
                         }
                     } else {
 
-                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     }
 
                     finish();
@@ -68,11 +75,6 @@ public class SplashScreen extends Activity {
             }
         };
         thread.start();
-    }
-
-    private static boolean doesDatabaseExist(Context context, String dbName) {
-        File dbFile = context.getDatabasePath(dbName);
-        return dbFile.exists();
     }
 
 //    public void Validity(final Context myContext){

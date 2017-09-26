@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#9DC4DA">
+    android:background="#9DC4DA"
+    android:orientation="vertical">
 
 
     <FrameLayout
@@ -11,20 +11,19 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtRibbon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="3dp"
-                android:text="Online page Data charges may apply!!"
-                android:gravity="center"
                 android:background="#000"
-                android:textColor="@color/colorAccent"
-                />
+                android:gravity="center"
+                android:padding="3dp"
+                android:text="Online page data charges may apply!!"
+                android:textColor="#FF1013" />
 
 
             <ListView

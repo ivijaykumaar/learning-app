@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="160dp"
-    android:layout_height="250dp">
+    android:layout_height="250dp"
+    android:orientation="vertical">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/dashCardView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:elevation="3dp"
+        card_view:cardBackgroundColor="#80BAE2"
         card_view:cardElevation="5dp"
         card_view:cardPreventCornerOverlap="false"
         card_view:cardUseCompatPadding="true"
-        card_view:cardBackgroundColor="#80BAE2"
         tools:ignore="UnusedAttribute">
 
         <LinearLayout
@@ -30,32 +29,33 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    tools:ignore="UselessParent">
 
                     <ImageView
                         android:id="@+id/ime_description"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        tools:ignore="ContentDescription"
-                        android:scaleType="fitXY"
+                        android:layout_gravity="center"
                         android:adjustViewBounds="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:layout_gravity="center"/>
+                        android:scaleType="fitXY"
+                        tools:ignore="ContentDescription" />
 
                     <TextView
                         android:id="@+id/txtSubjectName"
                         android:layout_width="wrap_content"
-                        android:text="subjectName"
+                        android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:layout_height="wrap_content" />
+                        android:text="subjectName" />
 
                     <LinearLayout
-                        android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true">
+                        android:layout_alignParentStart="true"
+                        android:orientation="vertical">
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -66,34 +66,34 @@
                                 android:id="@+id/iocNotes"
                                 android:layout_width="38dp"
                                 android:layout_height="32dp"
-                                android:src="@drawable/ic_pdfff"
-                                android:contentDescription=""
-                                tools:ignore="ContentDescription"
                                 android:layout_alignParentTop="true"
-                                android:layout_centerHorizontal="true" />
+                                android:layout_centerHorizontal="true"
+                                android:contentDescription=""
+                                android:src="@drawable/ic_pdfff"
+                                tools:ignore="ContentDescription" />
 
                             <ImageView
                                 android:id="@+id/iocVideo"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
-                                android:src="@drawable/ic_videoo"
-                                tools:ignore="ContentDescription"
-                                android:layout_marginLeft="5dp"
-                                android:layout_alignParentTop="true"
                                 android:layout_alignParentLeft="true"
-                                android:layout_alignParentStart="true" />
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentTop="true"
+                                android:layout_marginLeft="5dp"
+                                android:src="@drawable/ic_videoo"
+                                tools:ignore="ContentDescription" />
 
                             <ImageView
                                 android:id="@+id/iocQB"
                                 android:layout_width="38dp"
                                 android:layout_height="38dp"
-                                android:src="@drawable/ic_quesss"
-                                tools:ignore="ContentDescription"
-                                android:layout_marginRight="5dp"
-                                android:layout_marginEnd="5dp"
-                                android:layout_alignParentTop="true"
+                                android:layout_alignParentEnd="true"
                                 android:layout_alignParentRight="true"
-                                android:layout_alignParentEnd="true" />
+                                android:layout_alignParentTop="true"
+                                android:layout_marginEnd="5dp"
+                                android:layout_marginRight="5dp"
+                                android:src="@drawable/ic_quesss"
+                                tools:ignore="ContentDescription" />
 
                         </RelativeLayout>
 
@@ -108,52 +108,56 @@
                                 android:id="@+id/txtNotes"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Notes"
-                                android:textSize="9dp"
-                                android:textColor="#000"
                                 android:layout_alignParentTop="true"
-                                android:layout_centerHorizontal="true"/>
+                                android:layout_centerHorizontal="true"
+                                android:text="Notes"
+                                android:textColor="#000"
+                                android:textSize="9dp"
+                                tools:ignore="SpUsage" />
 
                             <TextView
                                 android:id="@+id/txtVideo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Live class"
-                                android:textSize="9dp"
-                                android:textColor="#000"
-                                android:layout_marginLeft="3dp"
-                                android:layout_alignParentTop="true"
                                 android:layout_alignParentLeft="true"
-                                android:layout_alignParentStart="true" />
+                                android:layout_alignParentStart="true"
+                                android:layout_alignParentTop="true"
+                                android:layout_marginLeft="3dp"
+                                android:text="Live class"
+                                android:textColor="#000"
+                                android:textSize="9dp"
+                                tools:ignore="SpUsage" />
 
                             <TextView
                                 android:id="@+id/txtVideoDuration"
-                                android:layout_below="@+id/txtVideo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="(3.30 hrs)"
+                                android:layout_below="@+id/txtVideo"
                                 android:layout_marginLeft="3dp"
-                                android:textSize="8dp"
-                                android:textColor="#000"/>
+                                android:text="(3.30 hrs)"
+                                android:textColor="#000"
+                                android:textSize="8sp"
+                                tools:ignore="SmallSp" />
 
                             <TextView
                                 android:id="@+id/txtQbank"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Q/A Bank"
-                                android:textSize="9dp"
-                                android:textColor="#000"
-                                android:layout_marginRight="3dp"
-                                android:layout_alignParentTop="true"
+                                android:layout_alignParentEnd="true"
                                 android:layout_alignParentRight="true"
-                                android:layout_alignParentEnd="true" />
+                                android:layout_alignParentTop="true"
+                                android:layout_marginRight="3dp"
+                                android:text="Q/A Bank"
+                                android:textColor="#000"
+                                android:textSize="9sp"
+                                tools:ignore="SmallSp" />
 
                         </RelativeLayout>
 
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="0.5dp"
-                            android:background="#FFFFFF"/>
+                            android:background="#FFFFFF" />
 
                         <RelativeLayout
                             android:layout_width="match_parent"
@@ -163,41 +167,45 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentRight="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginRight="5dp"
                                 android:text=" 1024mb"
                                 android:textColor="#000"
-                                android:textSize="6dp"
-                                android:layout_marginRight="5dp"
-                                android:layout_centerVertical="true"
-                                android:layout_alignParentRight="true"
-                                android:layout_alignParentEnd="true" />
+                                android:textSize="6sp"
+                                tools:ignore="SmallSp" />
 
                             <TextView
+                                android:id="@+id/txtDownloadStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Downloading"
-                                android:layout_marginLeft="5dp"
-                                android:textSize="6dp"
-                                android:textColor="#000"
-                                android:layout_centerVertical="true"
                                 android:layout_alignParentLeft="true"
-                                android:layout_alignParentStart="true" />
+                                android:layout_alignParentStart="true"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5dp"
+                                android:text="Downloading"
+                                android:textColor="#000"
+                                android:textSize="6sp"
+                                tools:ignore="SmallSp" />
 
                             <ProgressBar
-                                android:layout_width="60dp"
-                                android:layout_height="3.5dp"
-                                android:layout_marginTop="2.5dp"
-                                android:layout_marginLeft="52dp"
-                                tools:visibility="visible"
+                                android:id="@+id/dashProgressBar"
                                 style="@android:style/Widget.ProgressBar.Horizontal"
-                                tools:ignore="UnknownId" />
+                                android:layout_width="60dp"
+                                android:layout_height="2.5dp"
+                                android:layout_marginLeft="52dp"
+                                android:layout_marginTop="2.5dp"
+                                tools:ignore="UnknownId"
+                                tools:visibility="visible" />
 
                         </RelativeLayout>
 
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="0.5dp"
-                            android:background="#FFFFFF"
-                            android:layout_marginBottom="2dp"/>
+                            android:layout_marginBottom="2dp"
+                            android:background="#FFFFFF" />
 
                     </LinearLayout>
 
@@ -206,36 +214,38 @@
             </FrameLayout>
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#FFFFFF"
+                android:orientation="vertical"
                 android:padding="5dp">
 
-                    <TextView
-                        android:id="@+id/txtDuration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="90 days trial period"
-                        android:textColor="#000"
-                        android:textSize="12dp"
-                        />
+                <TextView
+                    android:id="@+id/txtTrail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="90 days trial period"
+                    android:textColor="#000"
+                    android:textSize="12dp"
+                    tools:ignore="SpUsage" />
 
-                    <TextView
-                        android:id="@+id/txtPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Rs.100 for 500 days"
-                        android:textSize="11dp"/>
+                <TextView
+                    android:id="@+id/txtPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rs.100 for 500 days"
+                    android:textSize="11sp"
+                    tools:ignore="SmallSp" />
 
                 <TextView
                     android:id="@+id/txtValid"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center"
                     android:text="Valid till : 23/12/2017"
                     android:textSize="10dp"
-                    android:layout_marginTop="2dp"
-                    android:gravity="center"/>
+                    tools:ignore="SpUsage" />
 
             </LinearLayout>
 

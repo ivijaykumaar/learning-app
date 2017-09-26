@@ -57,17 +57,16 @@ public class ModuleAdapter extends BaseAdapter {
             mViewHolder = (MyViewHolder) convertView.getTag();
         }
 
-        ModuleItems moduleItems = getItem(position);
+        final ModuleItems moduleItems = getItem(position);
 
         mViewHolder.txtModuleName.setText(moduleItems.getModule_name());
 
-//        Finally initializing our adapter
         ArrayList<ModuleItems> topicSubList = new ArrayList<>();
-        for(int i = 0; i< moduleItems.getTopic_details().size(); i++){
+        for (int i = 0; i < moduleItems.getTopic_details().size(); i++) {
             topicSubList.add(moduleItems);
         }
 
-        ModuleCardAdapter moduleCardAdapter = new ModuleCardAdapter(context,topicSubList);
+        ModuleCardAdapter moduleCardAdapter = new ModuleCardAdapter(context, topicSubList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mViewHolder.moduleRecycler.setHasFixedSize(true);
@@ -84,7 +83,7 @@ public class ModuleAdapter extends BaseAdapter {
         MyViewHolder(View view) {
 
             //Initializing Views
-            txtModuleName = (TextView)view.findViewById(R.id.txtModuleName);
+            txtModuleName = (TextView) view.findViewById(R.id.txtModuleName);
             moduleRecycler = (RecyclerView) view.findViewById(R.id.module_recycler_view);
 
         }
