@@ -34,6 +34,8 @@ public class AddJsonToSqlite extends AsyncTask<Object, Object, Boolean> {
         this.context = context;
         this.intentClass = intentClass;
         this.subscribedDetails = subscribedDetails;
+
+
     }
 
     @Override
